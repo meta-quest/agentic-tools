@@ -1,0 +1,92 @@
+---
+name: hz-xr-simulator-setup
+description: Sets up the Meta XR Simulator for testing Meta Quest and Horizon OS apps without a physical device. Use when configuring device-free testing for Unity or Unreal projects.
+allowed-tools:
+  - Bash(hzdb:*)
+---
+
+# Meta XR Simulator Setup
+
+## When to Use This Skill
+
+- You need to test a Quest VR or MR application without a physical headset connected
+- You want rapid iteration during development without deploying to device each time
+- You are setting up CI/CD pipelines that need automated testing of Quest apps
+- You want to validate core interactions, UI, and locomotion before deploying to hardware
+
+## What is Meta XR Simulator
+
+Meta XR Simulator is a desktop tool that simulates a Meta Quest environment on your development machine. It intercepts the OpenXR runtime calls your application makes and provides simulated headset tracking, controller input, hand tracking, and environment data, allowing you to run and test VR/MR applications directly in your engine's editor or as standalone desktop builds.
+
+The simulator does not replicate Quest hardware performance. It runs on your desktop GPU and CPU. Its purpose is functional testing, not performance profiling.
+
+## Supported Platforms
+
+| Platform | Support Level |
+|---|---|
+| Windows 10/11 (64-bit) | Full support |
+| macOS | Limited support |
+
+## Supported Engines
+
+- **Unity** via Meta XR SDK (com.meta.xr.sdk.core and related packages)
+- **Unreal Engine** via Meta XR Plugin (formerly Oculus VR Plugin)
+
+## Key Features
+
+- **Simulated headset tracking**: Control head position and rotation with mouse and keyboard. Move through your virtual scene without wearing a headset.
+- **Simulated controller input**: Map keyboard keys to Quest Touch controller buttons, thumbsticks, and triggers. Test interactions as if holding physical controllers.
+- **Simulated hand tracking**: Trigger predefined hand poses and gesture sequences. Test pinch, grab, poke, and custom gestures without real hand tracking.
+- **Room setup and guardian simulation**: Define a virtual play space with configurable room dimensions, furniture placement, and guardian boundaries. Test boundary-aware behavior.
+- **Passthrough simulation**: Provide synthetic passthrough camera feeds for mixed reality application testing. Validate scene understanding and plane detection logic.
+- **Scriptable testing scenarios**: Automate input sequences, record and replay sessions, and integrate with CI/CD for regression testing.
+
+## Quick Start
+
+1. **Download XR Simulator** from Meta Quest Developer Hub (MQDH) under Tools, or from the Meta developer downloads page.
+2. **Install and configure** by running the installer on Windows or extracting the archive on macOS.
+3. **Enable XR Simulator in your engine**:
+   - Unity: Open Edit > Project Settings > XR Plug-in Management, and enable Meta XR Simulator as the active runtime.
+   - Unreal: Open Project Settings > Plugins > Meta XR, and enable the XR Simulator option.
+4. **Press Play in the editor**. Your application runs in the simulator instead of requiring a connected headset.
+
+For detailed steps, see [Installation Guide](references/installation.md).
+
+## Controls Overview
+
+| Action | Input |
+|---|---|
+| Look around | Hold right mouse button + move mouse |
+| Move forward/back/left/right | W / S / A / D |
+| Move up/down | E / Q |
+| Simulate controller buttons | Mapped keyboard keys (see configuration) |
+| Trigger hand poses | Number keys or configured shortcuts |
+
+For full input mapping details, see [Configuration Guide](references/configuration.md).
+
+## Testing Workflows
+
+The simulator supports several testing patterns:
+
+- **Interactive testing**: Manually navigate your scene and test interactions
+- **Automated testing**: Script input sequences for regression testing
+- **CI/CD integration**: Run headless simulator builds in automated pipelines
+
+For detailed workflows, see [Testing Workflows](references/testing-workflows.md).
+
+## Limitations
+
+- **No GPU performance profiling**: Your desktop GPU has different characteristics than the Quest's mobile GPU. Frame timing, shader performance, and fill rate will not match device behavior.
+- **No actual sensor data**: IMU, camera, and depth sensor data is synthesized. Edge cases in tracking may not reproduce.
+- **API behavior differences**: Some platform APIs (e.g., system keyboard, social, IAP) return mock or stub data in the simulator.
+- **No haptic feedback**: Controller haptics cannot be felt in the simulator.
+- **No thermal throttling**: The Quest's thermal management behavior is not simulated.
+- **Rendering differences**: Resolution, foveated rendering, and display refresh rate do not match Quest hardware.
+
+Always perform final validation on physical Quest hardware before submission or release.
+
+## References
+
+- [Installation Guide](references/installation.md) -- System requirements, download, and engine-specific setup
+- [Configuration Guide](references/configuration.md) -- Environment, input mapping, feature flags, and JSON config
+- [Testing Workflows](references/testing-workflows.md) -- Testing patterns, scripting, debugging, and CI/CD integration

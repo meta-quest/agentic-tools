@@ -1,0 +1,11 @@
+{
+  "name": "meta-quest-agentic-tools",
+  "version": "0.1.0",
+  "description": "Agent skills for Meta Quest and Horizon OS development using hzdb CLI.",
+  "mcpServers": {
+    "hzdb": {
+      "command": "npx",
+      "args": ["-y", "@meta-quest/hzdb", "mcp", "server"]
+    }
+  }
+}

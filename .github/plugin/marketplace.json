@@ -1,0 +1,18 @@
+{
+  "name": "meta-quest",
+  "owner": {
+    "name": "Meta Platforms, Inc."
+  },
+  "metadata": {
+    "description": "Agentic tools and skills for Meta Quest and Horizon OS development. Includes debugging, performance analysis, code review, project creation, and best practices for Unity, Unreal, Spatial SDK, and WebXR.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "hzos-agentic-tools",
+      "description": "Agentic tools and skills for Meta Quest and Horizon OS development. Includes debugging, performance analysis, code review, project creation, and best practices for Unity, Unreal, Spatial SDK, and WebXR.",
+      "version": "1.0.0",
+      "source": ".github/plugin"
+    }
+  ]
+}

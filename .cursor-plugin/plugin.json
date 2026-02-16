@@ -1,0 +1,24 @@
+{
+  "name": "meta-quest-agentic-tools",
+  "description": "Agent skills for Meta Quest and Horizon OS development — debugging, performance tracing, code review, porting guides, and best practices across Unity, Spatial SDK, Android, and WebXR. Uses hzdb (Horizon Debug Bridge) CLI for device interaction.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Meta Platforms, Inc."
+  },
+  "repository": "https://github.com/meta-quest/agentic-tools",
+  "license": "Apache-2.0",
+  "keywords": [
+    "meta-quest",
+    "horizon-os",
+    "vr",
+    "xr",
+    "unity",
+    "webxr",
+    "spatial-sdk",
+    "quest",
+    "immersive",
+    "mixed-reality"
+  ],
+  "skills": "skills/",
+  "mcpServers": ".mcp.json"
+}
