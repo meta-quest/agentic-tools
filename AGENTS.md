@@ -34,6 +34,7 @@ Each skill is fully standalone — it includes its own hzdb installation instruc
 | hz-vr-debug | `skills/hz-vr-debug/` | Debugging Quest apps — logs, screenshots, crashes |
 | hz-vrc-check | `skills/hz-vrc-check/` | Validating apps against store publishing requirements |
 | hz-platform-sdk | `skills/hz-platform-sdk/` | Horizon Platform SDK Android/Kotlin integration (17 API packages) |
+| hz-renderdoc-debug | `skills/hz-renderdoc-debug/` | GPU frame capture, draw call inspection, shader optimization on Quest |
 
 ## Key tool: hzdb
 
@@ -73,7 +74,8 @@ hzdb docs search "hand tracking"
 │   ├── hz-spatial-sdk/
 │   ├── hz-vr-debug/
 │   ├── hz-vrc-check/
-│   └── hz-platform-sdk/
+│   ├── hz-platform-sdk/
+│   └── hz-renderdoc-debug/
 ├── AGENTS.md                # This file
 ├── CLAUDE.md                # Symlink → AGENTS.md
 ├── CODE_OF_CONDUCT.md
