@@ -1,7 +1,7 @@
 {
-  "name": "meta-quest-agentic-tools",
-  "version": "0.1.0",
-  "description": "Agent skills for Meta Quest and Horizon OS development using hzdb CLI.",
+  "name": "meta-vr",
+  "version": "1.1.0",
+  "description": "Agent skills for Meta Quest and Horizon OS development. Helps Claude assist with Quest app debugging, performance analysis, project setup, Unity and WebXR workflows, Spatial SDK and Platform SDK integration, store submission checks, and hzdb device workflows.",
   "mcpServers": {
     "hzdb": {
       "command": "npx",

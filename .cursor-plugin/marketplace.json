@@ -4,23 +4,19 @@
     "name": "Meta Platforms, Inc."
   },
   "metadata": {
-    "description": "Agentic tools and skills for Meta Quest and Horizon OS development. Includes debugging, performance analysis, code review, project creation, and best practices for Unity, Unreal, Spatial SDK, and WebXR."
+    "description": "Agent skills for Meta Quest and Horizon OS development. Helps Claude assist with Quest app debugging, performance analysis, project setup, Unity and WebXR workflows, Spatial SDK and Platform SDK integration, store submission checks, and hzdb device workflows."
   },
   "plugins": [
     {
-      "name": "meta-quest-agentic-tools",
-      "description": "Agentic tools and skills for Meta Quest and Horizon OS development. Includes debugging, performance analysis, code review, project creation, and best practices for Unity, Unreal, Spatial SDK, and WebXR.",
-      "version": "1.0.0",
+      "name": "meta-vr",
+      "description": "Agent skills for Meta Quest and Horizon OS development. Helps Claude assist with Quest app debugging, performance analysis, project setup, Unity and WebXR workflows, Spatial SDK and Platform SDK integration, store submission checks, and hzdb device workflows.",
+      "version": "1.1.0",
       "source": "./",
-      "keywords": [
-        "meta-quest",
-        "horizon-os",
-        "vr",
-        "xr",
-        "unity",
-        "webxr",
-        "spatial-sdk"
-      ]
+      "author": {
+        "name": "Meta Platforms, Inc."
+      },
+      "homepage": "https://github.com/meta-quest/agentic-tools",
+      "keywords": ["meta-quest", "horizon-os", "meta-vr", "vr", "xr", "mixed-reality", "unity", "webxr", "spatial-sdk", "platform-sdk", "android", "hzdb", "debugging", "performance", "store-submission"]
     }
   ]
 }
