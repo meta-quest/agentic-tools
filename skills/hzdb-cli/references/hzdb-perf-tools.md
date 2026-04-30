@@ -11,9 +11,15 @@ threading issues.
 | `hzdb perf capture` | Capture a Perfetto trace from a connected device |
 | `hzdb perf load <session_id>` | Load a Perfetto trace for analysis |
 | `hzdb perf context [session_id]` | Get CPU+GPU performance overview |
+| `hzdb perf analyze-trace [session_id]` | Run a complete trace analysis |
+| `hzdb perf open <session_id>` | Open a trace in ui.perfetto.dev |
 | `hzdb perf query <session_id> <sql>` | Run SQL queries against a loaded trace |
 | `hzdb perf thread-state` | Get thread state summary for a time range |
 | `hzdb perf gpu-counters` | Get GPU metric counters for frame ranges |
+| `hzdb perf start` | Start a background Perfetto capture |
+| `hzdb perf stop <pid> <output_name>` | Stop a background capture and pull the trace |
+| `hzdb perf compare <baseline_id> <comparison_id>` | Compare two traces and produce a delta report |
+| `hzdb perf traces` | List locally available trace sessions |
 | `hzdb perf hex-to-datetime <hex>` | Convert hex timestamp to datetime |
 
 ## Performance Targets
@@ -50,6 +56,9 @@ Capture a Perfetto trace directly from a connected device.
 # Capture for 5 seconds (default)
 hzdb perf capture
 
+# Use a mode preset
+hzdb perf capture --mode gpu --duration 10000
+
 # Capture for a specific duration
 hzdb perf capture --duration 10000
 
@@ -60,23 +69,26 @@ hzdb perf capture --app com.mycompany.myapp
 hzdb perf capture --output my_trace
 
 # Enable GPU render stage tracing
-hzdb perf capture --gpu-render-stage
+hzdb perf capture --mode custom --gpu-render-stage
 
 # Enable XR runtime metrics
-hzdb perf capture --xr-runtime
+hzdb perf capture --mode custom --xr-runtime
 ```
 
 ### Capture Options
 
 | Option | Description | Default |
 |---|---|---|
+| `--mode <mode>` | Preset: `standard`, `gpu`, `cpu`, `lightweight`, `full`, or `custom` | `standard` |
 | `--duration <ms>` | Capture duration in milliseconds | 5000 |
 | `--app <package>` | App package name to trace | Auto-detected |
 | `--output <name>` | Output filename (without extension) | Auto-generated |
-| `--gpu-render-stage` | Enable GPU render stage tracing | false |
-| `--gpu-metrics` | Enable GPU metrics tracing | true |
-| `--cpu-scheduling` | Enable CPU scheduling tracing | true |
-| `--xr-runtime` | Enable XR runtime metrics | false |
+| `--gpu-render-stage` | Enable GPU render stage tracing | `custom` mode only |
+| `--gpu-metrics` | Enable GPU metrics tracing | `custom` mode only |
+| `--cpu-scheduling` | Enable CPU scheduling tracing | `custom` mode only |
+| `--xr-runtime` | Enable XR runtime metrics | `custom` mode only |
+| `--vulkan-layer` | Enable Vulkan OS layer tracing | `custom` mode only |
+| `--extended-scheduling` | Enable extended scheduling events | `custom` mode only |
 
 After capture completes, the tool prints the session ID for use with other perf commands.
 
@@ -121,6 +133,33 @@ The context includes:
 - Identified bottlenecks and recommendations
 
 This is the best starting point for any performance investigation.
+
+## hzdb perf analyze-trace
+
+Run a complete analysis for a trace. If no session ID is provided, hzdb uses the
+most recently captured trace.
+
+```bash
+# Analyze the latest trace
+hzdb perf analyze-trace
+
+# Focus on GPU, CPU, frames, or threads
+hzdb perf analyze-trace my_session_id --focus gpu
+hzdb perf analyze-trace my_session_id --focus frames
+```
+
+Use this before custom SQL when you want a guided summary and recommended next
+steps.
+
+## hzdb perf open
+
+Open a captured trace in the Perfetto web UI.
+
+```bash
+hzdb perf open my_session_id
+```
+
+Use this when visual inspection is faster than command-line summaries.
 
 ## hzdb perf query
 
@@ -246,6 +285,42 @@ Returns per-counter statistics including:
 High GPU utilization with low CPU utilization indicates a GPU-bound workload.
 Consider reducing draw calls, shader complexity, resolution, or overdraw.
 
+## hzdb perf start / stop
+
+Use manual start/stop capture when you need to bracket a scenario yourself
+instead of using a fixed duration.
+
+```bash
+# Start a background capture
+hzdb perf start --mode full --app com.mycompany.myapp --output before_fix
+
+# Reproduce the issue, then stop using the PID and output name printed by start
+hzdb perf stop <pid> before_fix
+```
+
+This is useful for scenarios with variable setup time, such as entering a level,
+joining a multiplayer session, or waiting for a thermal/performance state.
+
+## hzdb perf compare
+
+Compare two traces and produce a delta report.
+
+```bash
+hzdb perf compare before_fix after_fix
+```
+
+Use this after an optimization to check whether frame timing, CPU behavior, or
+GPU behavior changed in the expected direction.
+
+## hzdb perf traces
+
+List available local trace sessions.
+
+```bash
+hzdb perf traces
+hzdb perf traces --limit 20
+```
+
 ## hzdb perf hex-to-datetime
 
 Convert a hexadecimal timestamp to a human-readable datetime.
@@ -265,20 +340,23 @@ A typical performance debugging session:
 # 1. Capture a trace from the device
 hzdb perf capture --duration 10000 --app com.mycompany.myapp
 
-# 2. Load the captured trace (use session ID from capture output)
-hzdb perf load a1b2c3d4
+# 2. Run the guided analyzer first
+hzdb perf analyze-trace a1b2c3d4
 
-# 3. Get the high-level overview
+# 3. Load the trace and get context when you need to drill in
+hzdb perf load a1b2c3d4
 hzdb perf context a1b2c3d4
 
-# 4. Identify the bottleneck (CPU or GPU)
-# 5. Drill into specific threads or GPU counters
+# 4. Drill into specific threads or GPU counters
 hzdb perf thread-state a1b2c3d4 42 \
   --start-ts 1000000000 --end-ts 2000000000
 
-# 6. Run custom SQL queries for deeper analysis
+# 5. Run custom SQL queries for deeper analysis
 hzdb perf query a1b2c3d4 \
   "SELECT name, dur/1e6 AS ms FROM slice WHERE dur > 11100000 ORDER BY dur DESC"
+
+# 6. Compare before/after traces after an optimization
+hzdb perf compare before_fix after_fix
 ```
 
 ## Tips

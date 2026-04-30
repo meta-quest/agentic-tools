@@ -203,7 +203,7 @@ void Awake() {
 
 ## Using hzdb for Validation
 
-You can use the `hzdb` tool to validate builds and check device-side behavior. Install once with `npm install -g @meta-quest/hzdb`.
+You can use the `hzdb` tool to validate builds and check device-side behavior. Invoke via `npx -y @meta-quest/hzdb <args>` — no install required.
 
 ```bash
 # Check connected Quest device

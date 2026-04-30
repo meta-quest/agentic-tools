@@ -207,11 +207,28 @@ override fun onWindowFocusChanged(hasFocus: Boolean) {
         // Panel gained focus -- resume animations, updates
         resumeContent()
     } else {
-        // Panel lost focus -- pause non-essential work
+        // Panel lost focus -- pause non-essential work only (see VRC requirements below)
         pauseNonEssentialWork()
     }
 }
 ```
+
+### VRC Requirements for Focus Loss
+
+Horizon OS keeps unfocused panels **visible** in the scene. This has specific implications for store certification:
+
+- **Rendering must continue uninterrupted when focus is lost.** Do not stop drawing or blank the panel when `hasFocus` is `false`. The panel remains visible to the user and must stay live.
+- **Do not block input anywhere in your app.** The OS already routes input exclusively to the focused panel — your app does not need to suppress or ignore input on focus loss. Doing so anywhere in your app will cause VRC rejection.
+
+**Appropriate work to pause when focus is lost:**
+- Background polling or periodic network requests
+- Decorative animations (non-looping or ambient)
+- Audio playback (unless the user expects background audio)
+
+**Do not pause when focus is lost:**
+- The render loop or `View.invalidate()` / `Choreographer` callbacks driving visible UI
+- LiveData / StateFlow observers that keep the visible UI up to date
+- Foreground services the user explicitly started (e.g., a recording or navigation service) — stopping these on focus loss is incorrect regardless of panel focus state
 
 ## Layout Anti-Patterns
 

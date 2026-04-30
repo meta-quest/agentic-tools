@@ -2,7 +2,7 @@
 
 ## Minimum SDK Configuration
 
-Horizon OS requires a minimum SDK of API 29 (Android 10). Target API 34 (Android 14) or higher:
+Horizon OS requires a minimum SDK of API 29 (Android 10). For 2D panel apps, target API 34 or higher (required for all new 2D panel apps):
 
 ```kotlin
 // app/build.gradle.kts
@@ -18,7 +18,7 @@ android {
     defaultConfig {
         applicationId = "com.example.myquestapp"
         minSdk = 29       // Android 10 -- required minimum for Horizon OS
-        targetSdk = 34    // 32-34 for immersive apps, 32-36 for 2D apps
+        targetSdk = 34    // API 34 or higher required for all new 2D panel apps
         versionCode = 1
         versionName = "1.0.0"
     }
@@ -60,6 +60,8 @@ android {
     <meta-data
         android:name="com.oculus.application_type"
         android:value="panel" />
+
+    <!-- Remove permissions carried over from your original 2D app that are prohibited on Quest. Full list: https://developers.meta.com/horizon/resources/permissions-prohibited/ -->
 
     <!-- Required permissions (request only what you need) -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -115,6 +117,22 @@ The `com.oculus.supportedDevices` meta-data accepts these values:
 
 Combine with pipe (`|`) to target multiple devices: `quest3|quest2|questpro`.
 
+### Debug-Only Local Networking
+
+If a Quest panel app needs to talk to a local development backend over `http://`
+or `ws://`, you may need explicit cleartext traffic or network security
+configuration in debug builds. Without that, the app can look broken even
+though the local service is running correctly.
+
+Keep the allowance scoped to development builds and prefer `https://` and
+`wss://` for release.
+
+```xml
+<application
+    android:usesCleartextTraffic="true"
+    android:networkSecurityConfig="@xml/network_security_config" />
+```
+
 ## Dependencies
 
 ### Standard Android Dependencies (No Changes Needed)
@@ -157,23 +175,36 @@ dependencies {
 
 ### Optional: Meta Spatial SDK
 
-If you want to enhance your 2D app with spatial features (multiple panels, spatial anchors):
+If you want to enhance your 2D app with spatial features (multiple panels, spatial anchors), add the Meta Spatial SDK. Meta Spatial SDK is published to [Maven Central](https://central.sonatype.com/artifact/com.meta.spatial/meta-spatial-sdk) — no custom repository entry is needed. Make the following **additions** to your existing Gradle files; do not replace the files wholesale.
+
+**`build.gradle.kts` (project-level)** — add to the existing `plugins { }` block:
 
 ```kotlin
-// project-level build.gradle.kts
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-        maven { url = uri("https://npm.pkg.github.com/niclas-niclas") }
-    }
-}
-
-// app/build.gradle.kts
-dependencies {
-    implementation("com.meta.spatial:spatial-sdk:0.5.0")
-}
+id("com.meta.spatial.plugin") version "0.10.1" apply true
+id("com.google.devtools.ksp") version "2.0.20-1.0.24" apply true
 ```
+
+> **Note**: The leading version segment of `com.google.devtools.ksp` (e.g. `2.0.20`) must match your Kotlin plugin version exactly. If you upgrade Kotlin, update the ksp version to match.
+
+**`app/build.gradle.kts`** — add to the existing `plugins { }` block:
+
+```kotlin
+id("com.meta.spatial.plugin")
+id("com.google.devtools.ksp")
+```
+
+**`app/build.gradle.kts`** — add to the existing `dependencies { }` block:
+
+```kotlin
+val metaSpatialSdkVersion = "0.10.1" // verify latest at central.sonatype.com/artifact/com.meta.spatial/meta-spatial-sdk
+
+implementation("com.meta.spatial:meta-spatial-sdk:$metaSpatialSdkVersion")
+implementation("com.meta.spatial:meta-spatial-sdk-toolkit:$metaSpatialSdkVersion")
+implementation("com.meta.spatial:meta-spatial-sdk-vr:$metaSpatialSdkVersion")
+ksp("com.meta.spatial.plugin:com.meta.spatial.plugin.gradle.plugin:$metaSpatialSdkVersion")
+```
+
+See the `hz-spatial-sdk` skill for full Spatial SDK usage (ECS architecture, panels, 3D objects).
 
 ### Optional: Meta Platform SDK
 
@@ -266,6 +297,9 @@ android {
             storePassword = System.getenv("KEYSTORE_PASSWORD")
             keyAlias = System.getenv("KEY_ALIAS")
             keyPassword = System.getenv("KEY_PASSWORD")
+            // Horizon Store requires APK Signature Scheme v2 (v1-only APKs are rejected).
+            // v2 signing is enabled by default in AGP 7.0+. If you are using an older
+            // version of AGP, add: v2SigningEnabled = true
         }
     }
 

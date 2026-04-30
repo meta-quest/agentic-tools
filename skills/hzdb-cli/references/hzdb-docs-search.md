@@ -14,6 +14,25 @@ and best practices without leaving your development environment.
 | `hzdb docs api-details <name>` | Get full details for an API entry |
 | `hzdb docs api-stats` | Show statistics about loaded API indexes |
 
+## Verify-first Workflow
+
+For coding agents and AI-assisted developer tools, the safest default is:
+
+1. Search first with `hzdb docs search`
+2. Fetch the exact page with `hzdb docs fetch`
+3. Only then answer or code against the result
+
+This is especially important for:
+
+- current SDK APIs
+- build and deploy steps
+- new Quest behavior
+- policy and store questions
+- SDK features that may have changed recently
+
+When passing results to another tool or agent, include the canonical Meta docs URL
+so the source can be re-fetched and verified later.
+
 ## hzdb docs search
 
 Search across the full Meta Quest developer documentation library.
@@ -31,6 +50,9 @@ hzdb docs search "Unity spatial anchors"
 
 Results include page titles, URLs, and brief descriptions. Use the returned URLs
 with `hzdb docs fetch` to read the full content.
+
+For agent workflows, do not rely on snippets alone when the answer needs exact
+steps, code, policy wording, or recency-sensitive behavior.
 
 ### Example
 
@@ -72,6 +94,13 @@ hzdb docs search "controller input"
 # 2. Fetch the page you need
 hzdb docs fetch https://developers.meta.com/horizon/documentation/unity/unity-controller-input
 ```
+
+For agent workflows, prefer quoting the fetched page rather than paraphrasing from
+search-result snippets alone.
+
+If your MCP framework supports structured outputs, return canonical URLs,
+last-modified markers, and suggested follow-up fetch inputs so the model does not
+have to guess the next call arguments.
 
 ## Documentation Categories
 

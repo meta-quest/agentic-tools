@@ -74,6 +74,19 @@ The simulator supports several testing patterns:
 
 For detailed workflows, see [Testing Workflows](references/testing-workflows.md).
 
+## Gotchas
+
+These are common pitfalls when setting up and using the Meta XR Simulator.
+
+- **OpenXR runtime conflict** -- If another OpenXR runtime is set as the system default (SteamVR, Windows Mixed Reality, Oculus PC app), the simulator will not intercept your app's OpenXR calls. You must set Meta XR Simulator as the active OpenXR runtime, either globally or per-engine. On Windows, check `HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\OpenXR\1\ActiveRuntime` to see which runtime is active.
+- **Unity XR Plug-in Management confusion** -- In Unity, enabling "Meta XR Simulator" in XR Plug-in Management does not automatically disable "Oculus" or "OpenXR" loaders. If multiple loaders are enabled, Unity may pick the wrong one. Disable all other XR loaders before enabling the simulator.
+- **Simulator does not mean device parity** -- The simulator renders on your desktop GPU with desktop drivers. Shaders that compile fine on desktop may fail or behave differently on Quest's Adreno GPU. Never treat "works in simulator" as "works on device."
+- **Hand tracking poses are predefined, not continuous** -- The simulator uses discrete hand poses triggered by keyboard shortcuts, not continuous finger tracking. This means you cannot test fine-grained pinch distance thresholds, grasp physics, or gesture recognition quality. Use a physical device for hand tracking validation.
+- **Passthrough is synthetic, not camera-based** -- The simulator provides a synthetic environment for passthrough testing. Scene understanding results (planes, meshes, semantic labels) are based on the configured room, not real sensor data. Edge cases like reflective surfaces, transparent objects, or low-light conditions will not reproduce.
+- **No thermal or performance profiling** -- The simulator cannot reproduce Quest's thermal throttling, CPU/GPU frequency scaling, or memory pressure behavior. Performance tests in the simulator are not meaningful for on-device performance validation.
+- **Firewall and antivirus interference** -- Some enterprise antivirus software blocks the simulator's local IPC. If the simulator connects but immediately disconnects or fails to start the XR session, check firewall rules for the simulator executable.
+- **macOS support is limited** -- On macOS, only a subset of features is available. Controller simulation works, but hand tracking, passthrough, and room setup are not fully supported. Use Windows for the complete simulator experience.
+
 ## Limitations
 
 - **No GPU performance profiling**: Your desktop GPU has different characteristics than the Quest's mobile GPU. Frame timing, shader performance, and fill rate will not match device behavior.

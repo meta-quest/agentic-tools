@@ -5,7 +5,7 @@
 Horizon OS is based on Android (AOSP) and supports:
 
 - **Minimum SDK**: API 29 (Android 10)
-- **Target SDK**: API 34 (Android 14) required for all new uploads
+- **Target SDK**: API 34 or higher for all new 2D panel apps
 - **Maximum SDK**: Current AOSP level supported by the latest Horizon OS release
 
 Apps targeting API levels below 29 will not install on Quest devices.
@@ -15,7 +15,7 @@ Apps targeting API levels below 29 will not install on Quest devices.
 android {
     defaultConfig {
         minSdk = 29
-        targetSdk = 34
+        targetSdk = 34  // API 34 or higher required for all new 2D panel apps
     }
 }
 ```
@@ -165,7 +165,8 @@ At minimum, a Horizon OS-targeted app must include:
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:configChanges="orientation|screenSize|screenLayout|density">
+            android:resizeableActivity="true"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|density">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -173,6 +174,25 @@ At minimum, a Horizon OS-targeted app must include:
         </activity>
     </application>
 </manifest>
+```
+
+## Prohibited and Review-Required Permissions
+
+Ported 2D apps often carry permissions inherited from their original Android build — including permissions pulled in by third-party libraries and build plugins. APKs containing prohibited permissions are automatically rejected at upload time on the Horizon Store, before any manual review occurs.
+
+**Before Submitting:**
+
+1. Audit your `AndroidManifest.xml`, including merged manifests from all libraries and build plugins
+2. Check the prohibited permissions list: https://developers.meta.com/horizon/resources/permissions-prohibited/
+3. Check the review-required permissions list: https://developers.meta.com/horizon/resources/permissions-review-required/
+4. Guard any optional hardware features with `hasSystemFeature()` checks (see the Graceful Degradation Pattern above) and remove the corresponding `<uses-permission>` entries if the feature is not needed on Quest
+
+> **Warning — Third-party libraries and SDKs**: Android library dependencies frequently add permissions to the merged manifest without any declaration in your own AndroidManifest.xml. Always inspect the final merged manifest before submission.
+
+To see every permission in your release APK:
+
+```bash
+aapt dump permissions your-app.apk
 ```
 
 ## Compatibility Mode
@@ -186,12 +206,73 @@ Apps that do not include Horizon OS-specific manifest entries run in **compatibi
 
 To exit compatibility mode and gain full panel features, add the `com.oculus.supportedDevices` and `com.oculus.application_type` manifest entries described above.
 
+## Entitlement Check
+
+Apps distributed through the paid Horizon Store must verify user entitlement within 10 seconds of launch. Missing this check causes automatic store rejection.
+
+Add the dependency in `app/build.gradle.kts`:
+
+```kotlin
+implementation("com.meta.horizon.platform.sdk:horizon-platform-sdk-entitlements-kotlin:<version>")
+```
+
+Check the latest version at [Maven Central](https://central.sonatype.com/search?namespace=com.meta.horizon.platform.sdk).
+
+Implement the check in your main Activity's `onCreate`:
+
+```kotlin
+import horizon.core.android.driver.coroutines.HorizonServiceConnection
+import horizon.platform.entitlements.Entitlements
+import horizon.platform.entitlements.EntitlementsException
+
+class MainActivity : AppCompatActivity() {
+    private val APPLICATION_ID = "<your-app-id>" // from Meta Quest Developer Dashboard
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        HorizonServiceConnection.connect(APPLICATION_ID, applicationContext, lifecycleScope)
+
+        lifecycleScope.launch {
+            val entitlements = Entitlements()
+            try {
+                entitlements.getIsViewerEntitled()
+                // User is entitled — proceed with normal app flow
+            } catch (e: EntitlementsException) {
+                // Must inform the user why the app is closing before calling finish()
+                Toast.makeText(
+                    this@MainActivity,
+                    "This app must be purchased from the Meta Quest Store.",
+                    Toast.LENGTH_LONG
+                ).show()
+                finish()
+            }
+        }
+    }
+}
+```
+
+**Key requirements:**
+- Must be called within 10 seconds of app launch
+- Does not require internet connectivity
+- On failure: display an informative error before calling `finish()`
+- Requires HzOS v85+; handle status code 1003 (`ProviderOperationNotSupported`) on older OS
+
+See the `hz-platform-sdk` skill for the full Horizon Platform SDK integration pattern, including IAP and other platform features.
+
 ## Store Submission Requirements
 
 Before submitting to the Horizon Store:
 
-1. **App signing**: Use a release keystore (not debug) with a consistent signing key
-2. **Icons**: Provide a 512x512 app icon and a cover landscape image (2560x1440)
+1. **App signing**: Use a release keystore (not debug) with a consistent signing key. The Horizon Store requires APK Signature Scheme v2 (v1-only APKs are rejected).
+2. **Store assets**: Prepare all required assets before starting submission (see `hz-vrc-check` for full specs):
+   - **App icon**: 512×512px, 24-bit PNG, solid fill, no transparency, squared corners
+   - **Cover Landscape**: 2560×1440px (16:9), 24-bit PNG
+   - **Cover Square**: 1440×1440px, 24-bit PNG
+   - **Cover Portrait**: 1008×1440px, 24-bit PNG
+   - **Screenshots**: exactly 5, no duplicates, real in-app captures only, no overlaid text; 2560×1440px, 16:9, 24-bit PNG
+   - **Short description**: 500 characters max
+   - **Long description**: 1500 characters max
 3. **Privacy policy**: Required for all apps that collect user data
 4. **Content rating**: Complete the content rating questionnaire
 5. **Testing**: App must pass automated and manual review on target devices

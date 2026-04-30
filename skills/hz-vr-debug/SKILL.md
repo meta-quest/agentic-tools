@@ -26,11 +26,11 @@ This skill is relevant for any Meta Quest headset (Quest 2, Quest 3, Quest 3S, Q
 
 Before using this skill, ensure the following are in place:
 
-1. **hzdb CLI installed** -- Install the hzdb CLI:
+1. **hzdb CLI ready via `npx`** -- The `hzdb` CLI is invoked on demand; no global install required:
    ```bash
-   npm install -g @meta-quest/hzdb
+   npx -y @meta-quest/hzdb --version
    ```
-   Verify with `hzdb --version`. hzdb wraps ADB and adds Quest-specific device management, log viewing, screenshot capture, and file management.
+   hzdb wraps ADB and adds Quest-specific device management, log viewing, screenshot capture, and file management. Examples below use the bare `hzdb` command for brevity — substitute `npx -y @meta-quest/hzdb` in front.
 2. **Meta Quest device connected via USB** -- Use a USB-C cable that supports data transfer (not charge-only).
 3. **Developer mode enabled** -- Developer mode must be turned on in the Meta Horizon app on your phone, under your headset's settings.
 4. **ADB authorization accepted** -- The first time you connect, you must put on the headset and accept the "Allow USB debugging" prompt.
@@ -164,6 +164,154 @@ hzdb app launch com.example.myapp
 hzdb log --tag Unity --level W
 ```
 
+## Symptom-to-Diagnosis Decision Trees
+
+When a developer reports a problem, use these decision trees to systematically diagnose the root cause. Start with the reported symptom and follow the branches.
+
+### App Crashes on Launch
+
+```
+App crashes on launch
+├── Does `hzdb app launch <pkg>` show "Error: Activity not found"?
+│   └── YES → Package name is wrong or app is not installed.
+│       Run `hzdb app list` to verify the correct package name.
+├── Does logcat show `FATAL EXCEPTION` in the first 5 seconds?
+│   ├── YES, with `ClassNotFoundException` or `NoClassDefFoundError`
+│   │   └── Missing native library or wrong ABI. Check the APK is built for ARM64.
+│   │       Run: `hzdb adb shell getprop ro.product.cpu.abi` → must show "arm64-v8a"
+│   ├── YES, with `SecurityException` or `Permission denied`
+│   │   └── Missing manifest permission. Check the logcat message for which permission.
+│   │       Common: hand tracking, scene, camera permissions not declared.
+│   └── YES, with `NullPointerException` or other Java exception
+│       └── Application code bug. Read the stack trace for the failing class and method.
+├── Does logcat show `native crash` / `SIGSEGV` / `SIGABRT`?
+│   ├── Check if the crash is in a Unity/Unreal library (libunity.so, libUE4.so)
+│   │   └── Engine bug or incompatible SDK version. Check Meta XR SDK release notes
+│   │       for known issues with your engine version.
+│   └── Check if the crash is in your own native code
+│       └── Debug with `hzdb adb logcat --buffer crash` for the tombstone, then use
+│           `addr2line` or `ndk-stack` on the crash address.
+└── No crash visible in logs?
+    └── Check if the app is being killed by the system.
+        Run: `hzdb adb logcat --tag ActivityManager --level W`
+        Look for "Force stopping" or "Process died" messages. Common cause: OOM killer
+        triggered by excessive memory usage on launch.
+```
+
+### App Freezes / ANR (Application Not Responding)
+
+```
+App freezes or ANR dialog appears
+├── Does logcat show "ANR in <package>"?
+│   ├── YES, with "Reason: Input dispatching timed out"
+│   │   └── The main/UI thread is blocked. Check for:
+│   │       - Synchronous network calls on the main thread
+│   │       - Large file I/O on the main thread
+│   │       - Deadlocks between threads
+│   │       Run: `hzdb adb shell kill -3 <pid>` to dump thread stacks, then
+│   │       `hzdb files pull /data/anr/traces.txt ./` to retrieve the ANR trace.
+│   └── YES, with "Reason: executing service"
+│       └── A background service is taking too long. Check the service implementation.
+└── No ANR, but app appears frozen?
+    ├── Is the render loop still running? (Check VrApi logs for frame submission)
+    │   ├── YES → The app is rendering but not processing input. Check input system.
+    │   └── NO → The render thread is blocked or crashed silently.
+    │       Check: `hzdb adb logcat --tag VrApi` for "FPS" lines stopping.
+    └── Is the device overheating?
+        Run: `hzdb device battery` — if battery temperature > 40°C, thermal
+        throttling may have halted the app. Let device cool down and retry.
+```
+
+### Black Screen in Headset
+
+```
+Black screen after app launch
+├── Is the app actually running?
+│   Run: `hzdb adb shell pidof <package>` — if empty, app crashed silently.
+│   └── Check crash logs: `hzdb adb logcat --buffer crash`
+├── Is VrApi initialized?
+│   Check: `hzdb adb logcat --tag VrApi | grep "VrApi" | head -20`
+│   ├── No VrApi output → XR session never started. Check OpenXR/OVR initialization code.
+│   └── VrApi output exists → Frames are being submitted but may be empty.
+│       └── Check: rendering pipeline, camera setup, shader compilation errors.
+├── Unity-specific: "Shader compiler" or "Compiling shaders" in logs?
+│   └── Shader warmup can cause a black screen for several seconds on first launch.
+│       Use shader prewarming/variant preloading to avoid this.
+└── Is the correct rendering API being used?
+    Check: `hzdb adb logcat --tag Unity --level E` for Vulkan/GLES errors.
+    Quest requires OpenGL ES 3.0 minimum. Vulkan is preferred on Quest 3.
+```
+
+### Frame Drops / Stuttering
+
+```
+App stutters or drops frames
+├── Check current FPS:
+│   `hzdb adb logcat --tag VrApi | grep FPS`
+│   ├── FPS consistently below 72 → GPU or CPU bottleneck.
+│   │   ├── Check GPU: use Perfetto or OVR Metrics Tool. Look for GPU completion
+│   │   │   time > 13.8ms (72Hz) or > 11.1ms (90Hz).
+│   │   └── Check CPU: look for game thread or render thread exceeding frame budget.
+│   └── FPS mostly stable but periodic drops
+│       ├── Check for GC pauses: `hzdb adb logcat --tag dalvikvm --level D`
+│       │   or `hzdb adb logcat --regex "GC_|clamp"` → reduce allocations per frame.
+│       ├── Check for thermal throttling: `hzdb adb logcat --tag ThermalService --level W`
+│       │   → sustained heavy load causes CPU/GPU frequency reduction.
+│       └── Check for asset loading on main thread: large textures or models loaded
+│           synchronously will cause frame spikes. Use async loading.
+└── Only stutters in specific scenes?
+    └── Profile that scene. Common causes: too many draw calls (>100), unculled
+        off-screen geometry, expensive shaders, excessive overdraw, uncompressed textures.
+```
+
+### Tracking Issues
+
+```
+Controllers or hands not tracking correctly
+├── Are controllers paired and connected?
+│   `hzdb device info <id>` — check controller connection status.
+├── Is hand tracking enabled in device settings?
+│   Check: Settings > Movement Tracking > Hand and Body Tracking.
+├── Does the app request the correct tracking mode?
+│   ├── For hand tracking: manifest must include
+│   │   `com.oculus.permission.HAND_TRACKING` and
+│   │   `com.oculus.handtracking.frequency` set to "HIGH" if needed.
+│   └── For controller tracking: ensure the app is not forcing hand-tracking-only mode.
+└── Tracking works but is jittery or delayed?
+    ├── Check lighting: tracking cameras need adequate, even lighting. Very bright
+    │   or very dim environments degrade tracking quality.
+    └── Check for occlusion: hands or controllers held outside the tracking camera
+        FOV will lose tracking. The camera FOV is approximately 110 degrees.
+```
+
+### Audio Issues
+
+```
+No audio or wrong audio output
+├── Is audio playing through the headset speakers?
+│   └── Check: Settings > Sound — ensure headset speakers are selected, not Bluetooth.
+├── Does the app use spatial audio?
+│   ├── Check for FMOD/Wwise initialization errors in logcat.
+│   └── Check that audio sources have correct 3D settings and are not muted.
+├── Audio is distorted or crackling?
+│   └── Audio buffer underruns. Check for CPU overload causing audio thread starvation.
+│       Reduce audio complexity or increase buffer size.
+└── Audio plays from wrong position?
+    └── Check spatial audio source positions match visual object positions.
+        Common issue: audio listener not attached to the camera/head transform.
+```
+
+## Gotchas
+
+These are common debugging pitfalls specific to Quest development.
+
+- **Logcat buffer overflow** -- On Quest, the logcat ring buffer fills quickly because the OS and other apps generate constant output. If you do not start logging before reproducing the issue, the crash logs may already be evicted. Start `hzdb adb logcat --follow` before reproducing.
+- **USB cable quality matters** -- Many USB-C cables are charge-only and do not carry data. If `hzdb device list` shows nothing, try a different cable before troubleshooting software. The cable that came with the Quest works for data.
+- **WiFi debugging disconnects** -- WiFi ADB connections (`hzdb device connect <ip>`) drop after the device sleeps. You must reconnect after waking the device. USB is more reliable for sustained debugging sessions.
+- **Release builds strip logs** -- If your app uses `android:debuggable="false"` (release builds), some log output is suppressed. Debug with a debug build when investigating issues. Do not ship debuggable builds to the store.
+- **Multiple logcat tags for the same component** -- Unity uses tags `Unity`, `il2cpp`, and `mono` depending on the scripting backend. Unreal uses `UE`, `LogVR`, and `LogOnline`. Filter broadly at first, then narrow down.
+- **OVR Metrics Tool overlay conflicts** -- The OVR Metrics Tool overlay can interfere with your app's rendering or input. If your app behaves oddly, disable the metrics overlay and retest before filing a bug.
+
 ## Tips and Best Practices
 
 ### Filtering Logs Effectively
@@ -243,4 +391,3 @@ See [common-issues.md](references/common-issues.md) for a catalog of known issue
 - [Logcat Filtering Guide](references/logcat-filtering.md) -- Detailed guide to filtering and interpreting device logs
 - [Screenshots and Video Capture](references/screenshots-video.md) -- Capturing visual state from the device
 - [Common Issues and Diagnostics](references/common-issues.md) -- Catalog of common Quest development issues and solutions
-

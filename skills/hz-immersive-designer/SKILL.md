@@ -55,45 +55,49 @@ See [Accessibility](references/accessibility.md) for detailed guidance.
 
 ## Quick Design Review Checklist
 
-Use this checklist when reviewing any VR or MR experience design. Each item represents a common source of user discomfort or usability failure.
+Use this checklist when reviewing any VR or MR experience design. Each item includes specific pass/fail measurements where applicable.
 
 ### Comfort
 
 - Does the locomotion system follow comfort guidelines (snap turning default, teleportation option, vignette during movement)?
-- Is the camera ever moved without direct user input?
+- Is the camera ever moved without direct user input? Any camera movement not initiated by the user's physical head motion is a comfort violation.
 - Is the horizon line stable during all interactions?
-- Does the application support the highest refresh rate available on the target device?
-- Are there session length reminders or natural break points?
+- Does the application target at least 72 Hz refresh rate? 90 Hz is recommended for Quest 3, and 120 Hz for fast-paced content.
+- Are there session length reminders or natural break points every 20-30 minutes?
 - Is there a risk of vestibular mismatch in any scenario?
+- **Locomotion speed**: Smooth locomotion speed should not exceed 1.4 m/s (walking pace) without vignette. Speeds above 3 m/s require aggressive FOV restriction.
+- **Rotation**: Snap turn increments should be 30-45 degrees. Smooth turn speed should default to 60-90 degrees/second with user-adjustable range.
 
 ### Viewing and Readability
 
-- Are UI elements placed at comfortable viewing distances (1.0 to 2.0 meters for primary content)?
-- Is all text large enough to read at its intended distance?
-- Is critical content placed within 30 degrees of center gaze?
-- Are there any content elements closer than 0.5 meters to the user?
-- Do wide UI surfaces use curved panels to maintain consistent focal distance?
+- Are primary UI elements placed between **1.0 m and 2.0 m** from the user? This is the comfort zone where accommodation-vergence conflict is minimal.
+- **Minimum text size**: Text must subtend at least **1.0 degree of visual arc** at its intended viewing distance. At 1.0 m, this is approximately **17.5 mm** (roughly 50px at Quest 3 resolution). At 2.0 m, double the physical size.
+- Is critical content placed within **30 degrees** of center gaze? Content beyond 30 degrees requires head movement. Content beyond 55 degrees is outside comfortable neck rotation.
+- Are there any content elements closer than **0.5 m** to the user? Objects closer than 0.5 m cause vergence-accommodation conflict and eye strain. Never place interactive content closer than 0.5 m.
+- Do wide UI surfaces (wider than **0.6 m** at their viewing distance) use curved panels to maintain consistent focal distance across the panel?
+- **Maximum panel width**: Individual panels should not exceed **50 degrees** of visual arc. For a panel at 1.5 m, this is approximately **1.4 m** wide.
 
 ### Interaction Quality
 
-- Are interaction targets large enough to be selected reliably with both controllers and hand tracking?
-- Is there clear visual distinction between interactive and non-interactive elements?
+- Are interaction targets at least **48 mm x 48 mm** (approximately 2.8 degrees at 1.0 m) for controller ray interaction and at least **64 mm x 64 mm** for hand tracking poke/pinch?
+- Is there clear visual distinction between interactive and non-interactive elements (depth offset, highlight, or material change)?
 - Do all interactive elements provide hover, press, and release feedback states?
-- Is haptic feedback used to confirm interactions?
+- Is haptic feedback used to confirm interactions? Recommended pulse: 0.1-0.3 seconds, medium intensity.
 - Can destructive actions be undone or cancelled?
+- **Grab interaction range**: Objects should be grabbable within **0.3-0.8 m** arm's reach for direct grab. Beyond 0.8 m, use ray-based grab or distance grab.
 
 ### Feedback
 
 - Is there adequate visual feedback for every user action?
 - Is there adequate audio feedback for important interactions?
-- Do spatial audio sources match their visual positions?
+- Do spatial audio sources match their visual positions within **15 degrees** of angular accuracy?
 - Are loading states and progress clearly communicated?
 
 ### Accessibility and Flexibility
 
-- Can the experience be used while seated?
+- Can the experience be used while seated? Seated-mode users have a reachable volume of approximately **0.6 m** radius from their torso.
 - Can all core functions be performed with one hand?
-- Are there alternatives for interactions that rely solely on color?
+- Are there alternatives for interactions that rely solely on color? Use shape, pattern, or label in addition to color. Minimum contrast ratio for text: **4.5:1** (WCAG AA).
 - Are captions or subtitles available for speech and important audio?
 - Are there comfort mode options for motion-sensitive users?
 - Can text size and contrast be adjusted?
@@ -102,8 +106,21 @@ Use this checklist when reviewing any VR or MR experience design. Each item repr
 
 - Does virtual content blend plausibly with the physical environment?
 - Are passthrough and virtual element boundaries clearly defined?
-- Does the experience respect the user's physical space boundaries?
-- Are virtual objects anchored stably to real-world positions?
+- Does the experience respect the user's physical space boundaries (Guardian/boundary system)?
+- Are virtual objects anchored stably to real-world positions? Anchored objects should not drift more than **1-2 cm** during a session.
+
+## Gotchas
+
+These are common design mistakes that cause comfort issues or poor reviews.
+
+- **Text is too small** -- This is the single most common design failure in VR apps. Developers test on desktop monitors where everything is readable, then deploy to Quest where the effective resolution per degree is much lower. Always validate text readability on device, not in editor.
+- **UI placed at arm's length (0.3-0.5 m)** -- New VR developers instinctively place UI panels within arm's reach, like a tablet. This causes severe eye strain because it falls in the vergence-accommodation conflict zone. Push primary UI panels to 1.0-1.5 m distance.
+- **Smooth locomotion with no comfort options** -- Shipping smooth locomotion without a teleportation fallback or vignette will cause motion sickness for 30-40% of users. Always provide snap turn and teleportation as alternatives and make them the default.
+- **Ignoring seated users** -- If all interactive elements require standing and reaching above head height, seated users (including wheelchair users) cannot use the app. Design all core interactions within a 0.6 m radius at chest-to-head height.
+- **Color-only feedback** -- Approximately 8% of males have some form of color vision deficiency. If interactive elements are distinguished only by color (red = error, green = success), add shape or icon indicators as well.
+- **Anchoring UI to the head (head-locked HUD)** -- Head-locked UI panels cause nausea and obscure the 3D scene. Use world-locked or body-locked UI that follows the user with lag and stays at a comfortable distance.
+- **Spatial audio with no fallback** -- Some users are deaf or hard of hearing. Every spatial audio cue (directional alerts, proximity sounds) should have a corresponding visual indicator.
+- **Infinite render distance without LOD** -- Rendering detailed geometry at all distances tanks frame rate. Use LOD (level of detail) groups and impostor billboards for objects beyond 20 m.
 
 ## Reference Documents
 

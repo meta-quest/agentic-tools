@@ -152,11 +152,9 @@ android {
 }
 ```
 
-For step-by-step instructions, see the [Meta developers blog](https://developers.meta.com/blog/).
-
 ## Using hzdb for Documentation Lookup
 
-The `hzdb` tool provides documentation search to help during upgrades. Install once with `npm install -g @meta-quest/hzdb`.
+The `hzdb` tool provides documentation search to help during upgrades. Invoke via `npx -y @meta-quest/hzdb <args>` — no global install needed.
 
 ```bash
 # Search for migration-related documentation

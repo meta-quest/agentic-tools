@@ -32,11 +32,10 @@ The goal of porting is to make the app feel native to the Quest experience while
 
 ### Step 1: Initial Testing
 
-Install hzdb (the Quest device CLI) if you haven't already:
+Invoke hzdb (the Quest device CLI) via `npx -y @meta-quest/hzdb <args>` — no global install needed; npx fetches the latest published version on demand.
 
-```bash
-npm install -g @meta-quest/hzdb
-```
+
+If using npx, use `npx -y @meta-quest/hzdb` as an alternative to calling `hzdb` found in this doc.
 
 Install the existing APK on a connected Quest device and test basic functionality:
 
@@ -77,7 +76,7 @@ Update your build configuration to target Horizon OS:
 android {
     defaultConfig {
         minSdk = 29       // Android 10 minimum
-        targetSdk = 34    // 32-34 for immersive apps, 32-36 for 2D apps
+        targetSdk = 34    // API 34 or higher required for all new 2D panel apps
     }
 }
 ```
@@ -144,6 +143,8 @@ Before submitting to the Horizon Store:
 | Keyboard doesn't appear | Custom input field not using `InputConnection` | Use standard `EditText` or `TextField` |
 | Layout broken | Fixed-size layout assumptions | Use responsive layouts with `ConstraintLayout` or Compose |
 | App requests unavailable permissions | Camera, telephony, etc. | Guard with `hasSystemFeature()` checks |
+| APK rejected for prohibited permissions | Library or plugin silently added a prohibited permission | Run `aapt dump permissions your-app.apk`, then check [prohibited list](https://developers.meta.com/horizon/resources/permissions-prohibited/) |
+| APK rejected for invalid signature | Signed with v1-only scheme | v2 signing is default in AGP 7.0+; for older AGP, add `v2SigningEnabled = true` to your signing config |
 
 ## Key Concepts
 

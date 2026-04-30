@@ -1,269 +1,229 @@
 # ECS Architecture
 
-This reference covers the Entity Component System (ECS) architecture used by IWSDK. ECS is a data-oriented pattern that separates data (components) from logic (systems) and uses lightweight containers (entities) to compose behaviors.
+This reference covers the current ECS model used by IWSDK. The runtime surface
+is exported from `@iwsdk/core` and is built on top of Elics. The main pattern
+is:
+
+- define typed component data with `createComponent(...)`
+- define query-driven systems by extending `createSystem(...)`
+- attach `Object3D` instances with `world.createTransformEntity(...)`
+- bootstrap everything from `World.create(...)`
 
 ## Components
 
-Components are pure data containers defined with a typed schema. Each field has a specific type that determines how the data is stored and accessed.
+Components are pure data containers. In current IWSDK, component fields are
+stored on typed arrays at `Component.data.<field>`, indexed by `entity.index`.
 
-### Defining a Component
+### Defining A Component
 
 ```typescript
-import { createComponent } from '@meta-quest/iwsdk';
+import { Types, createComponent } from '@iwsdk/core';
 
-export const Health = createComponent({
-  name: 'health',
-  schema: {
-    current: 'f32',
-    max: 'f32',
-    regenerationRate: 'f32',
+export const Health = createComponent(
+  'Health',
+  {
+    current: { type: Types.Float32, default: 100 },
+    max: { type: Types.Float32, default: 100 },
+    regenerationRate: { type: Types.Float32, default: 1 },
   },
+  'Simple health component',
+);
+```
+
+### Common Field Types
+
+| Type | Example Use |
+| ---- | ----------- |
+| `Types.Boolean` | flags and tags |
+| `Types.Float32` | speeds, timers, scalar values |
+| `Types.Int8` | enum-like state values |
+| `Types.String` | labels, ids, file paths |
+| `Types.Vec3` | positions, offsets, scales |
+| `Types.Vec4` | quaternions and 4D data |
+| `Types.Object` | config objects or opaque handles |
+| `Types.Enum` | finite enum values backed by an enum map |
+
+### Vector-Shaped Data
+
+```typescript
+import { Types, createComponent } from '@iwsdk/core';
+
+export const SpawnPoint = createComponent('SpawnPoint', {
+  position: { type: Types.Vec3, default: [0, 1.5, -2] },
+  rotation: { type: Types.Vec4, default: [0, 0, 0, 1] },
 });
 ```
 
-### Supported Field Types
-
-| Type          | Description                                | Example Use               |
-| ------------- | ------------------------------------------ | ------------------------- |
-| `'f32'`       | 32-bit floating point number               | position, speed, health   |
-| `'f64'`       | 64-bit floating point number               | high-precision timestamps |
-| `'i32'`       | 32-bit signed integer                      | score, count              |
-| `'u32'`       | 32-bit unsigned integer                    | flags, bitmasks           |
-| `'bool'`      | Boolean value                              | isActive, isVisible       |
-| `'string'`    | String value                               | name, label               |
-| `'vec3'`      | 3D vector (x, y, z)                        | position, velocity        |
-| `'quaternion'`| Quaternion (x, y, z, w)                    | rotation, orientation     |
-| `'entity'`    | Reference to another entity                | target, parent            |
-
-### Vector and Quaternion Fields
-
-For spatial data, use the built-in vector and quaternion types:
-
-```typescript
-export const Transform = createComponent({
-  name: 'transform',
-  schema: {
-    position: 'vec3',
-    rotation: 'quaternion',
-    scale: 'vec3',
-  },
-});
-```
-
-These types integrate directly with Three.js `Vector3` and `Quaternion` objects.
-
-### Entity References
-
-Components can reference other entities, allowing you to build relationships:
-
-```typescript
-export const Follow = createComponent({
-  name: 'follow',
-  schema: {
-    target: 'entity',
-    speed: 'f32',
-    minDistance: 'f32',
-  },
-});
-```
+In practice, world-space transforms still usually live on the entity's
+`object3D`. Use ECS fields for authored data or gameplay state, then apply them
+inside systems.
 
 ## Entities
 
-Entities are lightweight containers identified by a unique ID. They have no data or logic of their own -- they gain behavior by having components attached to them.
+Entities are lightweight containers identified by an index. They gain behavior
+through attached components and, optionally, an attached `Object3D`.
 
-### Creating an Entity
+### Creating An Entity
 
 ```typescript
 const entity = world.createEntity();
 ```
 
-### Adding Components
+### Adding And Removing Components
 
 ```typescript
-entity.addComponent(Health, { current: 100, max: 100, regenerationRate: 1.0 });
-entity.addComponent(Transform, {
-  position: { x: 0, y: 1.5, z: -3 },
-  rotation: { x: 0, y: 0, z: 0, w: 1 },
-  scale: { x: 1, y: 1, z: 1 },
+entity.addComponent(Health, {
+  current: 100,
+  max: 100,
+  regenerationRate: 1,
 });
-```
 
-### Removing Components
-
-```typescript
 entity.removeComponent(Health);
 ```
 
 ### Attaching Three.js Objects
 
-Entities can have a Three.js `Object3D` attached. IWSDK automatically adds the object to the scene graph and syncs its transform:
+The normal scene-content path is to create a transform-backed entity directly
+from an `Object3D`:
 
 ```typescript
 import * as THREE from 'three';
 
 const mesh = new THREE.Mesh(
   new THREE.SphereGeometry(0.5),
-  new THREE.MeshStandardMaterial({ color: 0xff0000 })
+  new THREE.MeshStandardMaterial({ color: 0xff0000 }),
 );
 
-entity.addObject3D(mesh);
+const entity = world.createTransformEntity(mesh);
+entity.object3D!.position.set(0, 1.5, -2);
 ```
 
-### Destroying an Entity
+### Destroying An Entity
 
 ```typescript
 entity.destroy();
+entity.dispose(); // if GPU resources should also be released
 ```
 
-Destroying an entity removes it from all queries, detaches its Three.js object from the scene, and frees its component data.
+Destroying an entity removes it from all queries and detaches its `Object3D`.
 
 ## Systems
 
-Systems contain the logic that operates on entities each frame. A system declares which entities it cares about through queries, then processes matching entities in its `execute` function.
+Systems contain the logic that operates on entities each frame. In current
+IWSDK, you usually define a class that extends `createSystem(...)`.
 
-### Defining a System
+### Defining A System
 
 ```typescript
-import { createSystem, createQuery } from '@meta-quest/iwsdk';
+import { createSystem } from '@iwsdk/core';
 import { Health } from '../components/health';
-import { Transform } from '../components/transform';
 
-const damagedEntities = createQuery({ all: [Health, Transform] });
-
-export const HealthRegenSystem = createSystem({
-  name: 'healthRegen',
-  queries: [damagedEntities],
-  execute: (world, queries) => {
-    const delta = world.time.delta;
-    for (const entity of queries.get(damagedEntities)) {
-      const health = entity.getMutable(Health);
-      if (health.current < health.max) {
-        health.current = Math.min(
-          health.current + health.regenerationRate * delta,
-          health.max
-        );
-      }
-    }
-  },
-});
+export class HealthRegenSystem extends createSystem({
+  damaged: { required: [Health] },
+}) {
+  update(delta: number) {
+    this.queries.damaged.entities.forEach((entity) => {
+      const next = Math.min(
+        Health.data.current[entity.index] +
+          Health.data.regenerationRate[entity.index] * delta,
+        Health.data.max[entity.index],
+      );
+      Health.data.current[entity.index] = next;
+    });
+  }
+}
 ```
 
-### System Lifecycle Hooks
-
-Systems can define `init` and `cleanup` hooks in addition to `execute`:
+### Lifecycle Hooks
 
 ```typescript
-export const AudioSystem = createSystem({
-  name: 'audio',
-  queries: [audioSources],
+export class SpawnSystem extends createSystem({
+  players: { required: [Health] },
+}) {
+  init() {
+    this.queries.players.subscribe('qualify', (entity) => {
+      console.log('player appeared', entity.index);
+    });
+  }
 
-  init: (world) => {
-    // Called once when the system is registered
-    // Set up audio context, load sounds, etc.
-  },
+  update(_delta: number, _time: number) {
+    // frame loop
+  }
 
-  execute: (world, queries) => {
-    // Called every frame
-  },
-
-  cleanup: (world) => {
-    // Called when the system is removed or the world is destroyed
-    // Release audio resources, close connections, etc.
-  },
-});
+  destroy() {
+    // cleanup side effects here if needed
+  }
+}
 ```
 
-### Read-Only vs Mutable Access
-
-Use `entity.get(Component)` for read-only access and `entity.getMutable(Component)` when you need to modify data. Read-only access enables internal optimizations:
-
-```typescript
-// Read-only -- does not trigger change detection
-const health = entity.get(Health);
-console.log(health.current);
-
-// Mutable -- marks the component as changed
-const healthMut = entity.getMutable(Health);
-healthMut.current -= 10;
-```
+`subscribe('qualify', ...)` and `subscribe('disqualify', ...)` are important
+for reactive workflows such as loading panels, wiring event listeners, or
+tracking entities entering and leaving a query.
 
 ## Queries
 
-Queries define which entities a system processes. They filter entities based on which components are present or absent.
+Queries are declared inline when you call `createSystem(...)`. Each query name
+is available under `this.queries.<name>`.
 
 ### Basic Query
 
 ```typescript
-import { createQuery } from '@meta-quest/iwsdk';
-
-// Match entities that have BOTH Position and Velocity
-const movingEntities = createQuery({
-  all: [Position, Velocity],
-});
+export class MovementSystem extends createSystem({
+  moving: { required: [Velocity] },
+}) {}
 ```
 
 ### Excluding Components
 
 ```typescript
-// Match entities with Position but NOT Static
-const dynamicEntities = createQuery({
-  all: [Position],
-  none: [Static],
-});
+export class MovementSystem extends createSystem({
+  moving: {
+    required: [Velocity],
+    excluded: [Frozen],
+  },
+}) {}
 ```
 
-### Optional Components
+### Filtering With `where`
 
 ```typescript
-// Match entities with Position; optionally read Velocity if present
-const positionedEntities = createQuery({
-  all: [Position],
-  any: [Velocity],
-});
-```
+import { PanelDocument, PanelUI, createSystem, eq } from '@iwsdk/core';
 
-### Changed Queries
-
-You can query for entities whose components changed since the last frame:
-
-```typescript
-const changedHealth = createQuery({
-  all: [Health],
-  changed: [Health],
-});
-```
-
-This is useful for reactive systems that only need to act when data actually changes (updating UI, triggering effects).
-
-### Added and Removed Queries
-
-Track when entities gain or lose components:
-
-```typescript
-const newlySpawned = createQuery({
-  added: [Transform],
-});
-
-const recentlyDestroyed = createQuery({
-  removed: [Health],
-});
+export class PanelSystem extends createSystem({
+  welcomePanel: {
+    required: [PanelUI, PanelDocument],
+    where: [eq(PanelUI, 'config', './ui/welcome.json')],
+  },
+}) {}
 ```
 
 ## World
 
-The `World` is the top-level container that holds all entities, systems, and global state.
+The `World` is the top-level container for entities, systems, scene objects, XR
+state, and feature systems.
 
-### Creating a World
+### Creating A World
 
 ```typescript
-import { createWorld } from '@meta-quest/iwsdk';
+import {
+  ReferenceSpaceType,
+  SessionMode,
+  World,
+} from '@iwsdk/core';
 
-const world = createWorld();
+const container = document.getElementById('scene-container') as HTMLDivElement;
+const world = await World.create(container, {
+  xr: {
+    sessionMode: SessionMode.ImmersiveVR,
+    referenceSpace: ReferenceSpaceType.LocalFloor,
+    offer: 'none',
+  },
+});
 ```
 
 ### Registering Systems
 
-Systems are registered on the world and execute in the order they are registered:
+Systems execute in registration order:
 
 ```typescript
 world.registerSystem(InputSystem);
@@ -272,32 +232,28 @@ world.registerSystem(CollisionSystem);
 world.registerSystem(RenderSystem);
 ```
 
-Order matters. Input should be processed before movement, movement before collision, and rendering last.
-
-### Accessing Time
-
-The world provides timing information:
+### Launching XR
 
 ```typescript
-world.time.delta;    // Time since last frame in seconds
-world.time.elapsed;  // Total elapsed time in seconds
-world.time.frame;    // Current frame number
+world.launchXR();
+world.exitXR();
 ```
 
-### Starting the Loop
-
-```typescript
-world.start();
-```
-
-This begins the render loop. IWSDK uses `requestAnimationFrame` (or the XR session's frame callback when in VR) to drive the loop.
+`World.create(...)` already wires the render loop. Do not add a separate
+`world.start()` call unless the SDK reintroduces one in a future version.
 
 ## Best Practices
 
-- **Keep components small and focused.** A component should represent a single concept. Prefer `Position` + `Velocity` over a monolithic `Physics` component.
-- **Keep systems focused.** Each system should handle one responsibility. A `MovementSystem` moves entities; a `CollisionSystem` detects collisions. Do not combine them.
-- **Use queries efficiently.** Define queries at module scope, not inside the `execute` function. Queries are evaluated once and updated incrementally.
-- **Prefer read-only access.** Use `entity.get()` instead of `entity.getMutable()` when you do not need to modify data. This avoids unnecessary change tracking overhead.
-- **Avoid creating objects in the execute loop.** Pre-allocate temporary vectors and reuse them to avoid garbage collection pressure.
-- **Use entity references for relationships.** Instead of storing IDs as numbers, use the `'entity'` field type so the ECS can track the relationship.
-- **Destroy entities explicitly.** When an entity is no longer needed, call `entity.destroy()` to free memory and remove it from queries.
+- **Keep components small and focused.** Prefer composable pieces of data over a
+  single monolithic component.
+- **Keep systems focused.** Each system should own one responsibility.
+- **Treat `Component.data` as the hot path.** Current IWSDK component data lives
+  in typed storage arrays keyed by `entity.index`.
+- **Use `world.createTransformEntity(...)` for scene content.** It keeps
+  `Object3D` ownership aligned with the ECS world.
+- **Use query subscriptions for side effects.** They are the cleanest way to
+  respond when entities enter or leave a query.
+- **Avoid allocations in `update(...)`.** Reuse vectors and temp objects to
+  reduce GC pressure on Quest hardware.
+- **Destroy entities explicitly.** Call `entity.destroy()` or `entity.dispose()`
+  when content is no longer needed.

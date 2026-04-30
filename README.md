@@ -1,9 +1,58 @@
-# meta-quest/agentic-tools
+# Meta Quest Agentic Tools
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Meta Quest](https://img.shields.io/badge/Meta_Quest-Developer-1877F2)](https://developers.meta.com/horizon/)
 
-Agent skills for Meta Quest and Horizon OS development.
+Agentic skills and tools for Meta Quest and Horizon OS development.
+
+## What is this?
+
+This repository packages a curated set of agentic tools and skills for Meta Quest and Horizon OS development, along with shared `hzdb` references and contribution/process documentation for maintaining the skill ecosystem.
+
+The skills follow the open Agent Skills model: each skill has a required `SKILL.md` plus optional supporting files that are loaded on demand. This repo includes packaging artifacts for Claude Code, Cursor, GitHub Copilot CLI, and Gemini-compatible environments.
+
+Skills are powered by the **hzdb** (Horizon Debug Bridge) CLI, which provides device management, app management, performance tooling, and documentation search through both direct commands and an MCP server.
+
+## Prerequisites
+
+- **Node.js** 18 or later
+- **hzdb CLI** — invoke via `npx` (no install required):
+  ```bash
+  npx -y @meta-quest/hzdb --version
+  ```
+- **Meta Quest device** with [Developer Mode](https://developers.meta.com/horizon/documentation/native/android/mobile-device-setup/) enabled (for on-device skills)
+
+## Installation
+
+### Claude Code
+
+From the Claude Code marketplace:
+
+```bash
+claude plugin install meta-quest/agentic-tools
+```
+
+Or clone and add locally:
+
+```bash
+git clone https://github.com/meta-quest/agentic-tools.git meta-quest-skills
+cd meta-quest-skills
+claude plugin add .
+```
+
+### Cursor
+
+Install from the [Cursor marketplace](https://cursor.com/marketplace), or clone and add locally:
+
+```bash
+git clone https://github.com/meta-quest/agentic-tools.git
+```
+
+Then open Cursor Settings > Plugins and add the cloned directory as a local plugin.
+
+### Gemini
+
+This repo also includes [gemini-extension.json](gemini-extension.json) for Gemini-compatible packaging and MCP configuration.
 
 ## MCP Server
 
@@ -59,72 +108,32 @@ Or start the MCP server directly:
 npx -y @meta-quest/hzdb mcp server
 ```
 
-## What is this?
-
-`meta-quest/agentic-tools` is an agent skills plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [GitHub Copilot CLI](https://docs.github.com/en/copilot/how-tos/copilot-cli), and [Cursor](https://cursor.com/docs/plugins/building) that provides **13 agent skills** for Meta Quest development. The skills cover the full development lifecycle — from project scaffolding and code review to performance profiling and device debugging.
-
-Skills are powered by the **hzdb** (Horizon Debug Bridge) CLI, which provides device management, app management, performance tooling, and documentation search through both direct commands and an MCP server.
-
-## Prerequisites
-
-- **Node.js** 18 or later
-- **hzdb CLI** — install globally or use via npx:
-  ```bash
-  npm install -g @meta-quest/hzdb
-  ```
-- **Meta Quest device** with [Developer Mode](https://developers.meta.com/horizon/documentation/native/android/mobile-device-setup/) enabled (for on-device skills)
-
-## Installation
-
-### Claude Code
-
-From the Claude Code marketplace:
-
-```bash
-/plugin marketplace add meta-quest/agentic-tools
-/plugin install agentic-tools@meta-quest
-```
-
-Or clone and add locally:
-
-```bash
-git clone https://github.com/meta-quest/agentic-tools.git
-claude plugin add ./agentic-tools
-```
-
-### GitHub Copilot CLI
-
-```bash
-copilot plugin install meta-quest/agentic-tools
-```
-
-### Cursor
-
-Install from the [Cursor marketplace](https://cursor.com/marketplace), or clone and add locally:
-
-```bash
-git clone https://github.com/meta-quest/agentic-tools.git
-```
-
-Then open Cursor Settings > Plugins and add the cloned directory as a local plugin.
-
 ## Skills
 
 | Skill | Description |
 |-------|-------------|
-| `hzdb-cli` | Complete hzdb CLI reference — installation, all commands, MCP server, deep-dive docs |
-| `hz-perfetto-debug` | VR performance analysis with Perfetto traces |
-| `hz-new-project-creation` | Scaffold new Quest projects (Unity, Unreal, Spatial SDK, WebXR) |
-| `hz-xr-simulator-setup` | Set up Meta XR Simulator for device-free testing |
-| `hz-unity-code-review` | Review Unity code for Quest performance best practices |
-| `hz-android-2d-porting` | Port Android 2D apps to Quest / Horizon OS |
-| `hz-iwsdk-webxr` | Build WebXR experiences with the Immersive Web SDK |
-| `hz-api-upgrade` | Migrate apps to newer Horizon OS SDK versions |
-| `hz-immersive-designer` | UX design principles for VR/MR |
-| `hz-spatial-sdk` | Build native spatial apps with Meta Spatial SDK |
-| `hz-vr-debug` | Debug Quest apps using the hzdb CLI |
-| `hz-vrc-check` | Validate apps against VRC store publishing requirements |
-| `hz-platform-sdk` | Horizon Platform SDK Android/Kotlin integration (17 API packages) |
+| `hzdb-cli` | Provides the hzdb CLI reference for Meta Quest and Horizon OS device management, app management, docs search, audio control, test setup, performance tooling, and MCP usage. |
+| `hz-android-2d-porting` | Guides Android 2D app porting to Meta Quest and Horizon OS panels, including input adaptation, Gradle setup, compatibility, and panel layout. |
+| `hz-api-upgrade` | Guides Meta Quest and Horizon OS SDK/API upgrades, deprecated API replacements, migration planning, and changelog review. |
+| `hz-immersive-designer` | Reviews Meta Quest and Horizon OS VR/MR experiences for comfort, accessibility, spatial layout, and interaction quality. |
+| `hz-iwsdk-webxr` | Builds WebXR experiences for Meta Quest and Horizon OS using the Immersive Web SDK, Three.js, ECS patterns, and spatial UI. |
+| `hz-new-project-creation` | Scaffolds new Meta Quest and Horizon OS projects across Unity, Unreal, Android/Spatial SDK, and WebXR. |
+| `hz-perfetto-debug` | Analyzes Meta Quest and Horizon OS performance with Perfetto traces, including frame timing, CPU/GPU bottlenecks, and thermal issues. |
+| `hz-platform-sdk` | Guides Horizon Platform SDK API usage for Meta Quest and Horizon OS Android/Kotlin apps across the public platform packages. |
+| `hz-psdk-integration` | Guides interactive Horizon Platform SDK integration for Meta Quest and Horizon OS Android/Kotlin projects, from codebase analysis through on-device validation. |
+| `hz-quest-verify-first` | Forces docs-first verification against current Meta Quest and Horizon OS documentation and hzdb capabilities before answering or editing Quest-specific code. |
+| `hz-simpleperf-debug` | Profiles Meta Quest and Horizon OS CPU performance with simpleperf, including workload classification, hotspot recording, and kernel overhead analysis. |
+| `hz-spatial-sdk` | Builds spatial Android apps for Meta Quest and Horizon OS with Meta Spatial SDK, including ECS architecture, panels, 3D objects, and hybrid experiences. |
+| `hz-store-submit` | Guides Meta Quest and Horizon OS app submission to the Meta Horizon Store, including build validation, VRC compliance, assets, upload, and review tracking. |
+| `hz-unity-code-review` | Reviews Unity code targeting Meta Quest and Horizon OS for rendering, performance, input handling, allocations, and common VR pitfalls. |
+| `hz-unity-fbx-import` | Ensures complete FBX URLs or absolute paths are used when importing external 3D models into Unity projects targeting Meta Quest and Horizon OS. |
+| `hz-unity-meta-quest-ui` | Configures Unity UI for Meta Quest and Horizon OS VR development, including world-space canvases, TextMesh Pro, sizing, and interaction readiness. |
+| `hz-unity-placement` | Ensures accurate object placement in Unity projects targeting Meta Quest and Horizon OS using Renderer and Collider bounds. |
+| `hz-unity-project-analyzer` | Analyzes and maintains `.agent-docs/` project knowledge bases for Unity projects targeting Meta Quest and Horizon OS. |
+| `hz-unity-tmp-resources` | Imports and verifies TextMesh Pro Essential Resources for Unity projects targeting Meta Quest and Horizon OS. |
+| `hz-vr-debug` | Debugs Meta Quest and Horizon OS VR/MR apps with hzdb logs, screenshots, app inspection, and common issue diagnosis. |
+| `hz-vrc-check` | Validates Meta Quest and Horizon OS apps against VRC store publishing requirements and pre-submission compliance checks. |
+| `hz-xr-simulator-setup` | Sets up Meta XR Simulator workflows for testing Meta Quest and Horizon OS Unity or Unreal apps without a physical device. |
 
 ## hzdb CLI quick reference
 
@@ -160,22 +169,12 @@ Run `npx -y @meta-quest/hzdb --help` or `npx -y @meta-quest/hzdb <group> --help`
 ├── .github/plugin/          # GitHub Copilot CLI plugin configuration
 │   ├── plugin.json          # Plugin metadata with skills paths
 │   └── marketplace.json     # Marketplace listing
+├── .mcp.json                # Shared MCP server config used by supported clients
 ├── docs/
-│   └── hzdb.md              # Full hzdb CLI reference (auto-generated)
-├── skills/                  # One directory per skill (each is standalone)
-│   ├── hzdb-cli/
-│   ├── hz-perfetto-debug/
-│   ├── hz-new-project-creation/
-│   ├── hz-xr-simulator-setup/
-│   ├── hz-unity-code-review/
-│   ├── hz-android-2d-porting/
-│   ├── hz-iwsdk-webxr/
-│   ├── hz-api-upgrade/
-│   ├── hz-immersive-designer/
-│   ├── hz-spatial-sdk/
-│   ├── hz-vr-debug/
-│   ├── hz-vrc-check/
-│   └── hz-platform-sdk/
+│   └── hzdb.md              # Full hzdb CLI reference
+├── gemini-extension.json    # Gemini-compatible MCP configuration
+├── skills/                  # One directory per skill
+│   └── ...
 ├── LICENSE                  # Apache 2.0
 ├── AGENTS.md                # Agent navigation guide
 ├── CLAUDE.md                # Symlink → AGENTS.md
@@ -185,11 +184,19 @@ Run `npx -y @meta-quest/hzdb --help` or `npx -y @meta-quest/hzdb <group> --help`
 └── README.md
 ```
 
-Each skill directory contains a `SKILL.md` file (the skill prompt) and a `references/` subdirectory with supporting documentation. Every skill is fully standalone — no cross-references between skills.
+Each skill directory contains a `SKILL.md` file. Supporting directories such as `references/`, `scripts/`, `assets/`, `examples/`, and `agents/` are optional and will be used only when they materially help the skill.
+
+## Documentation map
+
+- [CONTRIBUTING.md](CONTRIBUTING.md) covers the general pull request flow for this repository.
+- [AGENTS.md](AGENTS.md) explains the current repo structure and the live skill inventory for coding agents.
+- [docs/hzdb.md](docs/hzdb.md) is the generated hzdb CLI reference.
 
 ## Contributing
 
 We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md) for details on how to submit pull requests, report issues, and contribute to the project.
+
+Note: PRs are not merged directly into this repo. Instead, they are pulled into a private fork, integrated there, and then mirrored back. Public PRs will typically be closed rather than merged directly.
 
 ## Code of Conduct
 

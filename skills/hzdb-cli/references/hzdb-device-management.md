@@ -13,8 +13,16 @@ querying device info, capturing screenshots, streaming logs, and more.
 | `hzdb device disconnect [address]` | Disconnect from a device |
 | `hzdb device reboot` | Reboot the device |
 | `hzdb device wake` | Wake the device from sleep |
+| `hzdb device wait` | Wait for a device to reach an ADB state |
 | `hzdb device battery` | Show battery level and charging status |
+| `hzdb device controllers` | Show connected controller information |
+| `hzdb device configure-testing setup` | Prepare a device for repeatable testing |
+| `hzdb device configure-testing restore` | Restore device settings after testing |
+| `hzdb device health-check` | Validate device readiness before tests |
 | `hzdb device proximity` | Control the proximity sensor |
+| `hzdb audio status` | Show current audio volume |
+| `hzdb audio set <level>` | Set audio volume from 0-15 |
+| `hzdb audio mute` / `hzdb audio unmute` | Mute or restore device audio |
 
 For screenshots, see the `hzdb capture` commands. For logs, see `hzdb log` and `hzdb adb logcat`.
 
@@ -97,6 +105,21 @@ hzdb device wake
 This is useful during development when you need the device active but it is not
 physically accessible.
 
+## hzdb device wait
+
+Wait for the device to reach a specific ADB state before continuing a script.
+
+```bash
+# Wait until the device is available
+hzdb device wait
+
+# Wait for recovery, sideload, or bootloader mode
+hzdb device wait --state recovery --timeout-secs 120
+```
+
+Use this after rebooting a headset or when automation needs to wait for a stable
+device connection.
+
 ## hzdb device battery
 
 Check the battery level and charging status.
@@ -106,6 +129,43 @@ hzdb device battery
 ```
 
 Returns the current battery percentage and whether the device is charging.
+
+## hzdb device controllers
+
+Show information about connected controllers.
+
+```bash
+hzdb device controllers
+```
+
+Use this before input-heavy tests to confirm the expected controllers are paired
+and visible to the device.
+
+## hzdb device configure-testing
+
+Prepare a headset for repeatable automated or semi-automated testing.
+
+```bash
+# Disable animations, keep the device awake, and apply test-friendly settings
+hzdb device configure-testing setup
+
+# Restore default behavior after the test run
+hzdb device configure-testing restore
+```
+
+Run `restore` at the end of a test session so the headset returns to normal
+interactive behavior.
+
+## hzdb device health-check
+
+Run a pre-test validation pass for connectivity, battery, storage, and UI state.
+
+```bash
+hzdb device health-check
+```
+
+Use this before longer test loops to catch obvious device issues before spending
+time on build, install, or capture steps.
 
 ## hzdb device proximity
 
@@ -127,6 +187,24 @@ hzdb device proximity --disable --duration-ms 60000
 
 Disabling the proximity sensor is useful during development when you need the
 headset to stay active while not being worn.
+
+## Audio Control
+
+Use `hzdb audio` for device volume and mute control:
+
+```bash
+# Show current volume state
+hzdb audio status
+
+# Set volume from 0-15
+hzdb audio set 8
+
+# Mute and restore audio
+hzdb audio mute
+hzdb audio unmute
+```
+
+This is useful when automated tests or demos need deterministic device volume.
 
 ## Screenshots
 

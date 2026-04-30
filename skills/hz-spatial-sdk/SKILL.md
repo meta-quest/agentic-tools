@@ -97,6 +97,12 @@ modelEntity.setComponent(
 
 Spatial SDK excels at hybrid applications that combine 2D panels with 3D content. A single activity can display Android UI panels alongside 3D models, allowing users to interact with familiar 2D interfaces while surrounded by spatial content.
 
+### Activity Structure
+
+For most Spatial SDK apps, keep one `SpatialActivity` subclass as the root shell for the whole experience. Tool-style apps usually work best when that single activity owns the scene, registered panels, and ECS systems while UI states change inside that shell.
+
+Avoid structuring a Quest-native tool app like a standard multi-activity Android app unless you have a specific platform reason. Multiple panels or different UI states are usually better expressed inside the same spatial activity.
+
 ### Scene
 
 The `Scene` class manages the 3D environment, including the skybox, image-based lighting (IBL), viewer position, and the reference space. Each `SpatialActivity` has an associated scene.
@@ -158,7 +164,7 @@ val robot = Entity.create(
 )
 ```
 
-4. **Build and deploy** to your connected Quest device using hzdb (`npm install -g @meta-quest/hzdb`):
+4. **Build and deploy** to your connected Quest device using hzdb (invoke via `npx -y @meta-quest/hzdb <args>`):
 
 ```bash
 # Build the APK via Gradle
@@ -233,6 +239,17 @@ plugins {
 Spatial SDK apps require specific manifest entries:
 
 ```xml
+<uses-feature
+  android:name="android.hardware.vr.headtracking"
+  android:required="true" />
+
+<!-- Include these when the app should launch and remain usable with hands,
+     not only paired controllers. -->
+<uses-feature
+  android:name="oculus.software.handtracking"
+  android:required="false" />
+<uses-permission android:name="com.oculus.permission.HAND_TRACKING" />
+
 <application>
   <activity
     android:name=".MyActivity"
@@ -246,6 +263,16 @@ Spatial SDK apps require specific manifest entries:
 </application>
 ```
 
+For panel or hybrid apps that should work without controllers, declare hand
+tracking support and make sure the experience handles switching between hands
+and controllers cleanly. Meta's VRC guidance applies to panel apps as well as
+immersive apps.
+
+If your app needs to talk to a local development service over `http://` or
+`ws://`, you may also need debug-only cleartext traffic settings or a network
+security config. Keep that scoped to development builds and prefer `https://`
+and `wss://` in release builds.
+
 ## References
 
 ### Skill References
@@ -254,4 +281,3 @@ Spatial SDK apps require specific manifest entries:
 - [Panels and 3D Objects](references/panels-and-3d.md) -- 2D panel rendering, 3D object loading, hybrid app development
 - [Interaction SDK](references/interaction-sdk.md) -- Input handling, grabbables, hand tracking, controller input, haptics
 - [Debugging](references/debugging.md) -- Data Model Inspector, OVR Metrics Tool, logcat filtering, common issues
-

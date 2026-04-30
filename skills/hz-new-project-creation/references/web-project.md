@@ -1,26 +1,29 @@
-# Web / IWSDK / WebXR Project Setup for Meta Quest
+# Web / IWSDK / WebXR Project Setup For Meta Quest
 
-This guide walks through creating a new web-based XR project using the Immersive Web SDK (IWSDK) and WebXR for Meta Quest, from setup through deployment.
+This guide walks through creating a new web-based XR project using the current
+Immersive Web SDK (IWSDK) toolchain for Meta Quest.
 
 ## Requirements
 
-- **Node.js**: 18 or newer (LTS recommended)
+- **Node.js**: 20.19.0 or newer
 - **npm**: 9+ (bundled with Node.js)
-- **A modern browser**: Quest Browser, Chrome, or Firefox for testing
-- **HTTPS**: Required for WebXR API access (dev server handles this automatically)
-- **hzdb CLI**: Optional, for deploying PWA-wrapped builds to device
+- **A modern browser**: Quest Browser for device validation, plus a desktop
+  browser for quick iteration
+- **HTTPS**: required for WebXR API access
+- **hzdb CLI**: optional, for preview/open/test workflows and device-side
+  debugging
 
-## Step 1: Create the Project
+## Step 1: Create The Project
 
-### Option A: Using the IWSDK Create Tool (Recommended)
+### Option A: Use The Official IWSDK Create Tool
 
 ```bash
-npm create @meta-quest/iwsdk my-quest-app
+npm create @iwsdk@latest my-quest-app
 cd my-quest-app
-npm install
 ```
 
-This scaffolds a project with the recommended structure, Vite configuration, and IWSDK dependencies pre-configured.
+The official `create-iwsdk` flow can also install dependencies, initialize git,
+and scaffold XR feature choices for you.
 
 ### Option B: Manual Setup
 
@@ -36,13 +39,26 @@ Install dependencies:
 
 ```bash
 # Core dependencies
-npm install @meta-quest/iwsdk three
+npm install @iwsdk/core three
 
 # Development dependencies
-npm install --save-dev vite typescript @types/three
+npm install --save-dev \
+  @iwsdk/vite-plugin-dev \
+  vite-plugin-mkcert \
+  vite \
+  typescript \
+  @types/three
 ```
 
-### TypeScript Configuration
+Optional plugins you will often add next:
+
+```bash
+npm install --save-dev \
+  @iwsdk/vite-plugin-uikitml \
+  @iwsdk/vite-plugin-metaspatial
+```
+
+## Step 2: Add TypeScript Configuration
 
 Create `tsconfig.json`:
 
@@ -55,116 +71,88 @@ Create `tsconfig.json`:
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true
+    "lib": ["ES2020", "DOM", "DOM.Iterable"]
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*"]
 }
 ```
 
-## Step 2: Vite Configuration
+## Step 3: Configure Vite
 
 Create `vite.config.ts`:
 
 ```typescript
+import { iwsdkDev } from '@iwsdk/vite-plugin-dev';
 import { defineConfig } from 'vite';
-import fs from 'fs';
-import path from 'path';
+import mkcert from 'vite-plugin-mkcert';
 
 export default defineConfig({
+  plugins: [
+    mkcert(),
+    iwsdkDev({
+      emulator: {
+        device: 'metaQuest3',
+      },
+      verbose: true,
+    }),
+  ],
   server: {
-    // HTTPS is required for WebXR API access
-    https: {
-      // Vite can generate self-signed certs automatically,
-      // or provide your own:
-      // key: fs.readFileSync('./certs/key.pem'),
-      // cert: fs.readFileSync('./certs/cert.pem'),
-    },
-    // Allow access from Quest Browser on local network
     host: '0.0.0.0',
-    port: 3000,
+    port: 8081,
+    strictPort: true,
   },
   build: {
     target: 'esnext',
     outDir: 'dist',
     sourcemap: true,
   },
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
+  esbuild: {
+    target: 'esnext',
   },
+  publicDir: 'public',
+  base: './',
 });
 ```
 
-For HTTPS without custom certificates, install the `@vitejs/plugin-basic-ssl` plugin:
-
-```bash
-npm install --save-dev @vitejs/plugin-basic-ssl
-```
-
-Then update `vite.config.ts`:
+If the project uses UIKitML, add the compiler plugin too:
 
 ```typescript
-import { defineConfig } from 'vite';
-import basicSsl from '@vitejs/plugin-basic-ssl';
+import { compileUIKit } from '@iwsdk/vite-plugin-uikitml';
 
 export default defineConfig({
-  plugins: [basicSsl()],
-  server: {
-    host: '0.0.0.0',
-    port: 3000,
-  },
-  build: {
-    target: 'esnext',
-    outDir: 'dist',
-    sourcemap: true,
-  },
+  plugins: [
+    compileUIKit({ sourceDir: 'ui', outputDir: 'public/ui', verbose: true }),
+  ],
 });
 ```
 
-## Step 3: Project Structure
+Why HTTPS matters: Quest Browser requires a secure context for WebXR. Local TLS
+is not optional if you want headset sessions to launch reliably.
 
-```
+## Step 4: Organize The Project
+
+```text
 my-quest-app/
   src/
-    index.ts                  # Entry point: create World, start loop
-    components/
-      spin.ts                 # ECS component definitions
-      health.ts
-    systems/
-      spin-system.ts          # ECS system logic
-      input-system.ts
-    entities/
-      player.ts               # Entity factory functions
-      environment.ts
-    utils/
-      math.ts                 # Utility functions
+    index.ts                  # Entry point: World.create, scene setup, XR controls
+    systems/                  # Optional ECS systems
+      movement.ts
   public/
-    models/
-      scene.glb               # 3D models (GLTF/GLB format)
-    textures/
-      ground.jpg              # Texture files
-    audio/
-      ambient.mp3             # Audio files
-    manifest.json             # Web App Manifest (for PWA)
-    sw.js                     # Service worker (for PWA)
+    models/                   # GLTF / GLB models
+    textures/                 # Texture files
+    audio/                    # Audio files
+    ui/                       # Compiled UIKitML JSON output
+  ui/
+    welcome.uikitml           # Source UIKitML files
   index.html                  # HTML entry point
   vite.config.ts
   tsconfig.json
   package.json
 ```
 
-## Step 4: Entry Point
+## Step 5: Create The Entry Point
 
 ### `index.html`
 
@@ -176,22 +164,57 @@ my-quest-app/
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My Quest App</title>
   <style>
-    body { margin: 0; overflow: hidden; }
-    canvas { display: block; width: 100%; height: 100%; }
-    #enter-vr {
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #040b14;
+      color: #f4f2ec;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+    }
+
+    #scene-container {
+      width: 100%;
+      height: 100%;
+    }
+
+    #enter-xr {
       position: fixed;
-      bottom: 20px;
       left: 50%;
+      bottom: 20px;
       transform: translateX(-50%);
-      padding: 12px 24px;
-      font-size: 18px;
+      border: 0;
+      border-radius: 999px;
+      padding: 14px 24px;
+      background: #d2ff72;
+      color: #051015;
+      font-size: 16px;
+      font-weight: 700;
       cursor: pointer;
       z-index: 10;
+    }
+
+    #status {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 10;
+      max-width: 340px;
+      padding: 12px 14px;
+      border-radius: 18px;
+      background: rgba(7, 18, 28, 0.86);
+      border: 1px solid rgba(210, 255, 114, 0.18);
+      backdrop-filter: blur(14px);
     }
   </style>
 </head>
 <body>
-  <button id="enter-vr">Enter VR</button>
+  <div id="scene-container"></div>
+  <div id="status">
+    <strong>My Quest App</strong><br />
+    Open this URL in Quest Browser and tap Enter XR.
+  </div>
+  <button id="enter-xr">Enter XR</button>
   <script type="module" src="/src/index.ts"></script>
 </body>
 </html>
@@ -201,357 +224,157 @@ my-quest-app/
 
 ```typescript
 import * as THREE from 'three';
-import { World } from '@meta-quest/iwsdk';
-import { SpinSystem } from './systems/spin-system';
+import {
+  ReferenceSpaceType,
+  SessionMode,
+  VisibilityState,
+  World,
+} from '@iwsdk/core';
 
 async function main() {
-  // Create the IWSDK World
-  const world = new World({
-    renderer: {
-      antialias: true,
-      alpha: true,
-    },
+  const container = document.getElementById('scene-container');
+  const status = document.getElementById('status');
+  const xrButton = document.getElementById('enter-xr');
+
+  if (!(container instanceof HTMLDivElement)) {
+    throw new Error('Missing #scene-container');
+  }
+
+  const world = await World.create(container, {
     xr: {
-      enabled: true,
-      referenceSpaceType: 'local-floor',
+      sessionMode: SessionMode.ImmersiveVR,
+      referenceSpace: ReferenceSpaceType.LocalFloor,
+      offer: 'none',
+      features: {
+        handTracking: true,
+        hitTest: true,
+        layers: true,
+      },
     },
   });
 
-  // Register ECS systems
-  world.registerSystem(new SpinSystem());
+  world.camera.position.set(0, 1.6, 2.4);
+  world.camera.lookAt(0, 1.35, -1.6);
 
-  // Set up the scene
-  setupScene(world.scene);
+  world.scene.add(new THREE.AmbientLight(0xffffff, 1.2));
 
-  // Set up the VR entry button
-  const enterVRButton = document.getElementById('enter-vr');
-  if (enterVRButton) {
-    enterVRButton.addEventListener('click', async () => {
-      await world.enterXR('immersive-vr', {
-        requiredFeatures: ['local-floor'],
-        optionalFeatures: ['hand-tracking', 'hit-test'],
-      });
-    });
-  }
-
-  // Start the render loop
-  world.start();
-}
-
-function setupScene(scene: THREE.Scene) {
-  // Add ambient light
-  const ambientLight = new THREE.AmbientLight(0x404040, 2);
-  scene.add(ambientLight);
-
-  // Add directional light
   const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
   directionalLight.position.set(5, 10, 5);
-  scene.add(directionalLight);
+  world.scene.add(directionalLight);
 
-  // Add a ground plane
-  const groundGeometry = new THREE.PlaneGeometry(10, 10);
-  const groundMaterial = new THREE.MeshStandardMaterial({
-    color: 0x808080,
-    roughness: 0.8,
-  });
-  const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(10, 10),
+    new THREE.MeshStandardMaterial({
+      color: 0x1a2634,
+      roughness: 0.92,
+    }),
+  );
   ground.rotation.x = -Math.PI / 2;
-  scene.add(ground);
+  world.createTransformEntity(ground, { persistent: true });
 
-  // Add a sample cube
-  const cubeGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-  const cubeMaterial = new THREE.MeshStandardMaterial({ color: 0x00aaff });
-  const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-  cube.position.set(0, 1.0, -1.5);
-  scene.add(cube);
-}
+  const cube = new THREE.Mesh(
+    new THREE.BoxGeometry(0.45, 0.45, 0.45),
+    new THREE.MeshStandardMaterial({
+      color: 0xd2ff72,
+      metalness: 0.1,
+      roughness: 0.35,
+    }),
+  );
+  const cubeEntity = world.createTransformEntity(cube, { persistent: true });
+  cubeEntity.object3D!.position.set(0, 1.35, -1.6);
 
-main().catch(console.error);
-```
-
-### `src/systems/spin-system.ts`
-
-```typescript
-import { System, World } from '@meta-quest/iwsdk';
-
-export class SpinSystem extends System {
-  execute(delta: number, world: World) {
-    // Query entities with a Spin component and rotate them
-    const entities = world.query(['Spin', 'Transform']);
-    for (const entity of entities) {
-      const spin = entity.getComponent('Spin');
-      const transform = entity.getComponent('Transform');
-      transform.rotation.y += spin.speed * delta;
+  const updateUi = (state: VisibilityState) => {
+    if (xrButton) {
+      xrButton.textContent =
+        state === VisibilityState.NonImmersive ? 'Enter XR' : 'Exit To Browser';
     }
-  }
+    if (status) {
+      status.innerHTML =
+        state === VisibilityState.NonImmersive
+          ? '<strong>My Quest App</strong><br />Open this URL in Quest Browser and tap Enter XR.'
+          : '<strong>XR Session Active</strong><br />Use the headset to validate scene layout, input, and comfort.';
+    }
+  };
+
+  world.visibilityState.subscribe(updateUi);
+  updateUi(world.visibilityState.value);
+
+  xrButton?.addEventListener('click', () => {
+    if (world.visibilityState.value === VisibilityState.NonImmersive) {
+      world.launchXR();
+    } else {
+      world.exitXR();
+    }
+  });
 }
+
+main().catch((error: unknown) => {
+  console.error(error);
+  const status = document.getElementById('status');
+  if (status) {
+    status.textContent = `Startup failed: ${String(error)}`;
+  }
+});
 ```
 
-## Step 5: Development Server
+The important current API choices are:
 
-Start the development server:
+- `World.create(...)` is the entry point
+- `world.launchXR()` starts the session
+- `world.exitXR()` ends it
+- `world.visibilityState` is the right hook for UI state
+- `world.createTransformEntity(...)` is the simplest way to attach scene meshes
 
-```bash
-npm run dev
-```
-
-Add the dev script to `package.json` if not already present:
+## Step 6: Add Package Scripts
 
 ```json
 {
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview"
+  },
+  "engines": {
+    "node": ">=20.19.0"
   }
 }
 ```
 
-The server starts at `https://localhost:3000` with HTTPS enabled for WebXR.
+The default IWSDK Vite setup typically serves on `https://localhost:8081`.
 
-## Step 6: Testing
+## Step 7: Test It
 
-### Browser Emulator (IWER)
+### Desktop Iteration
 
-For desktop testing without a headset, use the Immersive Web Emulator:
+`@iwsdk/vite-plugin-dev` provides the current built-in emulator/dev browser
+path. Use it for fast iteration, but do not treat it as a substitute for Quest
+hardware validation.
 
-1. Install the [Immersive Web Emulator](https://chromewebstore.google.com/detail/immersive-web-emulator/) Chrome extension.
-2. Open your app at `https://localhost:3000`.
-3. Open Chrome DevTools and navigate to the **WebXR** tab.
-4. Use the emulator controls to simulate headset movement, controller input, and hand tracking.
-
-### Quest Browser via Network
+### Quest Browser Via Network
 
 To test on an actual Quest device:
 
-1. Ensure your Quest and development machine are on the same Wi-Fi network.
-2. Find your machine's local IP address (e.g., `192.168.1.100`).
-3. Open **Quest Browser** on the headset.
-4. Navigate to `https://192.168.1.100:3000`.
-5. Accept the self-signed certificate warning.
-6. Click "Enter VR" to start the immersive session.
+1. Ensure your Quest and development machine are on the same network.
+2. Find your machine's local IP address, for example `192.168.1.100`.
+3. Open Quest Browser on the headset.
+4. Navigate to `https://192.168.1.100:8081`.
+5. Trust or accept the local certificate flow.
+6. Click `Enter XR` to start the immersive session.
 
 ### Testing Checklist
 
-- [ ] Scene loads without errors in browser console
-- [ ] "Enter VR" button initiates WebXR session
-- [ ] Head tracking works correctly
-- [ ] Controller input is detected (if applicable)
-- [ ] Hand tracking works (if using `hand-tracking` feature)
-- [ ] Performance is smooth at 72 Hz on Quest
+- [ ] `npm run build` succeeds
+- [ ] the dev server is reachable from Quest Browser
+- [ ] the XR button launches a session
+- [ ] the headset shows the scene at the intended scale
+- [ ] controllers and/or hands work as expected
+- [ ] logs and screenshots stay clean during a basic interaction pass
 
-## Step 7: PWA Setup for Store Distribution
+## Practical Notes
 
-To distribute your WebXR app through the Meta Quest Store, package it as a Progressive Web App (PWA).
-
-### Web App Manifest
-
-Create `public/manifest.json`:
-
-```json
-{
-  "name": "My Quest App",
-  "short_name": "QuestApp",
-  "description": "An immersive WebXR experience for Meta Quest",
-  "start_url": "/",
-  "display": "standalone",
-  "orientation": "landscape",
-  "background_color": "#000000",
-  "theme_color": "#000000",
-  "icons": [
-    {
-      "src": "/icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ],
-  "categories": ["games", "entertainment"],
-  "xr": {
-    "enabled": true,
-    "sessionMode": "immersive-vr"
-  }
-}
-```
-
-Add the manifest link to `index.html`:
-
-```html
-<link rel="manifest" href="/manifest.json" />
-```
-
-### Service Worker
-
-Create `public/sw.js`:
-
-```javascript
-const CACHE_NAME = 'quest-app-v1';
-const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/src/index.ts',
-  '/manifest.json',
-];
-
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
-  );
-});
-
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    })
-  );
-});
-```
-
-Register the service worker in `src/index.ts`:
-
-```typescript
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js');
-}
-```
-
-### APK Packaging with Bubblewrap
-
-To create an APK from your PWA for Quest Store submission:
-
-```bash
-# Install Bubblewrap CLI
-npm install -g @nickalcala/nickalcala
-
-# Initialize Bubblewrap project
-nickalcala init --manifest https://your-deployed-url.com/manifest.json
-
-# Build the APK
-nickalcala build
-
-# Install on Quest for testing
-hzdb app install ./app-release-signed.apk
-```
-
-## Step 8: Build and Deploy
-
-### Build for Production
-
-```bash
-npm run build
-```
-
-This outputs optimized static files to the `dist/` directory.
-
-### Deploy to Hosting
-
-Deploy the `dist/` directory to any static hosting service:
-
-**GitHub Pages:**
-
-```bash
-npm install --save-dev gh-pages
-
-# Add to package.json scripts:
-# "deploy": "gh-pages -d dist"
-
-npm run deploy
-```
-
-**Vercel:**
-
-```bash
-npx vercel --prod
-```
-
-**Netlify:**
-
-```bash
-npx netlify deploy --prod --dir=dist
-```
-
-Ensure your hosting service supports HTTPS, as WebXR requires a secure context.
-
-## Three.js Integration Patterns
-
-### Loading GLTF Models
-
-```typescript
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-
-const loader = new GLTFLoader();
-
-loader.load('/models/scene.glb', (gltf) => {
-  const model = gltf.scene;
-  model.position.set(0, 0, -2);
-  model.scale.setScalar(0.5);
-  scene.add(model);
-});
-```
-
-### Controller Input
-
-```typescript
-function setupControllers(renderer: THREE.WebGLRenderer) {
-  const controller1 = renderer.xr.getController(0);
-  const controller2 = renderer.xr.getController(1);
-
-  controller1.addEventListener('selectstart', () => {
-    // Trigger pressed
-  });
-
-  controller1.addEventListener('selectend', () => {
-    // Trigger released
-  });
-
-  scene.add(controller1);
-  scene.add(controller2);
-
-  // Add visible controller models
-  const geometry = new THREE.CylinderGeometry(0.005, 0.005, 0.2);
-  const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
-  const ray = new THREE.Mesh(geometry, material);
-  ray.rotation.x = -Math.PI / 2;
-  controller1.add(ray.clone());
-  controller2.add(ray.clone());
-}
-```
-
-### Hand Tracking
-
-```typescript
-const hand1 = renderer.xr.getHand(0);
-const hand2 = renderer.xr.getHand(1);
-
-// Add hand models using the XRHandModelFactory
-import { XRHandModelFactory } from 'three/examples/jsm/webxr/XRHandModelFactory';
-
-const handModelFactory = new XRHandModelFactory();
-hand1.add(handModelFactory.createHandModel(hand1, 'mesh'));
-hand2.add(handModelFactory.createHandModel(hand2, 'mesh'));
-
-scene.add(hand1);
-scene.add(hand2);
-```
-
-## Performance Considerations
-
-- **Draw calls**: Minimize by merging geometries and using instanced meshes.
-- **Texture size**: Keep textures small (512x512 or 1024x1024 max for most objects).
-- **Model complexity**: Target under 50K-100K triangles total for smooth 72 Hz.
-- **Shader complexity**: Use `MeshStandardMaterial` or `MeshBasicMaterial`. Avoid complex custom shaders.
-- **Asset loading**: Load assets asynchronously and show a loading indicator.
-- **Garbage collection**: Minimize allocations in the render loop to avoid GC pauses.
-
-## Next Steps
-
-- Explore the **IWSDK documentation** for the full ECS API, physics, and networking features.
-- Add **spatial audio** using Three.js `PositionalAudio` with the Web Audio API.
-- Implement **hit testing** for mixed reality placement using the WebXR Hit Test API.
-- Set up **multiplayer** using WebSockets or WebRTC for real-time communication.
-- Package as a **PWA** and submit to the Meta Quest Store for distribution.
+- Keep HTTPS enabled. Quest Browser will not grant WebXR from an insecure local
+  page.
+- Prefer the public `@iwsdk/*` packages over any old `@meta-quest/iwsdk`
+  references.
+- Treat `npm create @iwsdk@latest` as the canonical starting point unless you
+  have a strong reason to hand-roll the project.

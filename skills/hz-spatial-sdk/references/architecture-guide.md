@@ -228,6 +228,15 @@ When you enable a feature, its systems are automatically registered and its comp
 
 `SpatialActivity` extends Android `Activity` and integrates the ECS lifecycle with the Android activity lifecycle.
 
+For overall app structure, most Quest-native Spatial SDK apps should keep a
+single spatial root activity. Tool-style apps usually work best with one
+`SpatialActivity` subclass that owns the scene, registered panels, and ECS
+systems, while UI states change inside that shell.
+
+Avoid carrying over a phone-style multi-activity navigation stack unless you
+have a strong reason. It usually complicates panel ownership, scene lifecycle,
+and XR state management.
+
 ```kotlin
 class MyActivity : SpatialActivity() {
 

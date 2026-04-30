@@ -163,9 +163,9 @@ app/
     main/
       java/com/yourcompany/yourapp/
         MainActivity.kt              # SpatialActivity subclass (entry point)
-        panels/
-          HomePanelActivity.kt        # Panel UI (extends PanelActivity)
-          SettingsPanelActivity.kt
+        ui/
+          HomePanel.kt               # Compose or View-backed panel content
+          SettingsPanel.kt
         components/
           SpinComponent.kt            # Custom ECS components
           HealthComponent.kt
@@ -189,41 +189,61 @@ app/
   build.gradle.kts
 ```
 
+## Debug-Only Local Networking
+
+If your Quest app connects to a host machine or another LAN service during
+development over `http://` or `ws://`, add that as a debug-only allowance.
+Quest-native Android apps often need explicit cleartext traffic or network
+security configuration before local sockets and HTTP endpoints work reliably.
+
+Prefer keeping this in debug builds only. Ship release builds with `https://`
+and `wss://` endpoints instead of leaving cleartext enabled globally.
+
+```xml
+<application
+    android:usesCleartextTraffic="true"
+    android:networkSecurityConfig="@xml/network_security_config" />
+```
+
 ## Step 5: Main Activity
 
 The entry point for a Spatial SDK app is a `SpatialActivity`:
+
+Keep one spatial root activity for the app. Additional panels or UI states
+should usually hang off that activity rather than turning the Quest app into a
+standard multi-activity Android navigation stack.
 
 ```kotlin
 // MainActivity.kt
 package com.yourcompany.yourapp
 
+import com.yourcompany.yourapp.ui.HomePanel
 import com.meta.spatial.core.SpatialActivity
 import com.meta.spatial.core.Entity
+import com.meta.spatial.core.Scene
 import com.meta.spatial.core.Vector3
-import com.meta.spatial.toolkit.Panel
-import com.meta.spatial.toolkit.Transform
 import com.meta.spatial.toolkit.PanelRegistration
+import com.meta.spatial.toolkit.LayoutParams
+import com.meta.spatial.toolkit.SpatialPanelLayoutParams
 
 class MainActivity : SpatialActivity() {
 
     override fun registerPanels(): List<PanelRegistration> {
         return listOf(
-            PanelRegistration(R.layout.activity_home_panel) {
-                activityClass = HomePanelActivity::class.java
-                widthInDp = 600
-                heightInDp = 400
+            PanelRegistration("home_panel") {
+                layoutParams = LayoutParams(600f, 400f, SpatialPanelLayoutParams.HORIZONTAL)
+                panel {
+                    HomePanel()
+                }
             }
         )
     }
 
-    override fun onSceneReady() {
-        super.onSceneReady()
+    override fun onSceneReady(scene: Scene) {
+        super.onSceneReady(scene)
 
-        // Create a panel entity in 3D space
-        Entity.create(
-            Panel(R.layout.activity_home_panel),
-            Transform(Vector3(0f, 1.5f, -1.5f))
-        )
+        scene.setViewerPosition(Vector3(0f, 0f, 0f))
+        Entity.createPanelEntity("home_panel")
     }
 
     override fun registerComponents(): List<Any> {
@@ -240,24 +260,21 @@ class MainActivity : SpatialActivity() {
 }
 ```
 
-### Panel Activity
+### Panel UI
 
-Panels are standard Android Activities rendered as floating UI in 3D space:
+Panels are usually UI surfaces owned by the root spatial activity rather than
+separate Android activities:
 
 ```kotlin
-// panels/HomePanelActivity.kt
-package com.yourcompany.yourapp.panels
+// ui/HomePanel.kt
+package com.yourcompany.yourapp.ui
 
-import android.os.Bundle
-import com.meta.spatial.toolkit.PanelActivity
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 
-class HomePanelActivity : PanelActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // Layout is set via PanelRegistration, but you can
-        // access views and set up click handlers here
-    }
+@Composable
+fun HomePanel() {
+    Text("Hello Quest")
 }
 ```
 
@@ -314,7 +331,9 @@ class SpinSystem : System() {
     <uses-permission android:name="android.permission.INTERNET" />
 
     <!-- Optional permissions based on features -->
-    <!-- <uses-permission android:name="com.oculus.permission.HAND_TRACKING" /> -->
+    <!-- Include these when the app should launch and remain usable with hands,
+         not just paired controllers. -->
+    <uses-permission android:name="com.oculus.permission.HAND_TRACKING" />
     <!-- <uses-permission android:name="com.oculus.permission.PASSTHROUGH" /> -->
     <!-- <uses-permission android:name="android.permission.RECORD_AUDIO" /> -->
 
@@ -322,6 +341,10 @@ class SpinSystem : System() {
     <uses-feature android:name="android.hardware.vr.headtracking"
         android:required="true"
         android:version="1" />
+
+    <uses-feature
+        android:name="oculus.software.handtracking"
+        android:required="false" />
 
     <application
         android:allowBackup="false"

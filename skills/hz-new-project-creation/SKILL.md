@@ -26,11 +26,11 @@ Before creating any Meta Quest project, complete these steps regardless of platf
 1. **Create a Meta developer account** -- Sign up at [developer.meta.com](https://developer.meta.com) and create an organization.
 2. **Set up your Quest for development** -- Enable developer mode in the Meta Horizon app on your phone under your headset's settings.
 3. **Enable USB debugging** -- Connect your Quest via USB-C, put on the headset, and accept the "Allow USB debugging" prompt.
-4. **Install hzdb** -- The `hzdb` CLI tool must be available on your PATH:
+4. **Use hzdb via `npx`** -- The `hzdb` CLI is invoked on demand; no global install required:
    ```bash
-   npm install -g @meta-quest/hzdb
+   npx -y @meta-quest/hzdb --version
    ```
-   Verify with `hzdb --version`.
+   Examples below use the bare `hzdb` command for brevity — substitute `npx -y @meta-quest/hzdb` in front.
 
 Verify your device connection before starting any project:
 
@@ -107,6 +107,19 @@ Each reference covers:
 4. Build and deployment workflow
 5. Testing and iteration workflow
 
+## Gotchas
+
+These are common pitfalls when setting up new Quest projects.
+
+- **Android API level mismatch** -- Quest requires a minimum Android API level of 29 (Android 10) and a target API level of 32+. Setting the wrong API level is the most common reason builds fail to install on the device. Unity defaults may not match these requirements — always verify in Player Settings > Other Settings.
+- **ARM64 only, no x86** -- Quest devices are ARM64 (aarch64). If your build pipeline targets x86 or includes x86 native libraries, the APK will install but crash immediately on launch. In Unity, ensure "Target Architectures" has only ARM64 checked. In Android Studio, verify your ABI filters.
+- **Gradle version compatibility** -- Meta's Android/Spatial SDK samples often pin specific Gradle and AGP (Android Gradle Plugin) versions. Using a newer Gradle version than the samples expect can cause obscure build failures. Match the versions from the sample project's `gradle-wrapper.properties` and `build.gradle`.
+- **Unity version matters** -- Not every Unity version is compatible with the latest Meta XR SDK. Check the Meta XR SDK release notes for the supported Unity version range. Using an unsupported Unity version causes cryptic C# compilation errors or missing XR subsystem errors at runtime.
+- **Vulkan vs. OpenGL ES** -- Quest 3 supports Vulkan and it is recommended for best performance. Quest 2 also supports Vulkan but some older Meta XR SDK features had Vulkan-only bugs. If you see rendering artifacts on Quest 2 with Vulkan, try OpenGL ES 3.0 as a fallback and file a bug.
+- **Missing Android manifest permissions** -- Quest-specific features (hand tracking, passthrough, scene understanding, eye tracking) require explicit manifest permissions. The app will silently fail to access these features without the correct permissions. They are not added automatically by the SDK.
+- **Forgetting to set the package name before first build** -- Changing the package name after the first install on a device can cause data loss or install failures. Set the correct `com.company.appname` package name before your first build and deploy.
+- **Unreal Engine: OpenXR vs. OVRPlugin** -- Unreal supports both the OpenXR backend and the legacy OVRPlugin backend for Quest. New projects should use OpenXR. Mixing plugins in the same project causes undefined behavior.
+
 ## Common Post-Setup Tasks
 
 After the project is created and configured on any platform, these tasks are typically needed:
@@ -155,4 +168,3 @@ On first successful run, verify the application meets baseline performance targe
 - [Unreal Project Setup](references/unreal-project.md) -- Step-by-step Unreal Engine project creation and configuration
 - [Android Project Setup](references/android-project.md) -- Step-by-step Android/Spatial SDK project creation and configuration
 - [Web Project Setup](references/web-project.md) -- Step-by-step IWSDK/WebXR project creation and configuration
-

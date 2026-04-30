@@ -203,11 +203,13 @@ The most frequently failed VRCs -- check these first:
 
 ## hzdb Quick Reference
 
-hzdb (Horizon Debug Bridge) is the CLI for on-device testing. Install once:
+hzdb (Horizon Debug Bridge) is the CLI for on-device testing. Invoke via `npx` — no install required:
 
 ```bash
-npm install -g @meta-quest/hzdb
+npx -y @meta-quest/hzdb --version
 ```
+
+Examples below use the bare `hzdb` command for brevity — substitute `npx -y @meta-quest/hzdb` in front.
 
 ```bash
 hzdb device list                              # Verify device connection

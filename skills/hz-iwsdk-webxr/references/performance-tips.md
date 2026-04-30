@@ -21,7 +21,7 @@ FFR reduces the resolution at the edges of each eye's view, where the user is le
 
 ```typescript
 // Enable FFR at the start of the XR session
-const session = world.xrSession;
+const session = world.session;
 if (session && 'fixedFoveatedRendering' in session) {
   session.fixedFoveatedRendering.level = 'high'; // 'none', 'low', 'medium', 'high'
 }
@@ -132,22 +132,26 @@ const texture = await ktx2Loader.loadAsync('/textures/environment.ktx2');
 
 ## Asset Loading
 
-Use IWSDK's `AssetManager` for async loading with progress tracking:
+Use `AssetManifest` plus `World.create(...)` for startup preloading, then query
+assets from `AssetManager` by key:
 
 ```typescript
-import { AssetManager } from '@meta-quest/iwsdk/assets';
+import { AssetManager, AssetType, World } from '@iwsdk/core';
 
-const assetManager = world.get(AssetManager);
-
-// Load with progress tracking
-const model = await assetManager.load('models/scene.glb', {
-  onProgress: (loaded, total) => {
-    const percent = Math.round((loaded / total) * 100);
-    loadingUI.setData('progress', percent);
+const world = await World.create(container, {
+  assets: {
+    lobby: {
+      url: '/models/lobby.gltf',
+      type: AssetType.GLTF,
+      priority: 'critical',
+    },
   },
 });
 
-world.createEntity().addObject3D(model.scene);
+const lobby = AssetManager.getGLTF('lobby')?.scene.clone();
+if (lobby) {
+  world.createTransformEntity(lobby);
+}
 ```
 
 Best practices:
@@ -210,7 +214,7 @@ For video playback or important UI elements, use WebXR Layers. These are composi
 
 ```typescript
 // Request a quad layer for video playback
-const session = world.xrSession;
+const session = world.session;
 const layerFactory = new XRMediaBinding(session);
 
 const videoElement = document.createElement('video');

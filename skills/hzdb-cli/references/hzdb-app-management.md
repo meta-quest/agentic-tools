@@ -15,6 +15,7 @@ Meta Quest devices.
 | `hzdb app clear <package>` | Clear app data |
 | `hzdb app info <package>` | Get app details |
 | `hzdb app path <package>` | Get APK path on device |
+| `hzdb app foreground` | Detect the current foreground app |
 
 ## hzdb app list
 
@@ -166,6 +167,18 @@ hzdb app path com.mycompany.myapp
 ```
 
 Returns the path to the installed APK file on the device (e.g., `/data/app/com.mycompany.myapp-xxx/base.apk`).
+
+## hzdb app foreground
+
+Detect the package currently in the foreground.
+
+```bash
+hzdb app foreground
+```
+
+This is useful before trace capture or log filtering when the app package is not
+known. Several hzdb workflows can auto-detect the foreground app, but explicitly
+checking it makes scripts easier to debug.
 
 ## Viewing App Logs
 

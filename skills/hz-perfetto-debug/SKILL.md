@@ -34,13 +34,13 @@ Missing a frame deadline by even 1 ms causes a stale frame (reprojection). Stale
 
 ## hzdb Setup
 
-Perfetto tracing is powered by the hzdb CLI. Install once:
+Perfetto tracing is powered by the hzdb CLI. Invoke via `npx` — no install required:
 
 ```bash
-npm install -g @meta-quest/hzdb
+npx -y @meta-quest/hzdb --version
 ```
 
-Verify with `hzdb --version`. Connect your Quest via USB with developer mode enabled before capturing traces.
+Examples below use the bare `hzdb` command for brevity — substitute `npx -y @meta-quest/hzdb`. Connect your Quest via USB with developer mode enabled before capturing traces.
 
 ## Quick Start Workflow
 
