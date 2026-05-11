@@ -26,33 +26,31 @@ Skills are powered by the **hzdb** (Horizon Debug Bridge) CLI, which provides de
 
 ### Claude Code
 
-From the Claude Code marketplace:
+Add Meta Quest Agentic Tools marketplace and install the agentic tools plugin
 
-```bash
-claude plugin install meta-quest/agentic-tools
+Within claude run:
+
 ```
-
-Or clone and add locally:
-
-```bash
-git clone https://github.com/meta-quest/agentic-tools.git meta-quest-skills
-cd meta-quest-skills
-claude plugin add .
+/plugin marketplace add meta-quest/agentic-tools
+/plugin install agentic-tools@meta-quest
 ```
 
 ### Cursor
 
-Install from the [Cursor marketplace](https://cursor.com/marketplace), or clone and add locally:
+Install from the [Cursor marketplace](https://cursor.com/marketplace/meta-reality-labs) with:
 
-```bash
-git clone https://github.com/meta-quest/agentic-tools.git
+```
+/add-plugin meta-quest-agentic-tools
 ```
 
-Then open Cursor Settings > Plugins and add the cloned directory as a local plugin.
+Or install online at: https://cursor.com/marketplace/meta-reality-labs 
 
 ### Gemini
 
-This repo also includes [gemini-extension.json](gemini-extension.json) for Gemini-compatible packaging and MCP configuration.
+```bash
+gemini extensions install https://github.com/meta-quest/agentic-tools
+```
+
 
 ## MCP Server
 
