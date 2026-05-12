@@ -130,7 +130,6 @@ npx -y @meta-quest/hzdb mcp server
 | `hz-unity-project-analyzer` | Analyzes and maintains `.agent-docs/` project knowledge bases for Unity projects targeting Meta Quest and Horizon OS. |
 | `hz-unity-tmp-resources` | Imports and verifies TextMesh Pro Essential Resources for Unity projects targeting Meta Quest and Horizon OS. |
 | `hz-vr-debug` | Debugs Meta Quest and Horizon OS VR/MR apps with hzdb logs, screenshots, app inspection, and common issue diagnosis. |
-| `hz-vrc-check` | Validates Meta Quest and Horizon OS apps against VRC store publishing requirements and pre-submission compliance checks. |
 | `hz-xr-simulator-setup` | Sets up Meta XR Simulator workflows for testing Meta Quest and Horizon OS Unity or Unreal apps without a physical device. |
 
 ## hzdb CLI quick reference
