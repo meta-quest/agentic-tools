@@ -32,7 +32,7 @@ Within claude run:
 
 ```
 /plugin marketplace add meta-quest/agentic-tools
-/plugin install agentic-tools@meta-quest
+/plugin install meta-vr@meta-quest
 ```
 
 ### Cursor
@@ -43,7 +43,7 @@ Install from the [Cursor marketplace](https://cursor.com/marketplace/meta-realit
 /add-plugin meta-quest-agentic-tools
 ```
 
-Or install online at: https://cursor.com/marketplace/meta-reality-labs 
+Or install online at: https://cursor.com/marketplace/meta-reality-labs
 
 ### Gemini
 
@@ -203,4 +203,4 @@ This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.
 
 Apache 2.0 — see [LICENSE](LICENSE) for details.
 
-Copyright (c) 2025 Meta Platforms, Inc.
+Copyright (c) 2026 Meta Platforms, Inc.
