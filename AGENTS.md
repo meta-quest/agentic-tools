@@ -49,6 +49,7 @@ When a skill needs generic hzdb command guidance, prefer referencing those exist
 | hz-unity-tmp-resources | `skills/hz-unity-tmp-resources/` | Imports and verifies TextMesh Pro Essential Resources for Unity projects targeting Meta Quest and Horizon OS. |
 | hz-vr-debug | `skills/hz-vr-debug/` | Debugs Meta Quest and Horizon OS VR/MR apps with hzdb logs, screenshots, app inspection, and common issue diagnosis. |
 | hz-xr-simulator-setup | `skills/hz-xr-simulator-setup/` | Sets up Meta XR Simulator workflows for testing Meta Quest and Horizon OS Unity or Unreal apps without a physical device. |
+| portal | `skills/portal/` | Builds and sideloads Android apps for Meta Portal devices (Portal, Portal+, Portal Mini, Portal Go, Portal TV) with hzdb, covering ADB enablement, the no-GMS constraint, launcher intent-filters, icon density quirks, the Smart Camera SDK, and the gradle build/deploy/debug loop. |
 
 ## Key tool: hzdb
 
