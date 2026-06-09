@@ -125,10 +125,10 @@ The summaries above cover key highlights. For complete changelogs, use the follo
 Search the Meta developer documentation for version-specific details:
 
 ```bash
-hzdb docs search "release notes v73"
-hzdb docs search "changelog unity sdk"
-hzdb docs search "spatial sdk changelog"
-hzdb docs search "breaking changes v72"
+metavr docs search "release notes v73"
+metavr docs search "changelog unity sdk"
+metavr docs search "spatial sdk changelog"
+metavr docs search "breaking changes v72"
 ```
 
 ### Platform-Specific Resources
@@ -149,6 +149,6 @@ To determine what has changed since your current version:
 
 ```bash
 # Search for migration guides between specific versions
-hzdb docs search "migrate from v66 to v69"
-hzdb docs search "upgrade guide unity"
+metavr docs search "migrate from v66 to v69"
+metavr docs search "upgrade guide unity"
 ```

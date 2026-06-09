@@ -1,23 +1,23 @@
 # Logcat Filtering Guide
 
-This reference covers techniques for filtering and searching device logs when debugging Meta Quest applications using the `hzdb` CLI.
+This reference covers techniques for filtering and searching device logs when debugging Meta Quest applications using the `metavr` CLI.
 
 ## Basic Log Viewing
 
-The `hzdb log` command is a shortcut for viewing device logs:
+The `metavr log` command is a shortcut for viewing device logs:
 
 ```bash
 # View the last 100 log lines (default)
-hzdb log
+metavr log
 
 # View the last 500 log lines
-hzdb log -n 500
+metavr log -n 500
 ```
 
-For advanced options, use `hzdb adb logcat`:
+For advanced options, use `metavr adb logcat`:
 
 ```bash
-hzdb adb logcat
+metavr adb logcat
 ```
 
 ## Filtering by Tag
@@ -26,13 +26,13 @@ Use the `--tag` (or `-t`) flag to show only log entries with a specific tag. Tag
 
 ```bash
 # Show only VrApi-related messages
-hzdb log --tag VrApi
+metavr log --tag VrApi
 
 # Show only Unity engine messages
-hzdb adb logcat --tag Unity
+metavr adb logcat --tag Unity
 
 # Show only Unreal Engine messages
-hzdb adb logcat --tag UnrealEngine
+metavr adb logcat --tag UnrealEngine
 ```
 
 ### Common VR-Specific Log Tags
@@ -64,13 +64,13 @@ Use the `--level` (or `-l`) flag to set the minimum severity threshold. Only mes
 
 ```bash
 # Show only Error and Fatal messages
-hzdb log --level E
+metavr log --level E
 
 # Show Warning, Error, and Fatal messages
-hzdb adb logcat --level W
+metavr adb logcat --level W
 
 # Show Info and above (excludes Debug and Verbose)
-hzdb adb logcat --level I
+metavr adb logcat --level I
 ```
 
 The severity levels, from lowest to highest:
@@ -88,14 +88,14 @@ Recommendation: Start with `--level E` to find errors quickly, then widen to `--
 
 ## Advanced Filter Expressions
 
-The `hzdb adb logcat` command supports complex filter expressions using the `--filter` (or `-F`) flag:
+The `metavr adb logcat` command supports complex filter expressions using the `--filter` (or `-F`) flag:
 
 ```bash
 # Filter with tag:priority format
-hzdb adb logcat --filter "Unity:W ActivityManager:I"
+metavr adb logcat --filter "Unity:W ActivityManager:I"
 
 # Multiple filter expressions
-hzdb adb logcat --filter "VrApi:D" --filter "Compositor:E"
+metavr adb logcat --filter "VrApi:D" --filter "Compositor:E"
 ```
 
 Filter expressions use the format `tag:priority` where priority is one of V, D, I, W, E, F, or S (silent/suppress).
@@ -108,8 +108,8 @@ Control the log output format with `--out-format`:
 
 ```bash
 # Available formats: brief, long, process, raw, tag, thread, threadtime (default), time
-hzdb adb logcat --out-format brief
-hzdb adb logcat --out-format long
+metavr adb logcat --out-format brief
+metavr adb logcat --out-format long
 ```
 
 ### Log Buffer
@@ -118,15 +118,15 @@ Select which log buffer to read with `--buffer` (or `-b`):
 
 ```bash
 # Available buffers: main, system, crash, radio, events, all, default
-hzdb adb logcat --buffer crash
-hzdb adb logcat --buffer system
-hzdb adb logcat --buffer all
+metavr adb logcat --buffer crash
+metavr adb logcat --buffer system
+metavr adb logcat --buffer all
 ```
 
 ### Filter by Process ID
 
 ```bash
-hzdb adb logcat --pid 12345
+metavr adb logcat --pid 12345
 ```
 
 ### Regex Pattern Matching
@@ -134,7 +134,7 @@ hzdb adb logcat --pid 12345
 Filter log messages using regex with `--regex` (or `-e`):
 
 ```bash
-hzdb adb logcat --regex "error|exception"
+metavr adb logcat --regex "error|exception"
 ```
 
 ### Clear Log Buffer
@@ -143,10 +143,10 @@ Clear the log buffer before reading:
 
 ```bash
 # Short form
-hzdb log --clear
+metavr log --clear
 
 # Full command (uses -C flag)
-hzdb adb logcat --clear
+metavr adb logcat --clear
 ```
 
 ### Follow Log Output (Stream Mode)
@@ -154,7 +154,7 @@ hzdb adb logcat --clear
 Continuously stream logs with `--follow` (or `-f`):
 
 ```bash
-hzdb adb logcat --follow
+metavr adb logcat --follow
 ```
 
 ## Combining Filters
@@ -163,10 +163,10 @@ You can combine tag and level filters:
 
 ```bash
 # Show only VrApi errors
-hzdb adb logcat --tag VrApi --level E
+metavr adb logcat --tag VrApi --level E
 
 # Show Unity warnings and above
-hzdb adb logcat --tag Unity --level W
+metavr adb logcat --tag Unity --level W
 ```
 
 ## Searching for Crash Signatures
@@ -175,16 +175,16 @@ When investigating crashes, pipe the log output through `grep` to find specific 
 
 ```bash
 # Search for Java/Kotlin exceptions
-hzdb adb logcat -n 1000 | grep "FATAL EXCEPTION"
+metavr adb logcat -n 1000 | grep "FATAL EXCEPTION"
 
 # Search for native crashes
-hzdb adb logcat -n 1000 | grep -E "native crash|SIGABRT|SIGSEGV|SIGBUS|SIGFPE"
+metavr adb logcat -n 1000 | grep -E "native crash|SIGABRT|SIGSEGV|SIGBUS|SIGFPE"
 
 # Search for Application Not Responding events
-hzdb adb logcat -n 1000 | grep "ANR in"
+metavr adb logcat -n 1000 | grep "ANR in"
 
 # Search for out-of-memory events
-hzdb adb logcat -n 1000 | grep -i "OutOfMemoryError\|OOM"
+metavr adb logcat -n 1000 | grep -i "OutOfMemoryError\|OOM"
 ```
 
 ### Crash Signature Reference
@@ -245,8 +245,8 @@ A complete example of filtering logs to find the root cause of a crash in a Unit
 
 ```bash
 # Step 1: Clear logs and start capturing
-hzdb adb logcat --clear
-hzdb adb logcat --tag Unity --level W --follow
+metavr adb logcat --clear
+metavr adb logcat --tag Unity --level W --follow
 
 # Step 2: Reproduce the crash in the headset
 
@@ -255,7 +255,7 @@ hzdb adb logcat --tag Unity --level W --follow
 # The stack trace immediately following will show the cause
 
 # Step 4: If it is a native crash, look for the tombstone
-hzdb adb logcat --buffer crash --level E
+metavr adb logcat --buffer crash --level E
 ```
 
 A typical Unity crash log might look like:
@@ -271,10 +271,10 @@ The key information is the exception type (`NullPointerException`), the method w
 
 ## Command Reference
 
-### hzdb log (shortcut)
+### metavr log (shortcut)
 
 ```
-hzdb log [OPTIONS]
+metavr log [OPTIONS]
 
 Options:
   -n, --lines <N>     Number of recent lines to show (default: 100)
@@ -283,10 +283,10 @@ Options:
   -c, --clear         Clear the log buffer before reading
 ```
 
-### hzdb adb logcat (full)
+### metavr adb logcat (full)
 
 ```
-hzdb adb logcat [OPTIONS]
+metavr adb logcat [OPTIONS]
 
 Options:
   -n, --lines <N>       Number of recent lines to show (default: 100, 0 for all)

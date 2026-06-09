@@ -2,6 +2,7 @@
 name: hz-android-2d-porting
 description: Guides porting existing Android 2D apps to Meta Quest and Horizon OS — input adaptation, panel layout, and design requirements. Use when adapting a mobile Android app for Quest.
 allowed-tools:
+  - Bash(metavr:*)
   - Bash(hzdb:*)
 ---
 
@@ -32,16 +33,16 @@ The goal of porting is to make the app feel native to the Quest experience while
 
 ### Step 1: Initial Testing
 
-Invoke hzdb (the Quest device CLI) via `npx -y @meta-quest/hzdb <args>` — no global install needed; npx fetches the latest published version on demand.
+Invoke metavr (the Quest device CLI) via `metavr <args>`. The command is published as the npm package `metavr`, so if `metavr` is not on PATH you can run the same CLI via `npx -y metavr <args>` — no global install needed; npx fetches the latest published version on demand.
 
 
-If using npx, use `npx -y @meta-quest/hzdb` as an alternative to calling `hzdb` found in this doc.
+The examples in this doc call `metavr` directly; the `npx -y metavr <args>` form above is the equivalent when `metavr` is not on PATH (the published npm package is still `metavr`).
 
 Install the existing APK on a connected Quest device and test basic functionality:
 
 ```bash
-hzdb app install path/to/your-app.apk
-hzdb app launch com.example.yourapp
+metavr app install path/to/your-app.apk
+metavr app launch com.example.yourapp
 ```
 
 Note any immediate issues: crashes, black screens, input problems, or layout breakage.
@@ -163,7 +164,7 @@ Apps that target Horizon OS with proper manifest entries run in **native mode**:
 
 ### Testing Tools
 
-- **hzdb**: Command-line tool for installing, launching, and debugging apps on Quest
+- **metavr**: Command-line tool for installing, launching, and debugging apps on Quest
 - **XR Simulator**: Desktop tool for testing Quest apps without a headset
 - **Meta Quest Developer Hub (MQDH)**: GUI tool for device management and debugging
 - **Android Studio**: Full IDE with Quest device support via ADB

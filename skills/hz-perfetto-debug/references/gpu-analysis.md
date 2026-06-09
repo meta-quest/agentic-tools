@@ -102,7 +102,7 @@ ORDER BY s.ts
 
 ## GPU Metric Counters
 
-GPU counters are hardware performance counters sampled during rendering. Use `hzdb perf gpu-counters` to retrieve aggregated statistics, or query them directly.
+GPU counters are hardware performance counters sampled during rendering. Use `metavr perf gpu-counters` to retrieve aggregated statistics, or query them directly.
 
 ### Texture Metrics
 

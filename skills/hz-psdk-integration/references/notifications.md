@@ -7,13 +7,45 @@
 
 ## Overview
 
-The Notifications API is part of the Horizon Platform SDK. It provides an operation for Meta Quest Android applications to manage and display notifications:
+The Notifications API is part of the Horizon Platform SDK. It provides operations for Meta Quest Android applications to send notifications to users:
 
-1. **`deviceNotification(config)`** -- Send a device notification that displays a toast and/or feeds into the notification feed. Configure the notification with a title, message, optional media attachment, action buttons, and icons.
+1. **`triggerNotification(requestId, userIds)`** -- Trigger an event-based notification (defined server-side and referenced by `requestId`) for delivery to specific `userIds`. Use for server-defined re-engagement events.
+2. **`deviceNotification(config)`** -- Send a device notification that displays a toast and/or feeds into the notification feed. Configure the notification with a title, message, optional media attachment, action buttons, and icons.
+
+> **Two different notification packages — don't confuse them:**
+> - **`notifications`** (this doc) — your app *sends/triggers* a notification (`triggerNotification`, `deviceNotification`).
+> - **`push_notification`** ([push-notification.md](push-notification.md)) — your app *registers to receive* server-triggered push notifications (the "Headset Push API"). Separate package, `register()` / `unregister()`.
 
 > **Setup**: For dependency installation, service connection initialization, and client instantiation, see [common-setup.md](common-setup.md).
 
 ## API Usage
+
+#### Trigger an Event-Based Notification
+
+```kotlin
+import horizon.platform.notifications.Notifications
+import horizon.platform.notifications.NotificationsException
+
+val notifications = Notifications()
+
+try {
+    // requestId references a notification event configured server-side;
+    // userIds are the recipients.
+    notifications.triggerNotification(
+        requestId = "weekly_streak_reminder",
+        userIds = listOf("1234567890", "9876543210"),
+    )
+    // Notification triggered successfully
+} catch (e: NotificationsException) {
+    // Handle error -- see Error Handling section
+}
+```
+
+**Parameters**:
+- `requestId: String` -- the unique identifier of the server-defined notification to trigger
+- `userIds: List<String>` -- the users to deliver the notification to
+
+**Return type**: `Unit` (returns nothing on success)
 
 #### Send a Device Notification
 

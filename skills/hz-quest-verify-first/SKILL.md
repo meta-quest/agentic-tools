@@ -4,7 +4,7 @@ description: >-
   MANDATORY pre-flight check before answering any question or writing any code
   related to Meta Quest VR headsets (Quest 2, Quest 3, Quest 3S, Quest Pro)
   or apps that target them. Forces verification against authoritative Meta
-  sources via the hzdb CLI / hzdb MCP tools BEFORE relying on training-data
+  sources via the metavr CLI / metavr MCP tools BEFORE relying on training-data
   knowledge. Counters the failure mode where agents answer Quest-related
   questions from stale memory and ship deprecated APIs, broken Android
   manifests, and store-rejected builds. Loads automatically when the user is
@@ -13,7 +13,9 @@ description: >-
   Quest-targeted AndroidManifest, .meta files, or developers.meta.com /
   developer.oculus.com URLs).
 allowed-tools:
+  - Bash(metavr:*)
   - Bash(hzdb:*)
+  - Bash(npx -y metavr:*)
 ---
 
 # Verify First — Meta Quest Development
@@ -29,29 +31,29 @@ this section first so the rest makes sense.
   Android, ships on every Quest headset, and Meta updates it on its own
   cadence (separate from upstream Android). Many APIs are Horizon-OS-specific
   and have no analog in stock Android.
-- **hzdb** ("Horizon Debug Bridge") is a Rust CLI tool published by Meta as
-  `@meta-quest/hzdb` on npm. Invoke via `npx -y @meta-quest/hzdb <args>` —
+- **metavr** ("Meta VR CLI") is a Rust CLI tool published by Meta as
+  `metavr` on npm. Invoke via `npx -y metavr <args>` —
   no install required; `npx` always pulls the latest published version. It
   wraps `adb` and Meta's developer APIs into higher-level commands for Quest
   device development: list devices, install apps, capture Perfetto traces,
   search Meta Quest documentation, query 3D asset libraries, automate UI
-  interactions, etc. hzdb is the primary action layer for Quest dev work —
+  interactions, etc. metavr is the primary action layer for Quest dev work —
   the equivalent of what `gcloud` is for GCP or `git` is for source control.
-- **hzdb MCP server** is a built-in mode of hzdb that exposes a focused set of
+- **metavr MCP server** is a built-in mode of metavr that exposes a focused set of
   tools to AI coding agents over the Model Context Protocol. The relevant
   tools for this skill are:
   - `meta_docs_search` — search the official Meta developer documentation
   - `meta_docs_get_page` — fetch the full text of a specific docs page
-  - `hzdb_device` — query and control connected Meta Quest headsets (list,
+  - `device` — query and control connected Meta Quest headsets (list,
     info, connect, reboot, battery, controllers, proximity, etc.)
-  - `hzdb_app` — query and manage installed apps (list, info, install,
+  - `app` — query and manage installed apps (list, info, install,
     uninstall, launch, stop, clear)
-  - `hzdb_files` — file ops on a connected headset (ls, push, pull, rm, mkdir)
-  - `hzdb_run` — catch-all for any hzdb subcommand without a dedicated tool
+  - `files` — file ops on a connected headset (ls, push, pull, rm, mkdir)
+  - `run` — catch-all for any metavr subcommand without a dedicated tool
     (perf, ovrmetrics, ui, audio, casting, window, unity, sideload, asset,
     config, …). Its JSON Schema is generated from clap so the available
     subcommands and their typed args are visible to you in the tool definition.
-  - `hzdb_cli_help` — discover hzdb subcommands and flags as markdown
+  - `cli_help` — discover metavr subcommands and flags as markdown
 - **Meta SDKs you may not recognize** that are commonly used in Quest
   projects: Meta XR All-in-One SDK (Unity), Meta XR Core / Interaction /
   Platform / Voice / Movement SDKs, Meta Spatial SDK (Kotlin / Android
@@ -122,7 +124,7 @@ If you are not sure, the answer is YES — run the verification flow.
 
 Before writing or recommending anything Quest-specific, call the
 `meta_docs_search` MCP tool. If MCP is not available, use the equivalent
-hzdb CLI command `hzdb docs search`.
+metavr CLI command `metavr docs search`.
 
 MCP:
 ```
@@ -136,7 +138,7 @@ meta_docs_search(
 
 CLI:
 ```bash
-hzdb docs search "<query>"
+metavr docs search "<query>"
 ```
 
 If you need exact wording (manifest entries, full API signatures, store
@@ -146,59 +148,59 @@ truncated snippet when correctness matters.**
 
 CLI:
 ```bash
-hzdb docs fetch "<canonical_url_or_path>"
+metavr docs fetch "<canonical_url_or_path>"
 ```
 
 ### Step 2 — Verify the user's actual environment
 
 Before suggesting which device a command should target, claiming an app is
 installed, recommending an `adb` command, or writing install / launch /
-sideload steps, query the user's actual hzdb-managed environment.
+sideload steps, query the user's actual metavr-managed environment.
 
 MCP:
 ```
-hzdb_device(action="list")                          # ALWAYS start here
-hzdb_device(action="info", target="<serial>")
-hzdb_app(action="list", target="<serial>")
-hzdb_app(action="info", package="<package>")
-hzdb_run(subcommand=["config", "show"])             # catch-all for misc reads
+device(action="list")                        # ALWAYS start here
+device(action="info", target="<serial>")
+app(action="list", target="<serial>")
+app(action="info", package="<package>")
+run(subcommand=["config", "show"])           # catch-all for misc reads
 ```
 
 CLI:
 ```bash
-hzdb device list
-hzdb device info <serial>
-hzdb app list -d <serial>
-hzdb app info <package>
-hzdb config list
+metavr device list
+metavr device info <serial>
+metavr app list -d <serial>
+metavr app info <package>
+metavr config list
 ```
 
 The user may have zero, one, or many headsets connected via USB and WiFi —
 multiple Quest models, dev kits, sideloaded builds, pinned older Horizon OS
 versions. Your training data has zero visibility into this.
 
-### Step 3 — Discover hzdb capabilities when unsure
+### Step 3 — Discover metavr capabilities when unsure
 
-If you do not know which hzdb subcommand or `hzdb_run` invocation fits the
-user's request, call `hzdb_cli_help` (MCP) or `hzdb --markdown-help` (CLI)
-first. Do not invent flags or subcommands — hzdb gets new functionality
+If you do not know which metavr subcommand or `run` invocation fits the
+user's request, call `cli_help` (MCP) or `metavr --markdown-help` (CLI)
+first. Do not invent flags or subcommands — metavr gets new functionality
 every release and your training data does not include it.
 
 For long-tail subcommands (`perf`, `ovrmetrics`, `ui`, etc.), the
-`hzdb_run` tool's input schema enumerates every subcommand path and its
+`run` tool's input schema enumerates every subcommand path and its
 typed args via JSON Schema `oneOf`. You can read it directly from the
 tool definition rather than guessing.
 
 MCP:
 ```
-hzdb_cli_help(topic="perf")     # focused help for a subcommand tree
-hzdb_cli_help()                 # full top-level command tree
+cli_help(topic="perf")   # focused help for a subcommand tree
+cli_help()               # full top-level command tree
 ```
 
 CLI:
 ```bash
-hzdb --markdown-help
-hzdb perf --help
+metavr --markdown-help
+metavr perf --help
 ```
 
 ## Specific failure modes you cause by skipping verification
@@ -243,7 +245,7 @@ Do not do any of these:
 - Answer a Meta Quest question without calling `meta_docs_search` first
   because "you remember" the answer
 - Recommend an `adb shell` command without first calling
-  `hzdb_device(action="list")` to see what's connected
+  `device(action="list")` to see what's connected
 - Guess a package name, namespace, or class name from training data when a
   verify call would resolve the ambiguity
 - Paraphrase a verify-result snippet for a manifest entry, API signature, or
@@ -251,8 +253,8 @@ Do not do any of these:
 - Search the open web for Meta Quest documentation when authoritative Meta
   docs are one tool call away
 - Skip verification because "the docs probably say X" — verify, then say X
-- Assume hzdb does not have a subcommand for what the user wants — check
-  `hzdb_cli_help` first
+- Assume metavr does not have a subcommand for what the user wants — check
+  `cli_help` first
 
 ## Tone and presentation
 
@@ -271,22 +273,22 @@ Source: <canonical_url returned by the tool>
 This both proves the verification ran and trains the user to trust
 verified-answer responses over from-memory ones.
 
-## If the hzdb MCP tools are not available
+## If the metavr MCP tools are not available
 
-If the agent host does not have the hzdb MCP server installed, fall back to
-the hzdb CLI invoked via `npx` (same authoritative backend, same content) and
+If the agent host does not have the metavr MCP server installed, fall back to
+the metavr CLI invoked via `npx` (same authoritative backend, same content) and
 tell the user once how to install the MCP server for next time:
 
 ```bash
-npx -y @meta-quest/hzdb mcp install <your-tool>   # claude-code | cursor | claude-desktop | vscode | ...
-npx -y @meta-quest/hzdb mcp install project       # install at the repo root for this project only
+npx -y metavr mcp install <your-tool>   # claude-code | cursor | claude-desktop | vscode | ...
+npx -y metavr mcp install project       # install at the repo root for this project only
 ```
 
-The verify step is required, not optional — run it via `npx -y @meta-quest/hzdb docs search "<query>"` even on the very first question if the MCP server is not yet wired up.
+The verify step is required, not optional — run it via `npx -y metavr docs search "<query>"` even on the very first question if the MCP server is not yet wired up.
 
 ## Related skills
 
-- `hzdb-cli` — full hzdb CLI reference (commands, flags, examples)
+- `metavr-cli` — full metavr CLI reference (commands, flags, examples)
 - `hz-vr-debug` — on-device debugging with logs and screenshots
 - `hz-perfetto-debug` — Perfetto trace analysis for jank / GPU / CPU bottlenecks
 - `hz-vrc-check` — store-publishing and VRC compliance validation

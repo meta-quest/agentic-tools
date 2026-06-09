@@ -6,7 +6,7 @@ This walks through preparing a Portal device for sideloading apps. One-time per 
 
 - A Portal device (any model: Portal, Portal+, Portal Mini, Portal Go, Portal TV)
 - A USB-C cable (must be data-capable, not charge-only)
-- A computer with [hzdb](https://github.com/meta-quest/agentic-tools) installed
+- A computer with [metavr](https://github.com/meta-quest/agentic-tools) installed
 - An Android SDK install (see `android-sdk-setup.md`)
 
 ## 1. Connect via USB-C
@@ -31,11 +31,11 @@ There is no visual confirmation that ADB is on — the toggle just becomes activ
 
 The first time you connect a new computer:
 
-1. With the cable connected, run `hzdb device list` or `hzdb adb devices` on your computer.
+1. With the cable connected, run `metavr device list` or `metavr adb devices` on your computer.
 2. The Portal will show an "Allow USB debugging?" prompt with the computer's RSA fingerprint.
 3. Tap **Allow** (optionally check "Always allow from this computer").
 
-Now `hzdb device list` or `hzdb adb devices` should list your device:
+Now `metavr device list` or `metavr adb devices` should list your device:
 
 ```text
 List of devices attached
@@ -55,8 +55,8 @@ If you see no devices:
 If you have any Portal-compatible APK handy:
 
 ```bash
-hzdb adb install path/to/some-app.apk
-hzdb adb shell am start -n <package>/<activity>
+metavr adb install path/to/some-app.apk
+metavr adb shell am start -n <package>/<activity>
 ```
 
 If install succeeds and the app launches on the device, your setup is good.

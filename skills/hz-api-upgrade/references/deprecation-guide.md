@@ -92,7 +92,7 @@ Cloud Storage V2 has been sunset. Applications must migrate to Cloud Backup.
 1. Remove all `CloudStorage2` API calls
 2. Store save data in the app's local persistent storage path
 3. Configure cloud backup in your app's dashboard settings
-4. Test backup and restore flow using `hzdb` or developer settings
+4. Test backup and restore flow using `metavr` or developer settings
 
 ## Oculus Spatializer to Meta XR Audio SDK
 
@@ -169,9 +169,9 @@ Most deprecated APIs generate compiler warnings. Enable "treat warnings as error
 ### Documentation Search
 
 ```bash
-hzdb docs search "deprecated"
-hzdb docs search "migration"
-hzdb docs search "breaking changes"
+metavr docs search "deprecated"
+metavr docs search "migration"
+metavr docs search "breaking changes"
 ```
 
 ### Code Search Patterns

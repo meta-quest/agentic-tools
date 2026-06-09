@@ -62,8 +62,8 @@ Target: 72 Hz sustained on Quest 2, 90 Hz on Quest 3.
 
 Debug with:
 ```bash
-hzdb adb logcat --buffer crash
-hzdb adb logcat --tag AndroidRuntime --level E
+metavr adb logcat --buffer crash
+metavr adb logcat --tag AndroidRuntime --level E
 ```
 
 ### ANR (Application Not Responding)
@@ -89,7 +89,7 @@ hzdb adb logcat --tag AndroidRuntime --level E
 
 **Fix:** Capture screenshots from the actual app running on a Quest device, not from the editor or marketing mockups. Use:
 ```bash
-hzdb capture screenshot -o screenshot.png
+metavr capture screenshot -o screenshot.png
 ```
 
 ### Missing required assets

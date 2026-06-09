@@ -8,12 +8,12 @@ This reference walks through a systematic approach to analyzing a Perfetto trace
 
 ```bash
 # Find available traces
-hzdb perf traces
+metavr perf traces
 
 # Load by filename, path, or hex session ID
-hzdb perf load my-trace.pftrace
-hzdb perf load /path/to/trace.pftrace
-hzdb perf load a1b2c3d4
+metavr perf load my-trace.pftrace
+metavr perf load /path/to/trace.pftrace
+metavr perf load a1b2c3d4
 ```
 
 Once loaded, the trace remains available for queries until a new trace is loaded.

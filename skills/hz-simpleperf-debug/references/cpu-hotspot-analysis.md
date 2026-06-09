@@ -8,10 +8,10 @@ CPU hotspot recording uses hardware cycle counters via `simpleperf record` to id
 
 ```bash
 # Basic recording — profiles foreground app for 10 seconds at 4000 Hz
-hzdb perf simpleperf record
+metavr perf simpleperf record
 
 # Custom settings
-hzdb perf simpleperf record --app com.example.myapp --frequency 4000 --duration 10
+metavr perf simpleperf record --app com.example.myapp --frequency 4000 --duration 10
 ```
 
 ### Sampling Frequency Guidelines

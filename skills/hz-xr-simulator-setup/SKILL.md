@@ -2,6 +2,7 @@
 name: hz-xr-simulator-setup
 description: Sets up the Meta XR Simulator for testing Meta Quest and Horizon OS apps without a physical device. Use when configuring device-free testing for Unity or Unreal projects.
 allowed-tools:
+  - Bash(metavr:*)
   - Bash(hzdb:*)
 ---
 

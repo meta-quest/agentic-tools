@@ -50,7 +50,7 @@ Before adding any dependency, check its transitive deps don't pull in `play-serv
 
 ## Launcher intent-filter (the silent killer)
 
-An app without a launcher intent-filter installs successfully and **does not appear on the home screen**. You can still launch it with `hzdb adb shell am start`, but a human user can't see it.
+An app without a launcher intent-filter installs successfully and **does not appear on the home screen**. You can still launch it with `metavr adb shell am start`, but a human user can't see it.
 
 **Touch devices** (Portal, Portal+, Mini, Go) — add to the activity you want on the home screen:
 
@@ -228,7 +228,7 @@ Standard Android runtime permissions work for camera, microphone, Bluetooth, net
 
 - **Contacts** (`READ_CONTACTS` / `WRITE_CONTACTS`): no provider, denied at runtime
 - **Accounts** (`AccountManager.getAccounts*`): provider returns nothing
-- **Cross-app storage delete**: scoped storage means you can only delete files your app owns. To delete arbitrary files, use `hzdb adb shell rm` or install a file-manager app
+- **Cross-app storage delete**: scoped storage means you can only delete files your app owns. To delete arbitrary files, use `metavr adb shell rm` or install a file-manager app
 
 ## Design for the form factor
 
@@ -237,7 +237,7 @@ Portal is a tabletop or wall-mounted device that users interact with from 50–1
 - **Hit targets**: minimum 64 dp; aim for 96 dp. Phone-sized 48 dp targets are hard to tap at arm's length.
 - **Font sizes**: minimum 18 sp for body text; 24 sp+ for headings. Phone defaults (12–14 sp) are hard to read across the room.
 - **Layouts**: design for landscape primarily. Portal screens are 10–15" landscape. Portrait is rarely used.
-- **Density**: low and device-dependent — verify with `hzdb adb shell wm density`. A 1st-gen Portal ("aloha", API 28) reports **160 dpi (mdpi)** on an 800×1280 panel (a ~1280×800 dp landscape canvas), so stock layouts render small at viewing distance. Test on a real device — a phone emulator scaled up does not represent it. For **ported** apps, a global density override is the quickest fix — see `porting-existing-apps.md` § "Scale the UI up for viewing distance".
+- **Density**: low and device-dependent — verify with `metavr adb shell wm density`. A 1st-gen Portal ("aloha", API 28) reports **160 dpi (mdpi)** on an 800×1280 panel (a ~1280×800 dp landscape canvas), so stock layouts render small at viewing distance. Test on a real device — a phone emulator scaled up does not represent it. For **ported** apps, a global density override is the quickest fix — see `porting-existing-apps.md` § "Scale the UI up for viewing distance".
 - **Audio**: Portal has a far-field mic array and a stereo speaker bar. Voice UI works at room distance. Don't assume the user is right next to the device.
 - **Camera**: the camera is at the top of the device, slightly above eye level for a seated user. By default it frames a wide area (Smart Camera auto-pan). See `smart-camera-sdk.md` to control framing.
 - **Input**: touch only on touch models (no keyboard, no D-pad). Portal TV is D-pad only (no touch). Plan navigation accordingly.

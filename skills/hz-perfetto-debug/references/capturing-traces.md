@@ -4,14 +4,14 @@
 
 Perfetto traces record detailed timing information about CPU scheduling, GPU rendering, and application behavior. A good trace is the foundation of any performance investigation.
 
-## Capture with hzdb
+## Capture with metavr
 
 ### Basic Capture
 
 Capture a trace from the currently running VR app on a connected Quest device:
 
 ```bash
-hzdb perf capture
+metavr perf capture
 ```
 
 This auto-detects the foreground VR app, captures a 5-second trace with CPU scheduling and GPU metrics enabled, then pulls the `.pftrace` file to your local machine.
@@ -20,34 +20,34 @@ This auto-detects the foreground VR app, captures a 5-second trace with CPU sche
 
 ```bash
 # 10-second capture targeting a specific app
-hzdb perf capture --duration 10000 --app com.example.myapp
+metavr perf capture --duration 10000 --app com.example.myapp
 
 # Short 2-second capture for frame timing
-hzdb perf capture --duration 2000
+metavr perf capture --duration 2000
 ```
 
 ### Enabling Additional Trace Categories
 
-By default, `hzdb perf capture` enables CPU scheduling (`--cpu-scheduling`) and GPU metrics (`--gpu-metrics`). You can enable additional categories:
+By default, `metavr perf capture` enables CPU scheduling (`--cpu-scheduling`) and GPU metrics (`--gpu-metrics`). You can enable additional categories:
 
 ```bash
 # Enable GPU render stage tracing (detailed per-pass timing)
-hzdb perf capture --gpu-render-stage
+metavr perf capture --gpu-render-stage
 
 # Enable XR runtime metrics (OpenXR frame timing)
-hzdb perf capture --xr-runtime
+metavr perf capture --xr-runtime
 
 # Enable everything for a comprehensive trace
-hzdb perf capture --gpu-render-stage --xr-runtime
+metavr perf capture --gpu-render-stage --xr-runtime
 ```
 
 ### Custom Output Name
 
 ```bash
-hzdb perf capture -o my-session-name
+metavr perf capture -o my-session-name
 ```
 
-The trace is saved locally and appears in `hzdb perf traces` output.
+The trace is saved locally and appears in `metavr perf traces` output.
 
 ### Capture Options Reference
 
@@ -63,7 +63,7 @@ The trace is saved locally and appears in `hzdb perf traces` output.
 
 ## Programmatic Capture
 
-For automated testing pipelines and CI environments, use the Perfetto SDK to trigger traces from within the application or test harness. This does not require hzdb or a USB connection.
+For automated testing pipelines and CI environments, use the Perfetto SDK to trigger traces from within the application or test harness. This does not require metavr or a USB connection.
 
 ## Trace Duration Guidelines
 
@@ -79,7 +79,7 @@ For automated testing pipelines and CI environments, use the Perfetto SDK to tri
 
 ## Trace Categories
 
-These are the data sources captured by hzdb, controllable via capture flags:
+These are the data sources captured by metavr, controllable via capture flags:
 
 | Category | Captured By | What It Records |
 |----------|------------|-----------------|
@@ -95,7 +95,7 @@ These are the data sources captured by hzdb, controllable via capture flags:
 After capture, traces are stored locally and discoverable via:
 
 ```bash
-hzdb perf traces
+metavr perf traces
 ```
 
 This lists `.pftrace` files sorted newest first, searching standard directories including `~/Documents`, `~/Downloads`, and the current working directory.
@@ -106,13 +106,13 @@ After capture, verify the trace is usable before starting analysis:
 
 ```bash
 # List available traces (most recent first)
-hzdb perf traces
+metavr perf traces
 
 # Load the trace
-hzdb perf load <session-id>
+metavr perf load <session-id>
 
 # Quick validation query
-hzdb perf query <session-id> "SELECT (MAX(ts) - MIN(ts)) / 1e9 AS duration_sec, COUNT(*) AS slices FROM slice"
+metavr perf query <session-id> "SELECT (MAX(ts) - MIN(ts)) / 1e9 AS duration_sec, COUNT(*) AS slices FROM slice"
 ```
 
 A good trace should have:
@@ -124,7 +124,7 @@ A good trace should have:
 
 | Problem | Cause | Solution |
 |---------|-------|----------|
-| No device found | Device not connected or not authorized | Run `hzdb device list` to check connection. Ensure USB debugging is enabled and authorized. |
+| No device found | Device not connected or not authorized | Run `metavr device list` to check connection. Ensure USB debugging is enabled and authorized. |
 | Empty or very small trace | Perfetto daemon not running on device | Check device logs. May need to restart the device. |
 | Missing GPU data | GPU trace events not enabled | Use `--gpu-render-stage` and `--gpu-metrics` flags |
 | Missing app slices | App not using atrace/Trace API | Ensure app has tracing instrumentation enabled |

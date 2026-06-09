@@ -331,10 +331,10 @@ Build the release APK and install on a connected Quest device:
 ./gradlew assembleQuestRelease
 
 # Install on connected device
-hzdb app install app/build/outputs/apk/quest/release/app-quest-release.apk
+metavr app install app/build/outputs/apk/quest/release/app-quest-release.apk
 
 # Launch the app
-hzdb app launch com.example.myquestapp
+metavr app launch com.example.myquestapp
 ```
 
 ## Common Build Issues

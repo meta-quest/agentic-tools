@@ -1,6 +1,6 @@
 # Vibe-coding prompts for Portal
 
-Starter prompts you can paste into Claude, Cursor, Codex, etc. once this skill is loaded. Each assumes you have a project open and a Portal connected via `hzdb adb`.
+Starter prompts you can paste into Claude, Cursor, Codex, etc. once this skill is loaded. Each assumes you have a project open and a Portal connected via `metavr adb`.
 
 Replace placeholder names (`my-app`, package IDs, etc.) with your own.
 
@@ -11,7 +11,7 @@ Create a new Android app that targets my Portal device. Set minSdkVersion 28,
 targetSdkVersion 29, compileSdk latest. The app should display the current time
 in large white text on a black background. Make sure the manifest has the
 touch-device launcher intent-filter and a 512x512 PNG icon in mipmap-xxxhdpi.
-Build it with ./gradlew assembleDebug and install with hzdb adb install.
+Build it with ./gradlew assembleDebug and install with metavr adb install.
 ```
 
 ## Modify the sample
@@ -67,9 +67,9 @@ and the convention plugins. Verify minSdk ≤ 28 and targetSdk ≥ 29. Build tha
 flavor with:
   ./gradlew :app:assemble<Flavor>Debug -x lint -x test
 Install with:
-  hzdb -d <portal-serial> adb install -r app/build/outputs/apk/<flavor>/debug/*.apk
+  metavr -d <portal-serial> adb install -r app/build/outputs/apk/<flavor>/debug/*.apk
 Launch with:
-  hzdb -d <portal-serial> app launch <applicationId-with-.debug-suffix>
+  metavr -d <portal-serial> app launch <applicationId-with-.debug-suffix>
 Capture a screenshot to verify it rendered. If the launch APK fails on a
 `google-services.json` missing error, drop a stub JSON at
 app/src/<flavor>/google-services.json (template in resources/porting-existing-apps.md).

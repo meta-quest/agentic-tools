@@ -1,23 +1,23 @@
-# hzdb Agent Workflows
+# metavr Agent Workflows
 
-This reference covers practical patterns for using hzdb in coding-agent and
+This reference covers practical patterns for using metavr in coding-agent and
 developer-tooling workflows.
 
 ## Project-local MCP Installation
 
-If the coding agent runs in a project repository, prefer installing hzdb into the
+If the coding agent runs in a project repository, prefer installing metavr into the
 project instead of relying on a global editor-only configuration:
 
 ```bash
 cd your-project
-hzdb mcp install project
+metavr mcp install project
 ```
 
 Why this is a good default:
 
 - The integration is visible in the repository
 - Different projects can pin different MCP setups
-- The agent can use hzdb without the Quest app itself becoming an MCP client
+- The agent can use metavr without the Quest app itself becoming an MCP client
 
 ## Thin Client vs Host Agent
 
@@ -26,7 +26,7 @@ For Quest-native developer tools, the clean default split is:
 - **Headset app or browser preview**: voice capture, prompt editing, status,
   plan display, diff review, approval
 - **Host-side coding agent**: repository access, file edits, build/test loop,
-  hzdb tool calls, deployment, logs, screenshots
+  metavr tool calls, deployment, logs, screenshots
 
 Avoid making the headset app talk directly to every developer tool unless there is
 a strong reason. In most workflows, the host machine already has the codebase,
@@ -39,10 +39,10 @@ commands as a two-step verification loop:
 
 ```bash
 # 1. Search for the right page
-hzdb docs search "iwsdk scene understanding"
+metavr docs search "iwsdk scene understanding"
 
 # 2. Fetch the exact page before acting on it
-hzdb docs fetch https://developers.meta.com/horizon/documentation/...
+metavr docs fetch https://developers.meta.com/horizon/documentation/...
 ```
 
 Use this workflow before answering from memory about:
@@ -57,16 +57,16 @@ Use this workflow before answering from memory about:
 
 ```bash
 # Search docs for the current platform detail
-hzdb docs search "spatial sdk panel registration"
-hzdb docs fetch https://developers.meta.com/horizon/documentation/...
+metavr docs search "spatial sdk panel registration"
+metavr docs fetch https://developers.meta.com/horizon/documentation/...
 
 # Deploy the latest build
-hzdb app install app/build/outputs/apk/debug/app-debug.apk
-hzdb app launch com.example.toolapp
+metavr app install app/build/outputs/apk/debug/app-debug.apk
+metavr app launch com.example.toolapp
 
 # Inspect runtime behavior
-hzdb log --tag ToolApp
-hzdb capture screenshot -o toolapp.png
+metavr log --tag ToolApp
+metavr capture screenshot -o toolapp.png
 ```
 
 This works well for external developers because it keeps the loop in a small set
@@ -74,7 +74,7 @@ of commands with predictable output.
 
 ## Designing MCP Tools That Agents Will Actually Use
 
-If you are building your own MCP layer around hzdb, favor:
+If you are building your own MCP layer around metavr, favor:
 
 - a small default tool vocabulary
 - stable tool names

@@ -2,6 +2,7 @@
 name: hz-iwsdk-webxr
 description: Builds WebXR experiences for Meta Quest and Horizon OS using the Immersive Web SDK (IWSDK) — ECS architecture, Three.js integration, spatial UI. Use when creating web-based VR/MR apps for Quest Browser.
 allowed-tools:
+  - Bash(metavr:*)
   - Bash(hzdb:*)
 ---
 
@@ -119,7 +120,7 @@ Recommended loop:
 
 If you are pairing a Quest-native frontend with a host-side coding agent, keep
 the frontend thin. Let the host machine own the repository, file edits,
-dependency installs, tests, build steps, and hzdb tool calls.
+dependency installs, tests, build steps, and metavr tool calls.
 
 ## Project Structure
 

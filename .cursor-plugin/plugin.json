@@ -1,14 +1,14 @@
 {
   "name": "meta-vr",
-  "description": "Agent skills for Meta Quest and Horizon OS development. Helps Claude assist with Quest app debugging, performance analysis, project setup, Unity and WebXR workflows, Spatial SDK and Platform SDK integration, store submission checks, and hzdb device workflows.",
-  "version": "1.1.0",
+  "description": "Agent skills for Meta Quest and Horizon OS development. Helps Claude assist with Quest app debugging, performance analysis, project setup, Unity and WebXR workflows, Spatial SDK and Platform SDK integration, store submission checks, and Meta VR CLI device workflows.",
+  "version": "1.2.1",
   "author": {
     "name": "Meta Platforms, Inc."
   },
   "homepage": "https://developers.meta.com/horizon/discover/ai-tools/",
   "repository": "https://github.com/meta-quest/agentic-tools",
   "license": "Apache-2.0",
-  "keywords": ["meta-quest", "horizon-os", "meta-vr", "vr", "xr", "mixed-reality", "unity", "webxr", "spatial-sdk", "platform-sdk", "android", "hzdb", "debugging", "performance", "store-submission"],
+  "keywords": ["meta-quest", "horizon-os", "meta-vr", "vr", "xr", "mixed-reality", "unity", "webxr", "spatial-sdk", "platform-sdk", "android", "metavr", "debugging", "performance", "store-submission"],
   "skills": "skills/",
   "mcpServers": ".mcp.json"
 }

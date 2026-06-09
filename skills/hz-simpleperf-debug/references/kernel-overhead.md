@@ -8,10 +8,10 @@ The kernel overhead measurement separates CPU cycles into user-mode (your app co
 
 ```bash
 # Measure kernel overhead for the foreground app
-hzdb perf simpleperf kernel-overhead
+metavr perf simpleperf kernel-overhead
 
 # Target a specific app with custom duration
-hzdb perf simpleperf kernel-overhead --app com.example.myapp --duration 15
+metavr perf simpleperf kernel-overhead --app com.example.myapp --duration 15
 ```
 
 ## Interpreting Results
@@ -101,8 +101,8 @@ When a thread is in kernel mode, it's executing OS code on behalf of your app. C
 
 Kernel overhead analysis works best as part of a three-step workflow:
 
-1. **Classify** (`hzdb perf simpleperf classify`) — What type of bottleneck?
-2. **Kernel overhead** (`hzdb perf simpleperf kernel-overhead`) — How much is OS/driver vs app?
-3. **Hotspots** (`hzdb perf simpleperf record`) — Which specific functions?
+1. **Classify** (`metavr perf simpleperf classify`) — What type of bottleneck?
+2. **Kernel overhead** (`metavr perf simpleperf kernel-overhead`) — How much is OS/driver vs app?
+3. **Hotspots** (`metavr perf simpleperf record`) — Which specific functions?
 
-If kernel overhead is high, Perfetto tracing (`hzdb perf capture`) can show exactly *when* the kernel calls happen relative to frame boundaries, revealing whether they're causing frame drops or happening during slack time.
+If kernel overhead is high, Perfetto tracing (`metavr perf capture`) can show exactly *when* the kernel calls happen relative to frame boundaries, revealing whether they're causing frame drops or happening during slack time.

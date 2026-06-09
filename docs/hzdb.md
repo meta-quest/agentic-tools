@@ -1,5 +1,4 @@
-<!-- This file is auto-generated from `hzdb --markdown-help`. Do not edit manually. -->
-# hzdb (v1.1.0)
+# hzdb
 
 Horizon Debug Bridge - CLI for Meta Quest device development
 
@@ -24,6 +23,7 @@ hzdb [OPTIONS] [COMMAND]
 
 | Command | Description |
 |---------|-------------|
+| [`init`](#init) | Set up hzdb — install AI agent skills and configure MCP servers |
 | [`adb`](#adb) | Low-level ADB-compatible commands (devices, shell, logcat, etc.) |
 | [`app`](#app) | Manage applications on the device (install, uninstall, launch, etc.) |
 | [`asset`](#asset) | Search Meta's 3D asset library for models |
@@ -37,6 +37,29 @@ hzdb [OPTIONS] [COMMAND]
 | [`mcp`](#mcp) | MCP server for AI assistant integration |
 | [`perf`](#perf) | Performance analysis and Perfetto trace tools |
 | [`shell`](#shell) | Run a shell command on the device (shortcut for `adb shell`) |
+
+## init
+
+Set up hzdb — install AI agent skills and configure MCP servers
+
+**Usage:**
+
+```
+init [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-y, --no-prompt` | Skip interactive prompts (install to all detected agents) |
+| `--claude-code` | Install skill for Claude Code |
+| `--cursor` | Install skill for Cursor |
+| `--gemini` | Install skill for Gemini CLI |
+| `--copilot` | Install skill for GitHub Copilot |
+| `--codex` | Install skill for OpenAI Codex |
+| `--opencode` | Install skill for OpenCode |
+| `--guided` | Run in guided interactive mode (legacy flag, now the default) |
 
 ## adb
 
@@ -67,6 +90,8 @@ adb <COMMAND>
 | [`root`](#root) | Restart adbd with root permissions |
 | [`getprop`](#getprop) | Get a device property |
 | [`setprop`](#setprop) | Set a device property |
+| [`tcpip`](#tcpip) | Switch device to TCP/IP mode on the given port |
+| [`usb`](#usb) | Switch device back to USB mode |
 | [`version`](#version) | Print version information |
 
 ### devices
@@ -174,7 +199,7 @@ Install an APK on the device
 **Usage:**
 
 ```
-install <PATH>
+install [OPTIONS] <PATH>
 ```
 
 **Arguments:**
@@ -182,6 +207,14 @@ install <PATH>
 | Argument | Description |
 |----------|-------------|
 | `<path>` (required) | Path to the APK file |
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-r, --replace` | Replace existing application (keep data) |
+| `-g, --grant-permissions` | Grant all runtime permissions on install |
+| `--downgrade` | Allow version downgrade (no short form — `-d` is reserved for the top-level `--device` selector) |
 
 ### uninstall
 
@@ -317,6 +350,32 @@ setprop <PROPERTY> <VALUE>
 | `<property>` (required) | Property name |
 | `<value>` (required) | Property value |
 
+### tcpip
+
+Switch device to TCP/IP mode on the given port
+
+**Usage:**
+
+```
+tcpip [PORT]
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `<port>` | Port number (default: 5555) |
+
+### usb
+
+Switch device back to USB mode
+
+**Usage:**
+
+```
+usb
+```
+
 ### version
 
 Print version information
@@ -371,6 +430,7 @@ install [OPTIONS] <APK>
 
 | Option | Description |
 |--------|-------------|
+| `-t, --allow-test` | Allow installation of test-only APKs |
 | `-g, --grant-permissions` | Grant all runtime permissions on install |
 | `-r, --replace` | Replace existing application (keep data) |
 | `--downgrade` | Allow version downgrade |
@@ -437,6 +497,12 @@ launch [OPTIONS] <PACKAGE>
 | Option | Description |
 |--------|-------------|
 | `-a, --activity <ACTIVITY>` | Activity to launch (optional, uses default launcher activity) |
+| `--cold-start` | Force-stop the app before launching, so the launch is from a fresh process (cold start) rather than a warm resume |
+| `--wait-for-idle` | After launching, poll until the app appears as the focused window. Returns once the app is on screen and idle, or fails after `--wait-timeout` seconds. Useful for scripting and tests that need the app to be ready before continuing |
+| `--wait-timeout <WAIT_TIMEOUT>` | Maximum time to wait for the app to become focused, in seconds. Only used with --wait-for-idle. Default: 15 (default: 15) |
+| `--measure-launch-time` | Print the wall-clock launch time in milliseconds. Measured from the moment the launch intent is sent to either (a) the AppLaunchTool returning, if --wait-for-idle is off, or (b) the app appearing as the focused window, if --wait-for-idle is on |
+| `--verify` | After launching, scan recent logcat for FATAL EXCEPTION, ANR, or native crash signatures attributable to this package. Exits with status 1 if a crash signal is found. Implies a short post-launch settle window of `--verify-window` seconds before scanning |
+| `--verify-window <VERIFY_WINDOW>` | Settle window (seconds) to wait after launch before scanning logcat for crash signals. Only used with --verify. Default: 3 (default: 3) |
 
 ### stop
 
@@ -549,7 +615,6 @@ search [OPTIONS] <QUERY>
 | Option | Description |
 |--------|-------------|
 | `-c, --count <COUNT>` | Number of models to return (default: 5, max: 10) (default: 5) |
-| `-o, --output <OUTPUT>` | Output format (default: table) |
 
 ## audio
 
@@ -755,6 +820,7 @@ device <COMMAND>
 | [`configure-testing`](#configure-testing) | Configure device for testing (disable animations, stay awake) or restore defaults |
 | [`health-check`](#health-check) | Run pre-test device health validation (connectivity, battery, storage, UI) |
 | [`proximity`](#proximity) | Enable or disable the proximity sensor |
+| [`setup`](#setup) | Set up a Quest device for development over BLE (scan, connect, dev-mode) |
 
 ### list
 
@@ -937,6 +1003,95 @@ proximity [OPTIONS]
 | `-s, --status` | Show the current proximity sensor status |
 | `--duration-ms <DURATION_MS>` | Duration in milliseconds to keep sensor disabled (auto-reenables after) |
 
+### setup
+
+Set up a Quest device for development over BLE (scan, connect, dev-mode)
+
+**Usage:**
+
+```
+setup <COMMAND>
+```
+
+**Subcommands:**
+
+| Command | Description |
+|---------|-------------|
+| [`scan`](#scan) | Scan for nearby Quest devices over BLE |
+| [`connect`](#connect) | Connect to a Quest device and perform HELLO handshake |
+| [`dev-mode`](#dev-mode) | Set developer mode on a Quest device via BLE |
+| [`interactive`](#interactive) | Full interactive setup flow (scan → connect → Wi-Fi → dev mode → USB instructions) |
+
+#### scan
+
+Scan for nearby Quest devices over BLE
+
+**Usage:**
+
+```
+scan [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-t, --timeout <TIMEOUT>` | Scan duration in seconds (default: 10) |
+
+#### connect
+
+Connect to a Quest device and perform HELLO handshake
+
+**Usage:**
+
+```
+connect <DEVICE_ID>
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `<device_id>` (required) | Device identifier (from scan results) |
+
+#### dev-mode
+
+Set developer mode on a Quest device via BLE
+
+**Usage:**
+
+```
+dev-mode [OPTIONS] <DEVICE_ID>
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `<device_id>` (required) | Device identifier (from scan results) |
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--disable` | Disable developer mode instead of enabling it |
+
+#### interactive
+
+Full interactive setup flow (scan → connect → Wi-Fi → dev mode → USB instructions)
+
+**Usage:**
+
+```
+interactive
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--bridge-mode` | Hidden plumbing flag: switch stdout to NDJSON event stream and stdin to NDJSON command stream so an embedded host (e.g. MQDH) can drive the flow programmatically. See `setup_bridge.rs` for the protocol. Without this flag, the command runs the existing human-driven TTY wizard |
+
 ## docs
 
 Search and fetch Meta Quest developer documentation
@@ -978,7 +1133,6 @@ search [OPTIONS] <QUERY>
 | Option | Description |
 |--------|-------------|
 | `-c, --category <CATEGORY>` | Document category filter (ALL, UNITY, UNREAL, SPATIAL_SDK, ANDROID, NATIVE, WEB, RESOURCES, DESIGN, POLICY) (default: ALL) |
-| `-o, --output <OUTPUT>` | Output format (default: table) |
 
 ### fetch
 
@@ -1018,7 +1172,6 @@ api-search [OPTIONS] <QUERY>
 |--------|-------------|
 | `-p, --platform <PLATFORM>` | Platform to search (unity, unreal_ue4, unreal_ue5) (default: unity) |
 | `-n, --max-results <MAX_RESULTS>` | Maximum number of results (default: 20) |
-| `-o, --output <OUTPUT>` | Output format (default: table) |
 
 ### api-details
 
@@ -1041,7 +1194,6 @@ api-details [OPTIONS] <NAME>
 | Option | Description |
 |--------|-------------|
 | `-p, --platform <PLATFORM>` | Platform to search (unity, unreal_ue4, unreal_ue5) (default: unity) |
-| `-o, --output <OUTPUT>` | Output format (default: plain) |
 
 ### api-stats
 
@@ -1050,14 +1202,8 @@ Show statistics about loaded API reference indexes
 **Usage:**
 
 ```
-api-stats [OPTIONS]
+api-stats
 ```
-
-**Options:**
-
-| Option | Description |
-|--------|-------------|
-| `-o, --output <OUTPUT>` | Output format (default: table) |
 
 ## files
 
@@ -1238,6 +1384,7 @@ server [OPTIONS]
 | `--no-telemetry` | Disable telemetry |
 | `--enable-full-docs` | Enable full documentation tools |
 | `--disable-perf-tools` | Disable performance profiling tools |
+| `--update` | Check for updates before starting the server (self-update builds only) |
 
 ### install
 
@@ -1602,7 +1749,7 @@ capture [OPTIONS]
 
 | Option | Description |
 |--------|-------------|
-| `-m, --mode <MODE>` | Capture mode preset: standard (default), gpu, cpu, lightweight, full, custom (default: standard) |
+| `-m, --mode <MODE>` | Capture mode preset: standard (default), gpu, cpu, lightweight, full, vr, custom (default: standard) |
 | `--duration <DURATION>` | Duration of capture in milliseconds (default: 5000) |
 | `--app <APP>` | App package name to trace (auto-detects if not specified) |
 | `-o, --output <OUTPUT>` | Output filename (without extension) |
@@ -1612,7 +1759,6 @@ capture [OPTIONS]
 | `--xr-runtime` | Enable XR runtime metrics (only with --mode custom) |
 | `--vulkan-layer` | Enable Vulkan OS layer tracing (only with --mode custom) |
 | `--extended-scheduling` | Enable extended scheduling events (only with --mode custom) |
-| `-f, --format <FORMAT>` | Output format (default: plain) |
 
 ### context
 
@@ -1652,7 +1798,6 @@ gpu-counters [OPTIONS] <SESSION_ID>
 |--------|-------------|
 | `--start-ts <START_TS>` | Start timestamps in nanoseconds (comma-separated) |
 | `--end-ts <END_TS>` | End timestamps in nanoseconds (comma-separated) |
-| `-f, --format <FORMAT>` | Output format (default: plain) |
 
 ### analyze-trace
 
@@ -1675,7 +1820,6 @@ analyze-trace [OPTIONS] [SESSION_ID]
 | Option | Description |
 |--------|-------------|
 | `--focus <FOCUS>` | Analysis focus area: overview (default), gpu, cpu, frames, threads (default: overview) |
-| `-f, --format <FORMAT>` | Output format (default: plain) |
 
 ### hex-to-datetime
 
@@ -1732,7 +1876,7 @@ Run a SQL query on a loaded trace
 **Usage:**
 
 ```
-query [OPTIONS] <SESSION_ID> <QUERY>
+query <SESSION_ID> <QUERY>
 ```
 
 **Arguments:**
@@ -1741,12 +1885,6 @@ query [OPTIONS] <SESSION_ID> <QUERY>
 |----------|-------------|
 | `<session_id>` (required) | Session ID (trace file name) |
 | `<query>` (required) | SQL query to execute |
-
-**Options:**
-
-| Option | Description |
-|--------|-------------|
-| `-f, --format <FORMAT>` | Output format (default: plain) |
 
 ### start
 
@@ -1762,7 +1900,7 @@ start [OPTIONS]
 
 | Option | Description |
 |--------|-------------|
-| `-m, --mode <MODE>` | Capture mode preset: standard (default), gpu, cpu, lightweight, full, custom (default: standard) |
+| `-m, --mode <MODE>` | Capture mode preset: standard (default), gpu, cpu, lightweight, full, vr, custom (default: standard) |
 | `--app <APP>` | App package name to trace (auto-detects if not specified) |
 | `-o, --output <OUTPUT>` | Output filename (without extension) |
 | `--gpu-render-stage` | Enable GPU render stage tracing (only with --mode custom) |
@@ -1771,7 +1909,6 @@ start [OPTIONS]
 | `--xr-runtime` | Enable XR runtime metrics (only with --mode custom) |
 | `--vulkan-layer` | Enable Vulkan OS layer tracing (only with --mode custom) |
 | `--extended-scheduling` | Enable extended scheduling events (only with --mode custom) |
-| `-f, --format <FORMAT>` | Output format (default: plain) |
 
 ### stop
 
@@ -1780,7 +1917,7 @@ Stop a background Perfetto capture and pull the trace
 **Usage:**
 
 ```
-stop [OPTIONS] <PID> <OUTPUT_NAME>
+stop <PID> <OUTPUT_NAME>
 ```
 
 **Arguments:**
@@ -1789,12 +1926,6 @@ stop [OPTIONS] <PID> <OUTPUT_NAME>
 |----------|-------------|
 | `<pid>` (required) | PID of the background perfetto process (from 'hzdb perf start' output) |
 | `<output_name>` (required) | Output name (from 'hzdb perf start' output) |
-
-**Options:**
-
-| Option | Description |
-|--------|-------------|
-| `-f, --format <FORMAT>` | Output format (default: plain) |
 
 ### thread-state
 
@@ -1819,7 +1950,6 @@ thread-state [OPTIONS] <SESSION_ID> <UTID>
 |--------|-------------|
 | `--start-ts <START_TS>` | Start time in nanoseconds (default: 0) |
 | `--end-ts <END_TS>` | End time in nanoseconds (default: 1000000000000000000) |
-| `-f, --format <FORMAT>` | Output format (default: plain) |
 
 ### compare
 
@@ -1828,7 +1958,7 @@ Compare two Perfetto traces and produce a delta report
 **Usage:**
 
 ```
-compare [OPTIONS] <BASELINE_ID> <COMPARISON_ID>
+compare <BASELINE_ID> <COMPARISON_ID>
 ```
 
 **Arguments:**
@@ -1837,12 +1967,6 @@ compare [OPTIONS] <BASELINE_ID> <COMPARISON_ID>
 |----------|-------------|
 | `<baseline_id>` (required) | Session ID of the baseline trace (before optimization) |
 | `<comparison_id>` (required) | Session ID of the comparison trace (after optimization) |
-
-**Options:**
-
-| Option | Description |
-|--------|-------------|
-| `-f, --format <FORMAT>` | Output format (default: json) |
 
 ### traces
 
@@ -1859,7 +1983,6 @@ traces [OPTIONS]
 | Option | Description |
 |--------|-------------|
 | `-l, --limit <LIMIT>` | Maximum number of traces to list (default: 10) |
-| `-f, --format <FORMAT>` | Output format (default: plain) |
 
 ## shell
 

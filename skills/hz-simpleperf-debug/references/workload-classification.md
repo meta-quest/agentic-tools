@@ -6,7 +6,7 @@ Workload classification uses hardware Performance Monitoring Unit (PMU) counters
 
 ## How It Works
 
-The `hzdb perf simpleperf classify` command runs `simpleperf stat` on the target process, collecting five hardware counters simultaneously:
+The `metavr perf simpleperf classify` command runs `simpleperf stat` on the target process, collecting five hardware counters simultaneously:
 
 | Counter | What It Measures |
 |---------|-----------------|
@@ -110,5 +110,5 @@ VR apps have multiple critical threads with different characteristics:
 Quest devices throttle CPU clocks under sustained load. Classification during throttling shows artificially low IPC because the CPU is running at reduced frequency. Always:
 
 1. Let the device cool before profiling (5 minutes idle)
-2. Check clock frequency: `hzdb shell cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq`
+2. Check clock frequency: `metavr shell cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq`
 3. Profile during the first 30 seconds of a cold session for unthrottled behavior

@@ -63,8 +63,8 @@ If the upgrade introduces new OVRManager fields or changes defaults:
 ```bash
 # Build the APK from Unity (File > Build Settings > Build)
 # Then install and test:
-hzdb app install ./Builds/YourApp.apk
-hzdb app launch com.yourcompany.yourapp
+metavr app install ./Builds/YourApp.apk
+metavr app launch com.yourcompany.yourapp
 ```
 
 Verify core functionality: rendering, input, tracking, audio, and platform features.
@@ -109,8 +109,8 @@ Package the project for Android and deploy:
 
 ```bash
 # After packaging from Unreal Editor:
-hzdb app install ./Binaries/Android/YourApp.apk
-hzdb app launch com.yourcompany.yourapp
+metavr app install ./Binaries/Android/YourApp.apk
+metavr app launch com.yourcompany.yourapp
 ```
 
 ## Spatial SDK Version Upgrade
@@ -171,8 +171,8 @@ If the XML schema for scene descriptions changed:
 
 ```bash
 ./gradlew assembleDebug
-hzdb app install ./app/build/outputs/apk/debug/app-debug.apk
-hzdb app launch com.yourcompany.yourapp
+metavr app install ./app/build/outputs/apk/debug/app-debug.apk
+metavr app launch com.yourcompany.yourapp
 ```
 
 ## IWSDK (Immersive Web SDK) Upgrade
@@ -233,11 +233,11 @@ This makes it easier to identify which version introduced a breaking change.
 
 ### Read Release Notes Before Upgrading
 
-Check the official release notes for each version you are upgrading through. Use `hzdb` to search for relevant documentation:
+Check the official release notes for each version you are upgrading through. Use `metavr` to search for relevant documentation:
 
 ```bash
-hzdb docs search "release notes"
-hzdb docs search "changelog"
+metavr docs search "release notes"
+metavr docs search "changelog"
 ```
 
 ### Test After Each Step

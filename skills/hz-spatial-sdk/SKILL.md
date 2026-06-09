@@ -2,6 +2,7 @@
 name: hz-spatial-sdk
 description: Builds spatial Android apps for Meta Quest and Horizon OS with Meta Spatial SDK — ECS architecture, 2D panels, 3D objects, hybrid experiences. Use when creating Kotlin-based spatial applications.
 allowed-tools:
+  - Bash(metavr:*)
   - Bash(hzdb:*)
 ---
 
@@ -164,20 +165,20 @@ val robot = Entity.create(
 )
 ```
 
-4. **Build and deploy** to your connected Quest device using hzdb (invoke via `npx -y @meta-quest/hzdb <args>`):
+4. **Build and deploy** to your connected Quest device using metavr (invoke via `metavr <args>`, or `npx -y metavr <args>` if not on PATH):
 
 ```bash
 # Build the APK via Gradle
 ./gradlew assembleDebug
 
-# Install using hzdb
-hzdb app install app/build/outputs/apk/debug/app-debug.apk
+# Install using metavr
+metavr app install app/build/outputs/apk/debug/app-debug.apk
 
 # Launch the app
-hzdb app launch com.example.myspatialapp
+metavr app launch com.example.myspatialapp
 
 # View logs
-hzdb log
+metavr log
 ```
 
 ## Architecture Overview

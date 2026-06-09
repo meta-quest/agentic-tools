@@ -8,7 +8,7 @@ This guide walks through creating a new Unreal Engine project configured for Met
 - **Meta XR Plugin**: From the Unreal Marketplace or Meta's GitHub fork of UE
 - **Android SDK/NDK**: Installed and configured (CodeWorks for Android or standalone)
 - **JDK 17**: Required for Android builds
-- **hzdb CLI**: For deploying and testing on device
+- **metavr CLI**: For deploying and testing on device
 
 ## Step 1: Install the Meta XR Plugin
 
@@ -228,17 +228,17 @@ From the command line:
   -archivedirectory="<OutputPath>"
 ```
 
-### Deploy with hzdb
+### Deploy with metavr
 
 ```bash
 # Install the built APK
-hzdb app install ./Package/MyQuestApp.apk
+metavr app install ./Package/MyQuestApp.apk
 
 # Launch the application
-hzdb app launch com.yourcompany.yourapp
+metavr app launch com.yourcompany.yourapp
 
 # Monitor logs
-hzdb log --tag yourcompany
+metavr log --tag yourcompany
 ```
 
 ## Step 8: Testing with Meta XR Simulator

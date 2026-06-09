@@ -10,7 +10,7 @@ The application launches but the user sees only a black screen.
 
 1. **Check logs for exceptions during startup:**
    ```bash
-   hzdb adb logcat --tag AndroidRuntime --level E
+   metavr adb logcat --tag AndroidRuntime --level E
    ```
 
 2. **Verify entitlement:**
@@ -19,13 +19,13 @@ The application launches but the user sees only a black screen.
 3. **Check VR focus:**
    Look for `vrapi_EnterVrMode` in the logs. If the app never enters VR mode, there may be an initialization error.
    ```bash
-   hzdb log | grep -i "VrMode\|focus"
+   metavr log | grep -i "VrMode\|focus"
    ```
 
 4. **Verify rendering pipeline:**
    For Unity apps, check that the XR plugin is loaded:
    ```bash
-   hzdb log | grep -i "XR\|OpenXR\|Oculus"
+   metavr log | grep -i "XR\|OpenXR\|Oculus"
    ```
 
 5. **Check permissions:**
@@ -39,8 +39,8 @@ The headset loses positional tracking, causing the view to freeze or show a warn
 
 1. **Check tracking state in logs:**
    ```bash
-   hzdb adb logcat --tag XrRuntime --level W
-   hzdb adb logcat --tag Guardian --level W
+   metavr adb logcat --tag XrRuntime --level W
+   metavr adb logcat --tag Guardian --level W
    ```
 
 2. **Common causes:**
@@ -61,7 +61,7 @@ One or both controllers lose connection to the headset.
 
 1. **Check controller status in logs:**
    ```bash
-   hzdb adb logcat --tag InputDispatcher --level W
+   metavr adb logcat --tag InputDispatcher --level W
    ```
 
 2. **Common causes:**
@@ -84,31 +84,31 @@ The application terminates unexpectedly.
 
 1. **Check for Java/Kotlin exceptions:**
    ```bash
-   hzdb log | grep "FATAL EXCEPTION"
+   metavr log | grep "FATAL EXCEPTION"
    ```
    The stack trace following this line identifies the crash location.
 
 2. **Check for native crashes:**
    ```bash
-   hzdb adb logcat --tag DEBUG --level E
+   metavr adb logcat --tag DEBUG --level E
    ```
    Look for signal information (`SIGSEGV`, `SIGABRT`, `SIGBUS`) and the backtrace.
 
 3. **Check for out-of-memory:**
    ```bash
-   hzdb log | grep -i "OutOfMemoryError\|OOM\|lowmemory"
+   metavr log | grep -i "OutOfMemoryError\|OOM\|lowmemory"
    ```
    Quest devices have limited memory. Large textures, uncompressed audio, and memory leaks are common culprits.
 
 4. **Check for ANR (Application Not Responding):**
    ```bash
-   hzdb log | grep "ANR in"
+   metavr log | grep "ANR in"
    ```
    ANRs occur when the main thread is blocked for more than 5 seconds. Common causes include synchronous file I/O, network calls on the main thread, and deadlocks.
 
 5. **Review the full crash context:**
    ```bash
-   hzdb log --level W
+   metavr log --level W
    ```
    Look at warnings leading up to the crash for clues about the root cause.
 
@@ -120,19 +120,19 @@ The application stutters, judders, or has visible frame drops.
 
 1. **Check frame rate in logs:**
    ```bash
-   hzdb adb logcat --tag VrApi | grep "FPS"
+   metavr adb logcat --tag VrApi | grep "FPS"
    ```
    Quest targets 72Hz, 90Hz, or 120Hz depending on the app configuration. Sustained FPS below the target indicates a problem.
 
 2. **Check for thermal throttling:**
    ```bash
-   hzdb adb logcat --tag ThermalService --level W
+   metavr adb logcat --tag ThermalService --level W
    ```
    When the device overheats, the system reduces CPU and GPU clock speeds, causing performance drops.
 
 3. **Check CPU/GPU timing:**
    ```bash
-   hzdb adb logcat --tag VrApi | grep -i "cpu\|gpu\|frame"
+   metavr adb logcat --tag VrApi | grep -i "cpu\|gpu\|frame"
    ```
    If CPU frame time exceeds the frame budget, the app is CPU-bound. If GPU frame time exceeds it, the app is GPU-bound.
 
@@ -167,7 +167,7 @@ A feature silently fails or throws an error due to missing permissions.
 1. **Check the app manifest for the required permission.**
 2. **Check logs for permission denial:**
    ```bash
-   hzdb log | grep -i "permission\|denied\|security"
+   metavr log | grep -i "permission\|denied\|security"
    ```
 3. **Verify runtime permission grants:**
    Some permissions require runtime user approval in addition to the manifest declaration.
@@ -180,8 +180,8 @@ No audio, distorted audio, or audio not spatialized correctly.
 
 1. **Check audio focus:**
    ```bash
-   hzdb adb logcat --tag AudioFlinger --level W
-   hzdb adb logcat --tag AudioManager --level W
+   metavr adb logcat --tag AudioFlinger --level W
+   metavr adb logcat --tag AudioManager --level W
    ```
    If another app or the system holds audio focus, your app may be ducked or muted.
 
@@ -211,7 +211,7 @@ Hand tracking does not activate or hands are not detected.
 
 3. **Check logs for hand tracking initialization:**
    ```bash
-   hzdb log | grep -i "hand"
+   metavr log | grep -i "hand"
    ```
 
 4. **Common causes:**
@@ -236,7 +236,7 @@ The passthrough camera feed does not appear or shows a black/gray background.
 
 3. **Verify passthrough initialization in logs:**
    ```bash
-   hzdb log | grep -i "passthrough\|scene\|insight"
+   metavr log | grep -i "passthrough\|scene\|insight"
    ```
 
 4. **Check that the environment blend mode is set correctly:**

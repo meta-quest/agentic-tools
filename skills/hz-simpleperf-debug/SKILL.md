@@ -2,6 +2,7 @@
 name: hz-simpleperf-debug
 description: Profiles Meta Quest and Horizon OS application CPU performance using simpleperf — workload classification, CPU hotspot recording, kernel overhead measurement. Use when diagnosing whether an app is CPU-bound, memory-bound, or I/O-bound on Quest devices.
 allowed-tools:
+  - Bash(metavr:*)
   - Bash(hzdb:*)
 ---
 
@@ -31,15 +32,15 @@ Quest devices run on mobile ARM SoCs with strict thermal and power budgets. CPU-
 
 Simpleperf's hardware counters reveal bottlenecks invisible to software tracing.
 
-## hzdb Setup
+## metavr Setup
 
-Simpleperf profiling is powered by the hzdb CLI. Invoke via `npx` — no install required:
+Simpleperf profiling is powered by the metavr CLI. Invoke via `npx` — no install required:
 
 ```bash
-npx -y @meta-quest/hzdb --version
+npx -y metavr --version
 ```
 
-Examples below use the bare `hzdb` command for brevity — substitute `npx -y @meta-quest/hzdb`. Connect your Quest via USB with developer mode enabled.
+Examples below use the bare `metavr` command for brevity. If `metavr` is not on PATH, invoke the same CLI via `npx -y metavr <args>` (the CLI is published under the npm package `metavr`). Connect your Quest via USB with developer mode enabled.
 
 ## Quick Start Workflow
 
@@ -49,13 +50,13 @@ Before optimizing, determine the bottleneck type:
 
 ```bash
 # Classify the foreground app's workload (10-second sample)
-hzdb perf simpleperf classify
+metavr perf simpleperf classify
 
 # Target a specific app
-hzdb perf simpleperf classify --app com.example.myapp
+metavr perf simpleperf classify --app com.example.myapp
 
 # Custom duration
-hzdb perf simpleperf classify --duration 15
+metavr perf simpleperf classify --duration 15
 ```
 
 Returns a classification with evidence:
@@ -72,13 +73,13 @@ Capture a CPU cycle profile to find the most expensive functions:
 
 ```bash
 # Record CPU hotspots for the foreground app
-hzdb perf simpleperf record
+metavr perf simpleperf record
 
 # Custom frequency and duration
-hzdb perf simpleperf record --frequency 4000 --duration 10
+metavr perf simpleperf record --frequency 4000 --duration 10
 
 # Target a specific app
-hzdb perf simpleperf record --app com.example.myapp
+metavr perf simpleperf record --app com.example.myapp
 ```
 
 The recording samples CPU cycles at the specified frequency (default 4000 Hz) and generates a profile showing which functions consume the most CPU time.
@@ -89,10 +90,10 @@ Determine how much CPU time is spent in kernel vs userspace per thread:
 
 ```bash
 # Measure kernel overhead for the foreground app
-hzdb perf simpleperf kernel-overhead
+metavr perf simpleperf kernel-overhead
 
 # Custom duration
-hzdb perf simpleperf kernel-overhead --app com.example.myapp --duration 10
+metavr perf simpleperf kernel-overhead --app com.example.myapp --duration 10
 ```
 
 Returns per-thread breakdown of user-mode vs kernel-mode CPU cycles. High kernel overhead (>20%) in a thread suggests:
@@ -108,7 +109,7 @@ Returns per-thread breakdown of user-mode vs kernel-mode CPU cycles. High kernel
 Always start with classification. This prevents wasting time optimizing the wrong thing.
 
 ```bash
-hzdb perf simpleperf classify --app com.example.myapp --duration 10
+metavr perf simpleperf classify --app com.example.myapp --duration 10
 ```
 
 **Decision tree based on results:**
@@ -120,7 +121,7 @@ hzdb perf simpleperf classify --app com.example.myapp --duration 10
 ### Step 2a: CPU-Bound Apps — Find Hotspots
 
 ```bash
-hzdb perf simpleperf record --app com.example.myapp --duration 10
+metavr perf simpleperf record --app com.example.myapp --duration 10
 ```
 
 Review the top functions by CPU cycle consumption. Common VR hotspots:
@@ -146,7 +147,7 @@ Use Perfetto `hz-perfetto-debug` to correlate memory-bound regions with specific
 ### Step 3: Measure Kernel Overhead
 
 ```bash
-hzdb perf simpleperf kernel-overhead --app com.example.myapp
+metavr perf simpleperf kernel-overhead --app com.example.myapp
 ```
 
 **Interpreting results by thread:**
@@ -164,12 +165,12 @@ Simpleperf tells you *where* cycles go. Perfetto tells you *when* and in what co
 
 1. Simpleperf classification reveals the bottleneck type
 2. Simpleperf hotspot recording identifies the expensive functions
-3. Perfetto trace (`hzdb perf capture`) shows when those functions run relative to frame boundaries
-4. Use `hzdb perf query` to correlate function timing with frame drops
+3. Perfetto trace (`metavr perf capture`) shows when those functions run relative to frame boundaries
+4. Use `metavr perf query` to correlate function timing with frame drops
 
 ## Common Pitfalls
 
-- **Don't profile in thermal throttling.** Let the device cool before recording — throttled clocks distort cycle counts. Check thermal state first with `hzdb device info`.
+- **Don't profile in thermal throttling.** Let the device cool before recording — throttled clocks distort cycle counts. Check thermal state first with `metavr device info`.
 - **Sample duration matters.** Short recordings (<5s) may not capture representative behavior. Use at least 10 seconds for classification.
 - **simpleperf requires shell access.** If `adb shell simpleperf` fails, ensure developer mode is enabled and USB debugging is authorized.
 - **Frequency vs accuracy tradeoff.** Higher sampling frequency (>8000 Hz) can perturb the workload on mobile SoCs. Default 4000 Hz is a good balance.

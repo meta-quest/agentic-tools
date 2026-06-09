@@ -1,4 +1,4 @@
-# hzdb Performance Tools
+# metavr Performance Tools
 
 Performance commands let you capture, load, query, and analyze Perfetto traces from
 Meta Quest devices. These tools help identify frame drops, CPU/GPU bottlenecks, and
@@ -8,19 +8,19 @@ threading issues.
 
 | Command | Description |
 |---|---|
-| `hzdb perf capture` | Capture a Perfetto trace from a connected device |
-| `hzdb perf load <session_id>` | Load a Perfetto trace for analysis |
-| `hzdb perf context [session_id]` | Get CPU+GPU performance overview |
-| `hzdb perf analyze-trace [session_id]` | Run a complete trace analysis |
-| `hzdb perf open <session_id>` | Open a trace in ui.perfetto.dev |
-| `hzdb perf query <session_id> <sql>` | Run SQL queries against a loaded trace |
-| `hzdb perf thread-state` | Get thread state summary for a time range |
-| `hzdb perf gpu-counters` | Get GPU metric counters for frame ranges |
-| `hzdb perf start` | Start a background Perfetto capture |
-| `hzdb perf stop <pid> <output_name>` | Stop a background capture and pull the trace |
-| `hzdb perf compare <baseline_id> <comparison_id>` | Compare two traces and produce a delta report |
-| `hzdb perf traces` | List locally available trace sessions |
-| `hzdb perf hex-to-datetime <hex>` | Convert hex timestamp to datetime |
+| `metavr perf capture` | Capture a Perfetto trace from a connected device |
+| `metavr perf load <session_id>` | Load a Perfetto trace for analysis |
+| `metavr perf context [session_id]` | Get CPU+GPU performance overview |
+| `metavr perf analyze-trace [session_id]` | Run a complete trace analysis |
+| `metavr perf open <session_id>` | Open a trace in ui.perfetto.dev |
+| `metavr perf query <session_id> <sql>` | Run SQL queries against a loaded trace |
+| `metavr perf thread-state` | Get thread state summary for a time range |
+| `metavr perf gpu-counters` | Get GPU metric counters for frame ranges |
+| `metavr perf start` | Start a background Perfetto capture |
+| `metavr perf stop <pid> <output_name>` | Stop a background capture and pull the trace |
+| `metavr perf compare <baseline_id> <comparison_id>` | Compare two traces and produce a delta report |
+| `metavr perf traces` | List locally available trace sessions |
+| `metavr perf hex-to-datetime <hex>` | Convert hex timestamp to datetime |
 
 ## Performance Targets
 
@@ -48,31 +48,31 @@ When analyzing Quest performance, focus on these metrics:
 - **GPU utilization** — how busy the GPU is each frame
 - **GPU frequency** — current GPU clock speed (throttling indicates thermal issues)
 
-## hzdb perf capture
+## metavr perf capture
 
 Capture a Perfetto trace directly from a connected device.
 
 ```bash
 # Capture for 5 seconds (default)
-hzdb perf capture
+metavr perf capture
 
 # Use a mode preset
-hzdb perf capture --mode gpu --duration 10000
+metavr perf capture --mode gpu --duration 10000
 
 # Capture for a specific duration
-hzdb perf capture --duration 10000
+metavr perf capture --duration 10000
 
 # Specify target app (auto-detects if not specified)
-hzdb perf capture --app com.mycompany.myapp
+metavr perf capture --app com.mycompany.myapp
 
 # Specify output filename
-hzdb perf capture --output my_trace
+metavr perf capture --output my_trace
 
 # Enable GPU render stage tracing
-hzdb perf capture --mode custom --gpu-render-stage
+metavr perf capture --mode custom --gpu-render-stage
 
 # Enable XR runtime metrics
-hzdb perf capture --mode custom --xr-runtime
+metavr perf capture --mode custom --xr-runtime
 ```
 
 ### Capture Options
@@ -92,36 +92,36 @@ hzdb perf capture --mode custom --xr-runtime
 
 After capture completes, the tool prints the session ID for use with other perf commands.
 
-## hzdb perf load
+## metavr perf load
 
 Load a Perfetto trace file for analysis. This parses the trace and prepares it
 for querying.
 
 ```bash
 # Load by session ID
-hzdb perf load a1b2c3d4
+metavr perf load a1b2c3d4
 
 # Load by filename
-hzdb perf load mytrace.pftrace
+metavr perf load mytrace.pftrace
 
 # Load by full path
-hzdb perf load /path/to/mytrace.pftrace
+metavr perf load /path/to/mytrace.pftrace
 ```
 
 Once loaded, the trace can be queried with `perf query`, `perf thread-state`, and
 `perf gpu-counters`.
 
-## hzdb perf context
+## metavr perf context
 
 Get a high-level performance analysis overview for a loaded trace, covering both
 CPU and GPU metrics.
 
 ```bash
 # Get context for a specific trace
-hzdb perf context my_session_id
+metavr perf context my_session_id
 
 # Get general performance analysis context
-hzdb perf context
+metavr perf context
 ```
 
 The context includes:
@@ -134,40 +134,40 @@ The context includes:
 
 This is the best starting point for any performance investigation.
 
-## hzdb perf analyze-trace
+## metavr perf analyze-trace
 
-Run a complete analysis for a trace. If no session ID is provided, hzdb uses the
+Run a complete analysis for a trace. If no session ID is provided, metavr uses the
 most recently captured trace.
 
 ```bash
 # Analyze the latest trace
-hzdb perf analyze-trace
+metavr perf analyze-trace
 
 # Focus on GPU, CPU, frames, or threads
-hzdb perf analyze-trace my_session_id --focus gpu
-hzdb perf analyze-trace my_session_id --focus frames
+metavr perf analyze-trace my_session_id --focus gpu
+metavr perf analyze-trace my_session_id --focus frames
 ```
 
 Use this before custom SQL when you want a guided summary and recommended next
 steps.
 
-## hzdb perf open
+## metavr perf open
 
 Open a captured trace in the Perfetto web UI.
 
 ```bash
-hzdb perf open my_session_id
+metavr perf open my_session_id
 ```
 
 Use this when visual inspection is faster than command-line summaries.
 
-## hzdb perf query
+## metavr perf query
 
 Run SQL queries directly against a loaded Perfetto trace using the Perfetto SQL
 engine.
 
 ```bash
-hzdb perf query my_session_id "SELECT * FROM slice LIMIT 10"
+metavr perf query my_session_id "SELECT * FROM slice LIMIT 10"
 ```
 
 ### Useful Queries
@@ -218,14 +218,14 @@ WHERE ct.name LIKE '%GPU%freq%'
 ORDER BY ts
 ```
 
-## hzdb perf thread-state
+## metavr perf thread-state
 
 Get a summary of thread states (Running, Sleeping, Blocked, etc.) for a specific
 thread within a time range. This helps identify if a thread is CPU-bound, blocked
 on I/O, or waiting on synchronization.
 
 ```bash
-hzdb perf thread-state my_session_id 42 \
+metavr perf thread-state my_session_id 42 \
   --start-ts 1000000000 \
   --end-ts 2000000000
 ```
@@ -249,13 +249,13 @@ The output includes:
 SELECT utid, tid, name FROM thread WHERE name LIKE '%Main%'
 ```
 
-## hzdb perf gpu-counters
+## metavr perf gpu-counters
 
 Get GPU hardware counter statistics across a set of frame time ranges. Provide
 start and end timestamps for at least 20 frames for statistically meaningful results.
 
 ```bash
-hzdb perf gpu-counters my_session_id \
+metavr perf gpu-counters my_session_id \
   --start-ts 1000000,2000000,3000000 \
   --end-ts 1500000,2500000,3500000
 ```
@@ -285,48 +285,48 @@ Returns per-counter statistics including:
 High GPU utilization with low CPU utilization indicates a GPU-bound workload.
 Consider reducing draw calls, shader complexity, resolution, or overdraw.
 
-## hzdb perf start / stop
+## metavr perf start / stop
 
 Use manual start/stop capture when you need to bracket a scenario yourself
 instead of using a fixed duration.
 
 ```bash
 # Start a background capture
-hzdb perf start --mode full --app com.mycompany.myapp --output before_fix
+metavr perf start --mode full --app com.mycompany.myapp --output before_fix
 
 # Reproduce the issue, then stop using the PID and output name printed by start
-hzdb perf stop <pid> before_fix
+metavr perf stop <pid> before_fix
 ```
 
 This is useful for scenarios with variable setup time, such as entering a level,
 joining a multiplayer session, or waiting for a thermal/performance state.
 
-## hzdb perf compare
+## metavr perf compare
 
 Compare two traces and produce a delta report.
 
 ```bash
-hzdb perf compare before_fix after_fix
+metavr perf compare before_fix after_fix
 ```
 
 Use this after an optimization to check whether frame timing, CPU behavior, or
 GPU behavior changed in the expected direction.
 
-## hzdb perf traces
+## metavr perf traces
 
 List available local trace sessions.
 
 ```bash
-hzdb perf traces
-hzdb perf traces --limit 20
+metavr perf traces
+metavr perf traces --limit 20
 ```
 
-## hzdb perf hex-to-datetime
+## metavr perf hex-to-datetime
 
 Convert a hexadecimal timestamp to a human-readable datetime.
 
 ```bash
-hzdb perf hex-to-datetime 67c8a2b6
+metavr perf hex-to-datetime 67c8a2b6
 ```
 
 Returns the timestamp in RFC 3339 format. Useful when working with trace filenames
@@ -338,30 +338,30 @@ A typical performance debugging session:
 
 ```bash
 # 1. Capture a trace from the device
-hzdb perf capture --duration 10000 --app com.mycompany.myapp
+metavr perf capture --duration 10000 --app com.mycompany.myapp
 
 # 2. Run the guided analyzer first
-hzdb perf analyze-trace a1b2c3d4
+metavr perf analyze-trace a1b2c3d4
 
 # 3. Load the trace and get context when you need to drill in
-hzdb perf load a1b2c3d4
-hzdb perf context a1b2c3d4
+metavr perf load a1b2c3d4
+metavr perf context a1b2c3d4
 
 # 4. Drill into specific threads or GPU counters
-hzdb perf thread-state a1b2c3d4 42 \
+metavr perf thread-state a1b2c3d4 42 \
   --start-ts 1000000000 --end-ts 2000000000
 
 # 5. Run custom SQL queries for deeper analysis
-hzdb perf query a1b2c3d4 \
+metavr perf query a1b2c3d4 \
   "SELECT name, dur/1e6 AS ms FROM slice WHERE dur > 11100000 ORDER BY dur DESC"
 
 # 6. Compare before/after traces after an optimization
-hzdb perf compare before_fix after_fix
+metavr perf compare before_fix after_fix
 ```
 
 ## Tips
 
-- Always start with `hzdb perf context` to get the big picture before diving into
+- Always start with `metavr perf context` to get the big picture before diving into
   specific queries.
 - Frame budgets are hard limits. Even occasional misses cause visible judder in VR.
 - Thermal throttling reduces GPU/CPU frequency over time. Check frequency counters

@@ -2,6 +2,7 @@
 name: hz-store-submit
 description: Guides end-to-end Meta Quest and Horizon OS app submission to the Meta Horizon Store — build validation, VRC compliance, asset preparation, upload, and submission tracking. Use when preparing a Quest app for store publishing.
 allowed-tools:
+  - Bash(metavr:*)
   - Bash(hzdb:*)
 ---
 
@@ -46,7 +47,7 @@ The release APK must be signed with an Android keystore. Debug-signed APKs will 
 
 ```bash
 # Verify the APK is signed (not debug-signed)
-hzdb adb shell "pm dump <package> | grep -i signature"
+metavr adb shell "pm dump <package> | grep -i signature"
 ```
 
 The signing key must remain consistent across updates. Changing the signing key requires a new app entry.
@@ -55,13 +56,13 @@ The signing key must remain consistent across updates. Changing the signing key 
 
 ```bash
 # Install the APK on a connected device to test
-hzdb app install path/to/release.apk
+metavr app install path/to/release.apk
 
 # Verify it launches correctly
-hzdb app launch <package>
+metavr app launch <package>
 
 # Check the manifest for required fields
-hzdb adb shell "dumpsys package <package> | head -50"
+metavr adb shell "dumpsys package <package> | head -50"
 ```
 
 Required manifest elements:
@@ -82,13 +83,13 @@ Run the app on a Quest device and verify:
 
 ```bash
 # Monitor frame rate
-hzdb adb logcat --tag VrApi | grep FPS
+metavr adb logcat --tag VrApi | grep FPS
 
 # Check thermal state
-hzdb device battery
+metavr device battery
 
 # Watch for thermal warnings
-hzdb adb logcat --tag ThermalService --level W
+metavr adb logcat --tag ThermalService --level W
 ```
 
 ## Step 2: VRC Compliance
@@ -105,7 +106,7 @@ Common VRC rejection reasons:
 
 | Rejection Reason | Fix |
 |---|---|
-| Crash during review | Fix the crash. Run `hzdb adb logcat --buffer crash` to investigate. |
+| Crash during review | Fix the crash. Run `metavr adb logcat --buffer crash` to investigate. |
 | Frame rate below threshold | Optimize rendering. Profile with Perfetto or OVR Metrics Tool. |
 | Missing store assets | Ensure all required images are uploaded at correct dimensions. |
 | Disallowed permissions | Remove permissions not needed by the app (e.g., `CALL_PHONE`, `SEND_SMS`). |

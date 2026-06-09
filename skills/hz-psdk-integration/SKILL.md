@@ -1,11 +1,12 @@
 ---
 name: hz-psdk-integration
-description: Guides interactive Horizon Platform SDK (PSDK) integration for Meta Quest and Horizon OS Android/Kotlin apps — analyzes the codebase, recommends public platform features, plans the integration, and validates on device with hzdb.
+description: "For 3P / EXTERNAL developers: guides interactive Horizon Platform SDK (PSDK) integration for Meta Quest and Horizon OS Android/Kotlin apps — analyzes the codebase, recommends public platform features, plans the integration, and validates on device. Uses the external toolchain (Gradle, metavr, a developers.meta.com / Rocksteady App ID). For 1P apps inside fbsource (buck, Chesterfield/ni, adb), use psdk_1p_onboarding_agent instead."
 interactive: true
 allowed-tools:
   - Read
   - Glob
   - Grep
+  - Bash(metavr:*)
   - Bash(hzdb:*)
   - Bash(./gradlew:*)
   - Write
@@ -28,7 +29,7 @@ Before advising on any specific PSDK feature, read the relevant reference files 
 
 ## Prerequisites
 
-- **hzdb** (Horizon Debug Bridge) — invoke via `npx -y @meta-quest/hzdb <args>` (no install required)
+- **metavr** (Meta VR CLI) — invoke via `metavr <args>` (published as the npm package `metavr`; if `metavr` is not on PATH, run `npx -y metavr <args>`)
 - A Meta Quest developer account: https://developer.meta.com/
 - An Android project with Gradle build system
 
@@ -47,7 +48,7 @@ Present this to the user:
 > | Engagement | Achievements, Leaderboards |
 > | Commerce | In-App Purchases (IAP) |
 > | Presence & Multiplayer | Group Presence, Rich Presence |
-> | Communication | Notifications |
+> | Communication | Notifications, Push Notifications |
 > | Content & Media | Asset Files |
 > | App Lifecycle | Application, Application Lifecycle |
 > | Trust & Safety | Abuse Report, Consent, Device Application Integrity |
@@ -102,7 +103,7 @@ Explore the target codebase thoroughly. Inspect actual files — never claim und
 
 ### 2.5 Check connected devices
 ```bash
-hzdb device list
+metavr device list
 ```
 
 ### 2.6 Summarize findings
@@ -208,13 +209,13 @@ Generate a plan file at `<project-root>/psdk/plan/<feature-slug>-integration.md`
 |-----------|-----------|-----------|
 | ... | ... | ... |
 
-### On-Device Validation (via hzdb)
-1. `hzdb device list` — discover connected Quest headset
+### On-Device Validation (via metavr)
+1. `metavr device list` — discover connected Quest headset
 2. `./gradlew assembleDebug` — build the APK
-3. `hzdb app install ./app/build/outputs/apk/debug/app-debug.apk`
-4. `hzdb app launch <package-name>`
-5. `hzdb adb logcat -e <package-name> -n 200` — verify no crashes
-6. `hzdb capture screenshot -o psdk/plan/<feature>/screenshots/<name>.png`
+3. `metavr app install ./app/build/outputs/apk/debug/app-debug.apk`
+4. `metavr app launch <package-name>`
+5. `metavr adb logcat -e <package-name> -n 200` — verify no crashes
+6. `metavr capture screenshot -o psdk/plan/<feature>/screenshots/<name>.png`
 
 ## 7. Validation Checklist
 - [ ] `./gradlew assembleDebug` succeeds
@@ -249,20 +250,20 @@ If any step fails, fix the issue and re-run before proceeding.
 
 ### Step 5.4 — On-Device Validation
 
-Install and test on the connected Quest headset via hzdb:
+Install and test on the connected Quest headset via metavr:
 
 ```bash
 # Install the build
-hzdb app install ./app/build/outputs/apk/debug/app-debug.apk
+metavr app install ./app/build/outputs/apk/debug/app-debug.apk
 
 # Launch the app
-hzdb app launch <package-name>
+metavr app launch <package-name>
 
 # Stream logs to verify behavior
-hzdb adb logcat -e <package-name> -f -n 0
+metavr adb logcat -e <package-name> -f -n 0
 
 # Capture screenshots as evidence
-hzdb capture screenshot -o psdk/plan/<feature>/screenshots/01_<screen>.png
+metavr capture screenshot -o psdk/plan/<feature>/screenshots/01_<screen>.png
 ```
 
 ### Step 5.5 — Update Execution Log

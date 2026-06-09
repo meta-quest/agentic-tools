@@ -49,7 +49,7 @@ echo "$ANDROID_HOME"            # not empty
 android info                    # confirms Android SDK location
 ls "$ANDROID_HOME/platforms"    # has the platform the project's compileSdk needs
 ls "$ANDROID_HOME/ndk" 2>/dev/null  # if project has native code, has matching NDK
-hzdb device list                # Portal appears
+metavr device list                # Portal appears
 ```
 
 If anything is missing, see `android-sdk-setup.md`. **Install NDK / CMake before running gradle** — gradle's configure phase reads `source.properties` and fails fast if NDK is partially installed. (See `android-sdk-setup.md` § 3a for the known flaky-install gotcha.)
@@ -81,19 +81,19 @@ Lint and tests can block on issues unrelated to actually running the APK on Port
 ## Step 4 — Install + launch
 
 ```bash
-hzdb device list                                                              # confirm Portal present
-hzdb app install -r app/build/outputs/apk/minimal/debug/app-minimal-debug.apk # -r/--replace; add -g to grant runtime perms
-hzdb app launch <package-name>                                                # use the actual applicationId
+metavr device list                                                              # confirm Portal present
+metavr app install -r app/build/outputs/apk/minimal/debug/app-minimal-debug.apk # -r/--replace; add -g to grant runtime perms
+metavr app launch <package-name>                                                # use the actual applicationId
 ```
 
-`hzdb app install` needs `-r/--replace` to reinstall over an existing package (it keeps app data); without it you get `INSTALL_FAILED_ALREADY_EXISTS`. Other useful flags: `-g/--grant-permissions`, `--downgrade`, `-t/--allow-test`.
+`metavr app install` needs `-r/--replace` to reinstall over an existing package (it keeps app data); without it you get `INSTALL_FAILED_ALREADY_EXISTS`. Other useful flags: `-g/--grant-permissions`, `--downgrade`, `-t/--allow-test`.
 
 To find the launch activity / package name if you don't know it:
 
 ```bash
-hzdb adb shell pm dump <package> | head -40   # look for "android.intent.action.MAIN" + "LAUNCHER"
+metavr adb shell pm dump <package> | head -40   # look for "android.intent.action.MAIN" + "LAUNCHER"
 # or, find the package once installed:
-hzdb app list -f <name-fragment>
+metavr app list -f <name-fragment>
 ```
 
 ## Step 5 — Watch what blows up
@@ -101,9 +101,9 @@ hzdb app list -f <name-fragment>
 Stream logcat while you launch:
 
 ```bash
-hzdb log --follow
+metavr log --follow
 # or, focused on AndroidRuntime crashes:
-hzdb adb logcat -s AndroidRuntime DEBUG libc
+metavr adb logcat -s AndroidRuntime DEBUG libc
 ```
 
 Common first-launch failures on Portal:
@@ -114,7 +114,7 @@ Common first-launch failures on Portal:
 | `NoClassDefFoundError: com.google.firebase.*` | Firebase dep in non-GMS flavor | Same — move to `full`-only |
 | App installed but invisible on home screen | Missing launcher intent-filter, or icon missing from `mipmap-xxxhdpi/` as a PNG | See `app-requirements.md` |
 | `INSTALL_FAILED_OLDER_SDK` | App's `minSdkVersion > 29` | Lower it; Portal can't go beyond 29 |
-| `Camera access denied` | App didn't request `CAMERA` runtime perm | Grant via `hzdb app install -g` or in-app |
+| `Camera access denied` | App didn't request `CAMERA` runtime perm | Grant via `metavr app install -g` or in-app |
 | `Cannot find a Activity provider for action android.intent.action.*` | Intent depends on a system component Portal doesn't have (e.g. dialer) | Guard the call site |
 | Background notifications never arrive | FCM not present | Use polling or `WorkManager` periodic refresh as fallback |
 | App crashes with `RuntimeException: WearOS APIs not available` | Pulled wear deps even though wear flavor not built | Make sure you built the right module — `:app:assembleMinimalDebug`, not `:wear:` anything |
@@ -166,15 +166,15 @@ Each fix → rebuild → reinstall → re-launch loop:
 
 ```bash
 ./gradlew :app:assembleMinimalDebug -x lint -x test
-hzdb app install -r app/build/outputs/apk/minimal/debug/app-minimal-debug.apk   # -r = reinstall keeping data
-hzdb app stop <package> && hzdb app launch <package>
+metavr app install -r app/build/outputs/apk/minimal/debug/app-minimal-debug.apk   # -r = reinstall keeping data
+metavr app stop <package> && metavr app launch <package>
 ```
 
-`-r` keeps app data so you don't re-onboard on every iteration. `hzdb app stop` first ensures the launch starts a fresh activity stack.
+`-r` keeps app data so you don't re-onboard on every iteration. `metavr app stop` first ensures the launch starts a fresh activity stack.
 
 ## Step 7 — Scale the UI up for viewing distance (sometimes needed)
 
-A phone/tablet app dropped onto Portal almost always renders **too small** — text and hit targets that work at 30 cm are unreadable/untappable at the 50–100 cm tabletop distance. The root cause is density: at least the **1st-gen Portal (model "aloha", API 28) reports a logical density of 160 dpi (mdpi)** on an 800×1280 panel, i.e. a ~1280×800 **dp** landscape canvas — so a stock layout lays out like a giant low-density tablet with everything tiny. **Check your device** with `hzdb adb shell wm density` and `hzdb adb shell wm size` (don't assume ~320 dpi).
+A phone/tablet app dropped onto Portal almost always renders **too small** — text and hit targets that work at 30 cm are unreadable/untappable at the 50–100 cm tabletop distance. The root cause is density: at least the **1st-gen Portal (model "aloha", API 28) reports a logical density of 160 dpi (mdpi)** on an 800×1280 panel, i.e. a ~1280×800 **dp** landscape canvas — so a stock layout lays out like a giant low-density tablet with everything tiny. **Check your device** with `metavr adb shell wm density` and `metavr adb shell wm size` (don't assume ~320 dpi).
 
 The highest-leverage fix for a ported app is a **global display-density override**: bump the `Configuration.densityDpi` by a factor (1.4–1.6×; **1.5× is a good start**) and shrink the screen-dp fields to match. This scales **every `dp` and `sp`** — text, hit targets, icons, artwork — uniformly, with zero per-layout edits. Apply it in each Activity's `attachBaseContext`:
 

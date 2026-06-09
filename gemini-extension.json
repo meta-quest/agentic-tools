@@ -1,11 +1,11 @@
 {
   "name": "meta-vr",
-  "version": "1.1.0",
-  "description": "Agent skills for Meta Quest and Horizon OS development. Helps Claude assist with Quest app debugging, performance analysis, project setup, Unity and WebXR workflows, Spatial SDK and Platform SDK integration, store submission checks, and hzdb device workflows.",
+  "version": "1.2.1",
+  "description": "Agent skills for Meta Quest and Horizon OS development. Helps Claude assist with Quest app debugging, performance analysis, project setup, Unity and WebXR workflows, Spatial SDK and Platform SDK integration, store submission checks, and Meta VR CLI device workflows.",
   "mcpServers": {
-    "hzdb": {
+    "metavr": {
       "command": "npx",
-      "args": ["-y", "@meta-quest/hzdb", "mcp", "server"]
+      "args": ["-y", "metavr", "mcp", "server"]
     }
   }
 }

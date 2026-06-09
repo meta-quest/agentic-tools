@@ -1,7 +1,7 @@
 ---
 name: portal
-description: Build and sideload Android apps for Meta Portal devices (Portal, Portal+, Portal Mini, Portal Go, Portal TV) using hzdb. Use when targeting Portal hardware — covers ADB enablement, the no-GMS constraint, manifest/launcher intent-filter requirements, icon density quirks (PNG-only, mipmap-xxxhdpi), the Smart Camera SDK, and the gradle + `hzdb adb` build/deploy/debug loop. Auto-load when the user mentions "Portal" device, targets `minSdkVersion` 28-29 for a tabletop/TV form factor, or works with the `com.facebook.portal` package.
-allowed-tools: Read, Bash(hzdb:*), Bash(npx -y @meta-quest/hzdb:*), Bash(npx @meta-quest/hzdb:*), Bash(android:*), Bash(./gradlew:*)
+description: Build and sideload Android apps for Meta Portal devices (Portal, Portal+, Portal Mini, Portal Go, Portal TV) using metavr. Use when targeting Portal hardware — covers ADB enablement, the no-GMS constraint, manifest/launcher intent-filter requirements, icon density quirks (PNG-only, mipmap-xxxhdpi), the Smart Camera SDK, and the gradle + `metavr adb` build/deploy/debug loop. Auto-load when the user mentions "Portal" device, targets `minSdkVersion` 28-29 for a tabletop/TV form factor, or works with the `com.facebook.portal` package.
+allowed-tools: Read, Bash(metavr:*), Bash(hzdb:*), Bash(npx -y metavr:*), Bash(android:*), Bash(./gradlew:*)
 ---
 
 # Portal
@@ -10,7 +10,7 @@ This skill is for building Android apps that target Meta's Portal device family.
 
 The hardware: Snapdragon-based Android tablets and TV sticks running a modified AOSP **without** Google Mobile Services. Several models, all touch or TV. `minSdkVersion` 28 (Android 9) or 29 (Android 10) depending on device.
 
-This skill pairs with **hzdb** (Horizon Debug Bridge) — install it first. Use `hzdb adb` in place of raw `adb` everywhere. See `resources/hzdb.md` for the one-line install (via `npx`), the MCP-into-your-editor setup, and the Portal-relevant command surface. The full `hzdb-cli` skill ships in the same repo and can also be loaded for deeper reference.
+This skill pairs with **metavr** (Meta VR CLI) — install it first. Use `metavr adb` in place of raw `adb` everywhere. See `resources/hzdb.md` for the one-line install (via `npx`), the MCP-into-your-editor setup, and the Portal-relevant command surface. The full `metavr-cli` skill ships in the same repo and can also be loaded for deeper reference.
 
 ## Hard constraints — read before writing any code
 
@@ -58,30 +58,30 @@ android update                                     # keep the CLI current
 android sdk install platforms/android-28 platforms/android-29 platform-tools build-tools/34.0.0
 export ANDROID_HOME="$HOME/Library/Android/sdk"   # macOS — Linux uses ~/Android/Sdk
 
-# 3) Install hzdb (one-time, host machine — requires Node.js 20+)
+# 3) Install metavr (one-time, host machine — requires Node.js 20+)
 #    See resources/hzdb.md for full details and MCP-into-your-editor setup.
-npx -y @meta-quest/hzdb --version
+npx -y metavr --version
 # (or install globally)
-npm install -g @meta-quest/hzdb
+npm install -g @meta-quest/metavr
 
 # 4) Enable ADB on the Portal
 #    Portal: Settings → Debug → ADB Enabled. Enter PIN if prompted.
 #    Connect USB-C. Tap "Allow" on the device the first time you connect.
 
 # 5) Verify
-hzdb device list
+metavr device list
 # Should list one Portal device. Example: 819PGF02P010SL23  device  Portal  aloha
-# (or npx -y @meta-quest/hzdb device list)
+# (or npx -y metavr device list)
 
 # 6) Build + install + launch
 #    No ./gradlew in the project? Bootstrap the wrapper first — see resources/android-sdk-setup.md § 0a.
 ./gradlew assembleDebug
-hzdb app install -r app/build/outputs/apk/debug/app-debug.apk   # -r/--replace reinstalls, keeping data
-hzdb app launch com.example.myapp                               # or: hzdb adb shell am start -n com.example.myapp/.MainActivity
-# (or use npx -y @meta-quest/hzdb instead of hzdb if not globally installed)
+metavr app install -r app/build/outputs/apk/debug/app-debug.apk   # -r/--replace reinstalls, keeping data
+metavr app launch com.example.myapp                               # or: metavr adb shell am start -n com.example.myapp/.MainActivity
+# (or use npx -y metavr instead of metavr if not globally installed)
 ```
 
-If the device is missing from `hzdb device list`, tap **ADB Enabled** on the Portal again — the toggle can race the USB connect.
+If the device is missing from `metavr device list`, tap **ADB Enabled** on the Portal again — the toggle can race the USB connect.
 
 ## Build configuration
 
@@ -145,7 +145,7 @@ Without these, the app installs but is invisible. To support both families from 
 | Network | Regular `INTERNET` / `ACCESS_NETWORK_STATE` |
 | Touch / keyboard input | No permission needed |
 | Storage write | Regular `WRITE_EXTERNAL_STORAGE` (Android 9 model) |
-| Storage delete (cross-app) | App-owned only. Otherwise: `hzdb adb shell rm`, or install a file-manager app |
+| Storage delete (cross-app) | App-owned only. Otherwise: `metavr adb shell rm`, or install a file-manager app |
 | Contacts (`READ_CONTACTS`) | **Not available.** Denied at runtime |
 | Device accounts (`AccountManager`) | **Not available.** Account provider returns nothing |
 
@@ -160,21 +160,21 @@ Raw video frames are still available via the standard `Camera2` API; the Smart C
 ## Debug loop
 
 ```bash
-hzdb adb logcat                                  # full logcat
-hzdb adb logcat *:E                              # errors only
-hzdb adb logcat -s AndroidRuntime DEBUG libc     # crash signals
-hzdb log -c                                      # clear the log buffer (NOT `hzdb adb logcat -c` — that flag is rejected)
-hzdb adb shell dumpsys activity activities       # what's running
-hzdb app clear com.example.myapp                 # wipe app data (or: hzdb adb shell pm clear <pkg>)
-hzdb app uninstall com.example.myapp             # uninstall
-hzdb capture screenshot -o screen.png            # save a PNG of the screen
+metavr adb logcat                                  # full logcat
+metavr adb logcat *:E                              # errors only
+metavr adb logcat -s AndroidRuntime DEBUG libc     # crash signals
+metavr log -c                                      # clear the log buffer (NOT `metavr adb logcat -c` — that flag is rejected)
+metavr adb shell dumpsys activity activities       # what's running
+metavr app clear com.example.myapp                 # wipe app data (or: metavr adb shell pm clear <pkg>)
+metavr app uninstall com.example.myapp             # uninstall
+metavr capture screenshot -o screen.png            # save a PNG of the screen
 ```
 
 See `resources/debugging.md` for more patterns and common failure modes (icon missing, app invisible after install, app crashes on first launch, etc.).
 
 ## Resources
 
-- `resources/hzdb.md` — what hzdb is, one-line install, MCP-into-your-editor, Portal-relevant commands
+- `resources/hzdb.md` — what metavr is, one-line install, MCP-into-your-editor, Portal-relevant commands
 - `resources/device-setup.md` — full device prep walkthrough for a human user
 - `resources/android-sdk-setup.md` — install JDK 17, Android CLI, SDK platforms / build-tools
 - `resources/native-toolchain.md` — NDK / CMake / Ninja setup (use this when the project has native code; covers the deep-validation contract because `source.properties` alone isn't enough)
@@ -183,5 +183,5 @@ See `resources/debugging.md` for more patterns and common failure modes (icon mi
 - `resources/design-guidelines.md` — typography, spacing, color, accessibility, TV / D-pad, Smart Camera UX
 - `resources/compose-theme.md` — copy-paste Jetpack Compose theme starter (dark-forced theme, Portal palette, bundled-Inter typography, hit targets) with the no-GMS font fix
 - `resources/smart-camera-sdk.md` — Smart Camera API surface (binary pending)
-- `resources/debugging.md` — `hzdb adb` logcat / screenshot / dumpsys patterns
+- `resources/debugging.md` — `metavr adb` logcat / screenshot / dumpsys patterns
 - `resources/sample-prompts.md` — starter prompts to feed to Claude / Cursor / etc.

@@ -185,7 +185,7 @@ An on-device overlay that displays real-time performance metrics:
 Install it from the Meta Quest Developer Hub or via ADB:
 
 ```bash
-hzdb adb logcat --tag OVRMetrics
+metavr adb logcat --tag OVRMetrics
 ```
 
 ### Three.js Renderer Info

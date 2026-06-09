@@ -2,6 +2,7 @@
 name: hz-api-upgrade
 description: Upgrades Meta Quest apps to newer Horizon OS SDK versions — migration guides, deprecated API replacements, changelog. Use when updating SDK versions or fixing deprecated API warnings.
 allowed-tools:
+  - Bash(metavr:*)
   - Bash(hzdb:*)
 ---
 
@@ -37,8 +38,8 @@ Before upgrading, review what changed between your current version and the targe
 Use the device hub to search documentation:
 
 ```bash
-hzdb docs search "release notes v72"
-hzdb docs search "migration guide openxr"
+metavr docs search "release notes v72"
+metavr docs search "migration guide openxr"
 ```
 
 ### 3. Update SDK Dependencies
@@ -65,8 +66,8 @@ grep -rn "OVRManager" --include="*.cs" Assets/
 Deploy and verify functionality on a connected Quest device:
 
 ```bash
-hzdb app install ./build/output.apk
-hzdb app launch com.yourcompany.yourapp
+metavr app install ./build/output.apk
+metavr app launch com.yourcompany.yourapp
 ```
 
 ### 6. Run Performance Check
@@ -74,7 +75,7 @@ hzdb app launch com.yourcompany.yourapp
 Ensure the upgrade did not introduce performance regressions:
 
 ```bash
-hzdb perf capture
+metavr perf capture
 ```
 
 ## Platform-Specific Upgrade Paths
@@ -152,19 +153,19 @@ android {
 }
 ```
 
-## Using hzdb for Documentation Lookup
+## Using metavr for Documentation Lookup
 
-The `hzdb` tool provides documentation search to help during upgrades. Invoke via `npx -y @meta-quest/hzdb <args>` — no global install needed.
+The `metavr` tool provides documentation search to help during upgrades. Invoke via `metavr <args>` (published as the npm package `metavr`; if `metavr` is not on PATH, run `npx -y metavr <args>`) — no global install needed.
 
 ```bash
 # Search for migration-related documentation
-hzdb docs search "migration guide"
-hzdb docs search "deprecated API"
-hzdb docs search "breaking changes v73"
+metavr docs search "migration guide"
+metavr docs search "deprecated API"
+metavr docs search "breaking changes v73"
 
 # Search for specific API replacements
-hzdb docs search "OVRManager replacement"
-hzdb docs search "vrapi openxr migration"
+metavr docs search "OVRManager replacement"
+metavr docs search "vrapi openxr migration"
 ```
 
 ## References

@@ -25,7 +25,7 @@ Each skill lives in its own directory under `skills/` and should follow this pat
 - `SKILL.md` -- the skill definition and workflow instructions
 - optional supporting directories such as `references/`, `scripts/`, `assets/`, `examples/`, and `agents/`
 
-Use [skills/hz-vr-debug/SKILL.md](skills/hz-vr-debug/SKILL.md) and [skills/hzdb-cli/SKILL.md](skills/hzdb-cli/SKILL.md) as current examples for structure, style, and level of detail.
+Use [skills/hz-vr-debug/SKILL.md](skills/hz-vr-debug/SKILL.md) and [skills/metavr-cli/SKILL.md](skills/metavr-cli/SKILL.md) as current examples for structure, style, and level of detail.
 
 
 ## Skill authoring summary
@@ -34,7 +34,7 @@ When writing or updating skills:
 
 - Every skill requires a `SKILL.md` file.
 - Supporting directories such as `references/`, `scripts/`, `assets/`, `examples/`, and `agents/` are optional. Do not assume `references/` is the only valid layout.
-- Prefer linking to [docs/hzdb.md](docs/hzdb.md) or existing `skills/hzdb-cli/references/` content instead of duplicating common hzdb command guidance.
+- Prefer linking to [docs/hzdb.md](docs/hzdb.md) or existing `skills/metavr-cli/references/` content instead of duplicating common metavr command guidance.
 - Keep guidance direct, practical, and action-oriented
 - Use clear GitHub Flavored Markdown (GFM) formatting
 - Prefer short sections and scannable checklists

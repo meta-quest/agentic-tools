@@ -1,4 +1,4 @@
-# hzdb Device Management
+# metavr Device Management
 
 Device commands let you interact with connected Meta Quest headsets: listing devices,
 querying device info, capturing screenshots, streaming logs, and more.
@@ -7,31 +7,31 @@ querying device info, capturing screenshots, streaming logs, and more.
 
 | Command | Description |
 |---|---|
-| `hzdb device list` | List connected Quest devices |
-| `hzdb device info <device_id>` | Show detailed device information |
-| `hzdb device connect <address>` | Connect to a device over WiFi |
-| `hzdb device disconnect [address]` | Disconnect from a device |
-| `hzdb device reboot` | Reboot the device |
-| `hzdb device wake` | Wake the device from sleep |
-| `hzdb device wait` | Wait for a device to reach an ADB state |
-| `hzdb device battery` | Show battery level and charging status |
-| `hzdb device controllers` | Show connected controller information |
-| `hzdb device configure-testing setup` | Prepare a device for repeatable testing |
-| `hzdb device configure-testing restore` | Restore device settings after testing |
-| `hzdb device health-check` | Validate device readiness before tests |
-| `hzdb device proximity` | Control the proximity sensor |
-| `hzdb audio status` | Show current audio volume |
-| `hzdb audio set <level>` | Set audio volume from 0-15 |
-| `hzdb audio mute` / `hzdb audio unmute` | Mute or restore device audio |
+| `metavr device list` | List connected Quest devices |
+| `metavr device info <device_id>` | Show detailed device information |
+| `metavr device connect <address>` | Connect to a device over WiFi |
+| `metavr device disconnect [address]` | Disconnect from a device |
+| `metavr device reboot` | Reboot the device |
+| `metavr device wake` | Wake the device from sleep |
+| `metavr device wait` | Wait for a device to reach an ADB state |
+| `metavr device battery` | Show battery level and charging status |
+| `metavr device controllers` | Show connected controller information |
+| `metavr device configure-testing setup` | Prepare a device for repeatable testing |
+| `metavr device configure-testing restore` | Restore device settings after testing |
+| `metavr device health-check` | Validate device readiness before tests |
+| `metavr device proximity` | Control the proximity sensor |
+| `metavr audio status` | Show current audio volume |
+| `metavr audio set <level>` | Set audio volume from 0-15 |
+| `metavr audio mute` / `metavr audio unmute` | Mute or restore device audio |
 
-For screenshots, see the `hzdb capture` commands. For logs, see `hzdb log` and `hzdb adb logcat`.
+For screenshots, see the `metavr capture` commands. For logs, see `metavr log` and `metavr adb logcat`.
 
-## hzdb device list
+## metavr device list
 
 List all connected Quest devices with serial numbers and status.
 
 ```bash
-hzdb device list
+metavr device list
 ```
 
 Example output:
@@ -41,12 +41,12 @@ Serial            Status     Model
 1WMHH815K10234    device     Quest 3
 ```
 
-## hzdb device info
+## metavr device info
 
 Display detailed information about a specific device. Requires a device ID argument.
 
 ```bash
-hzdb device info <device_id>
+metavr device info <device_id>
 ```
 
 Returns information including:
@@ -57,132 +57,132 @@ Returns information including:
 - SDK version
 - Device family
 
-To get the device_id, first run `hzdb device list`.
+To get the device_id, first run `metavr device list`.
 
-## hzdb device connect
+## metavr device connect
 
 Establish a wireless ADB connection to a Quest device.
 
 ```bash
 # Connect over Wi-Fi (device must be on same network)
-hzdb device connect 192.168.1.100
+metavr device connect 192.168.1.100
 
 # With explicit port (default is 5555)
-hzdb device connect 192.168.1.100:5555
+metavr device connect 192.168.1.100:5555
 ```
 
-## hzdb device disconnect
+## metavr device disconnect
 
 Disconnect from a connected device.
 
 ```bash
 # Disconnect from all devices
-hzdb device disconnect
+metavr device disconnect
 
 # Disconnect from a specific device
-hzdb device disconnect 192.168.1.100:5555
+metavr device disconnect 192.168.1.100:5555
 ```
 
-## hzdb device reboot
+## metavr device reboot
 
 Reboot the connected device.
 
 ```bash
-hzdb device reboot
+metavr device reboot
 ```
 
-The device will restart. You may need to run `hzdb device connect` again once
+The device will restart. You may need to run `metavr device connect` again once
 it comes back up.
 
-## hzdb device wake
+## metavr device wake
 
 Wake the device from sleep mode without physically pressing the power button.
 
 ```bash
-hzdb device wake
+metavr device wake
 ```
 
 This is useful during development when you need the device active but it is not
 physically accessible.
 
-## hzdb device wait
+## metavr device wait
 
 Wait for the device to reach a specific ADB state before continuing a script.
 
 ```bash
 # Wait until the device is available
-hzdb device wait
+metavr device wait
 
 # Wait for recovery, sideload, or bootloader mode
-hzdb device wait --state recovery --timeout-secs 120
+metavr device wait --state recovery --timeout-secs 120
 ```
 
 Use this after rebooting a headset or when automation needs to wait for a stable
 device connection.
 
-## hzdb device battery
+## metavr device battery
 
 Check the battery level and charging status.
 
 ```bash
-hzdb device battery
+metavr device battery
 ```
 
 Returns the current battery percentage and whether the device is charging.
 
-## hzdb device controllers
+## metavr device controllers
 
 Show information about connected controllers.
 
 ```bash
-hzdb device controllers
+metavr device controllers
 ```
 
 Use this before input-heavy tests to confirm the expected controllers are paired
 and visible to the device.
 
-## hzdb device configure-testing
+## metavr device configure-testing
 
 Prepare a headset for repeatable automated or semi-automated testing.
 
 ```bash
 # Disable animations, keep the device awake, and apply test-friendly settings
-hzdb device configure-testing setup
+metavr device configure-testing setup
 
 # Restore default behavior after the test run
-hzdb device configure-testing restore
+metavr device configure-testing restore
 ```
 
 Run `restore` at the end of a test session so the headset returns to normal
 interactive behavior.
 
-## hzdb device health-check
+## metavr device health-check
 
 Run a pre-test validation pass for connectivity, battery, storage, and UI state.
 
 ```bash
-hzdb device health-check
+metavr device health-check
 ```
 
 Use this before longer test loops to catch obvious device issues before spending
 time on build, install, or capture steps.
 
-## hzdb device proximity
+## metavr device proximity
 
 Control the proximity sensor behavior. The proximity sensor detects when the headset is being worn.
 
 ```bash
 # Show current state (prompts for action)
-hzdb device proximity
+metavr device proximity
 
 # Disable the sensor (keeps headset awake regardless of wear)
-hzdb device proximity --disable
+metavr device proximity --disable
 
 # Re-enable the sensor (restores normal behavior)
-hzdb device proximity --enable
+metavr device proximity --enable
 
 # Disable for a specific duration (auto-reenables after)
-hzdb device proximity --disable --duration-ms 60000
+metavr device proximity --disable --duration-ms 60000
 ```
 
 Disabling the proximity sensor is useful during development when you need the
@@ -190,52 +190,52 @@ headset to stay active while not being worn.
 
 ## Audio Control
 
-Use `hzdb audio` for device volume and mute control:
+Use `metavr audio` for device volume and mute control:
 
 ```bash
 # Show current volume state
-hzdb audio status
+metavr audio status
 
 # Set volume from 0-15
-hzdb audio set 8
+metavr audio set 8
 
 # Mute and restore audio
-hzdb audio mute
-hzdb audio unmute
+metavr audio mute
+metavr audio unmute
 ```
 
 This is useful when automated tests or demos need deterministic device volume.
 
 ## Screenshots
 
-For capturing screenshots, use the `hzdb capture` command:
+For capturing screenshots, use the `metavr capture` command:
 
 ```bash
 # Capture a screenshot
-hzdb capture screenshot
+metavr capture screenshot
 
 # Capture to a specific file
-hzdb capture screenshot -o my_screenshot.png
+metavr capture screenshot -o my_screenshot.png
 ```
 
-See `hzdb capture --help` for all options.
+See `metavr capture --help` for all options.
 
 ## Viewing Logs
 
-For viewing device logs, use `hzdb log` (shortcut) or `hzdb adb logcat` (full):
+For viewing device logs, use `metavr log` (shortcut) or `metavr adb logcat` (full):
 
 ```bash
 # View recent logs (shortcut)
-hzdb log
+metavr log
 
 # View errors only
-hzdb log --level E
+metavr log --level E
 
 # Stream logs continuously
-hzdb adb logcat --follow
+metavr adb logcat --follow
 
 # Filter by tag
-hzdb adb logcat --tag Unity
+metavr adb logcat --tag Unity
 ```
 
 ### Log Levels
@@ -254,38 +254,38 @@ hzdb adb logcat --tag Unity
 Check for errors:
 
 ```bash
-hzdb log --level E
+metavr log --level E
 ```
 
 Monitor Unity engine messages:
 
 ```bash
-hzdb adb logcat --tag Unity
+metavr adb logcat --tag Unity
 ```
 
 Capture fresh logs for a specific scenario:
 
 ```bash
-hzdb adb logcat --clear
-hzdb adb logcat -n 2000 --level W
+metavr adb logcat --clear
+metavr adb logcat -n 2000 --level W
 ```
 
 ## Shell Access
 
-Execute arbitrary shell commands directly on the device using `hzdb adb shell` or `hzdb shell`:
+Execute arbitrary shell commands directly on the device using `metavr adb shell` or `metavr shell`:
 
 ```bash
 # Run a single command
-hzdb adb shell ls /sdcard/
+metavr adb shell ls /sdcard/
 
 # Check running processes
-hzdb adb shell "ps -A | grep com.mycompany"
+metavr adb shell "ps -A | grep com.mycompany"
 
 # Check available disk space
-hzdb adb shell df -h
+metavr adb shell df -h
 
 # List files in app data directory
-hzdb adb shell ls /data/data/com.mycompany.myapp/
+metavr adb shell ls /data/data/com.mycompany.myapp/
 ```
 
 This provides direct access to the Android shell on the Quest device for advanced

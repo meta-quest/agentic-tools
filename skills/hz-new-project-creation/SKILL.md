@@ -1,8 +1,7 @@
 ---
 name: hz-new-project-creation
 description: Scaffolds new Meta Quest and Horizon OS projects with recommended settings for Unity, Unreal, Android/Spatial SDK, or WebXR. Use when creating a new Quest app from scratch.
-allowed-tools:
-  - Bash(hzdb:*)
+allowed-tools: Bash(metavr:*), Bash(hzdb:*), Bash(npx -y metavr:*), mcp__metavr__metavr_unity_setup
 ---
 
 # New Project Creation Skill
@@ -26,16 +25,16 @@ Before creating any Meta Quest project, complete these steps regardless of platf
 1. **Create a Meta developer account** -- Sign up at [developer.meta.com](https://developer.meta.com) and create an organization.
 2. **Set up your Quest for development** -- Enable developer mode in the Meta Horizon app on your phone under your headset's settings.
 3. **Enable USB debugging** -- Connect your Quest via USB-C, put on the headset, and accept the "Allow USB debugging" prompt.
-4. **Use hzdb via `npx`** -- The `hzdb` CLI is invoked on demand; no global install required:
+4. **Use metavr via `npx`** -- The `metavr` CLI is invoked on demand; no global install required:
    ```bash
-   npx -y @meta-quest/hzdb --version
+   npx -y metavr --version
    ```
-   Examples below use the bare `hzdb` command for brevity — substitute `npx -y @meta-quest/hzdb` in front.
+   Examples below use the bare `metavr` command for brevity; if it is not installed globally, replace `metavr` with `npx -y metavr`.
 
 Verify your device connection before starting any project:
 
 ```bash
-hzdb device list
+metavr device list
 ```
 
 ## Decision Tree
@@ -94,7 +93,7 @@ Identify which Quest-specific features the project needs:
 
 Once the user has selected a platform, refer to the corresponding reference guide for detailed, step-by-step project setup:
 
-- **Unity** -- [Unity Project Setup](references/unity-project.md)
+- **Unity (Quest / VR)** -- **MUST** use the `metavr_unity_setup` MCP tool to create the project. Do NOT run Unity CLI directly. Do NOT walk the user through manual Package Manager / XR Plug-in Management steps. See [Unity Project Setup](references/unity-project.md). Manual fallback at [unity-project-manual.md](references/unity-project-manual.md) only when the MCP tool is unavailable. (Note: this guidance applies to **Quest/VR** Unity projects only — for non-VR Unity projects use Unity Hub as normal.)
 - **Unreal Engine** -- [Unreal Project Setup](references/unreal-project.md)
 - **Android / Spatial SDK** -- [Android Project Setup](references/android-project.md)
 - **Web / IWSDK / WebXR** -- [Web Project Setup](references/web-project.md)
@@ -143,13 +142,13 @@ Build the project and install it on a connected Quest device:
 
 ```bash
 # After building, install the APK
-hzdb app install path/to/build.apk
+metavr app install path/to/build.apk
 
 # Launch the app
-hzdb app launch com.yourcompany.yourapp
+metavr app launch com.yourcompany.yourapp
 
 # Monitor logs during first run
-hzdb log --tag yourapp
+metavr log --tag yourapp
 ```
 
 ### Performance Baseline
@@ -164,7 +163,8 @@ On first successful run, verify the application meets baseline performance targe
 
 ### Skill References
 
-- [Unity Project Setup](references/unity-project.md) -- Step-by-step Unity project creation and configuration
+- [Unity Project Setup](references/unity-project.md) -- One-shot Unity project setup via the `metavr_unity_setup` MCP tool
+  - [Unity Manual Setup (fallback)](references/unity-project-manual.md) -- Step-by-step manual configuration; only needed when the MCP tool is unavailable
 - [Unreal Project Setup](references/unreal-project.md) -- Step-by-step Unreal Engine project creation and configuration
 - [Android Project Setup](references/android-project.md) -- Step-by-step Android/Spatial SDK project creation and configuration
 - [Web Project Setup](references/web-project.md) -- Step-by-step IWSDK/WebXR project creation and configuration

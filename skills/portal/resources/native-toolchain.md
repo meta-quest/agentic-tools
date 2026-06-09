@@ -313,5 +313,5 @@ When setting up native Android builds:
 6. Don't commit `local.properties`.
 7. Don't confuse Android API level with JDK, NDK, CMake, or Clang versions.
 8. For Android 9/10 (Portal) devices, build with `minSdk 28`; native toolchain versions are independent of device OS version.
-9. Use Gradle to build. Use hzdb / adb to deploy.
-10. After any install or repair, run all of: `java -version`, `sdkmanager --version`, `hzdb adb version`, NDK `clang --version`, `cmake --version`, `ninja --version`, `./gradlew --version`.
+9. Use Gradle to build. Use metavr / adb to deploy.
+10. After any install or repair, run all of: `java -version`, `sdkmanager --version`, `metavr adb version`, NDK `clang --version`, `cmake --version`, `ninja --version`, `./gradlew --version`.

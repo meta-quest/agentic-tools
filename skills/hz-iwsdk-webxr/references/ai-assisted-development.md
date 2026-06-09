@@ -48,7 +48,7 @@ If you add a Quest-native shell app around an IWSDK workflow, keep the split cle
 - **Quest shell or browser surface**: preview, prompt input, transcript review,
   status, diff approval
 - **Host-side coding agent**: repository access, patching, build/test commands,
-  documentation lookup, hzdb calls, and any runtime inspection bridge
+  documentation lookup, metavr calls, and any runtime inspection bridge
 
 This keeps the on-device app simple and avoids duplicating the host development
 environment inside the headset app.
@@ -61,8 +61,8 @@ web search.
 A good workflow is:
 
 ```bash
-hzdb docs search "iwsdk plane detection"
-hzdb docs fetch https://developers.meta.com/horizon/documentation/...
+metavr docs search "iwsdk plane detection"
+metavr docs fetch https://developers.meta.com/horizon/documentation/...
 ```
 
 Use this before implementing:

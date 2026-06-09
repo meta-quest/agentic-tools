@@ -188,17 +188,17 @@ override fun onGenericMotionEvent(event: MotionEvent): Boolean {
 
 ## Testing Input
 
-Use `hzdb` to install and launch for on-device testing:
+Use `metavr` to install and launch for on-device testing:
 
 ```bash
-hzdb app install path/to/app.apk
-hzdb app launch com.example.yourapp
+metavr app install path/to/app.apk
+metavr app launch com.example.yourapp
 ```
 
 Use Android Studio with the device connected via USB or Wi-Fi ADB to view logcat output during input testing. Filter for input events:
 
 ```bash
-hzdb adb logcat --tag InputDispatcher --level D
+metavr adb logcat --tag InputDispatcher --level D
 ```
 
 The XR Simulator can also be used for basic input testing on desktop, simulating controller pointer and hand tracking input without a physical headset.

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This reference contains ready-to-use SQL queries for common Perfetto trace analysis tasks on Meta Quest. All queries use the Perfetto SQL schema and can be executed with `hzdb perf query <session-id> "..."`.
+This reference contains ready-to-use SQL queries for common Perfetto trace analysis tasks on Meta Quest. All queries use the Perfetto SQL schema and can be executed with `metavr perf query <session-id> "..."`.
 
 All timestamps are in nanoseconds. Divide by `1e6` for milliseconds, `1e9` for seconds.
 

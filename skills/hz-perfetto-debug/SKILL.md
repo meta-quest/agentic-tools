@@ -2,7 +2,9 @@
 name: hz-perfetto-debug
 description: Analyzes Meta Quest and Horizon OS VR performance using Perfetto traces — frame timing, CPU/GPU bottlenecks, render pass analysis. Use when profiling frame drops, jank, or thermal issues on Quest devices.
 allowed-tools:
+  - Bash(metavr:*)
   - Bash(hzdb:*)
+  - Bash(npx -y metavr:*)
 ---
 
 # Perfetto Debug Skill
@@ -32,15 +34,15 @@ These are the hard deadlines for each refresh rate. If a frame exceeds its targe
 
 Missing a frame deadline by even 1 ms causes a stale frame (reprojection). Stale frames above 10% of total frames indicate a serious performance problem.
 
-## hzdb Setup
+## metavr Setup
 
-Perfetto tracing is powered by the hzdb CLI. Invoke via `npx` — no install required:
+Perfetto tracing is powered by the metavr CLI. Invoke via `npx` — no install required:
 
 ```bash
-npx -y @meta-quest/hzdb --version
+npx -y metavr --version
 ```
 
-Examples below use the bare `hzdb` command for brevity — substitute `npx -y @meta-quest/hzdb`. Connect your Quest via USB with developer mode enabled before capturing traces.
+Examples below use the bare `metavr` command for brevity; if it is not installed globally, replace `metavr` with `npx -y metavr`. Connect your Quest via USB with developer mode enabled before capturing traces.
 
 ## Quick Start Workflow
 
@@ -48,19 +50,19 @@ Examples below use the bare `hzdb` command for brevity — substitute `npx -y @m
 
 ```bash
 # Capture a 5-second trace from the currently running VR app
-hzdb perf capture
+metavr perf capture
 
 # Specify duration and target app
-hzdb perf capture --duration 10000 --app com.example.myapp
+metavr perf capture --duration 10000 --app com.example.myapp
 
 # Enable GPU render stage tracing for detailed pass analysis
-hzdb perf capture --gpu-render-stage
+metavr perf capture --gpu-render-stage
 
 # Enable XR runtime metrics
-hzdb perf capture --xr-runtime
+metavr perf capture --xr-runtime
 
 # Custom output name
-hzdb perf capture -o my-session-name
+metavr perf capture -o my-session-name
 ```
 
 The capture auto-detects the foreground VR app if `--app` is not specified. CPU scheduling and GPU metrics tracing are enabled by default. The trace is pulled to your local machine automatically.
@@ -68,7 +70,7 @@ The capture auto-detects the foreground VR app if `--app` is not specified. CPU 
 ### 2. List Available Traces
 
 ```bash
-hzdb perf traces
+metavr perf traces
 ```
 
 Returns `.pftrace` files sorted by modification time (newest first). Searches standard directories including `~/Documents`, `~/Downloads`, and the current working directory.
@@ -76,7 +78,7 @@ Returns `.pftrace` files sorted by modification time (newest first). Searches st
 ### 3. Load a Trace
 
 ```bash
-hzdb perf load <trace-file>
+metavr perf load <trace-file>
 ```
 
 Loads and processes the trace for analysis. Accepts a hex session ID, filename (with or without `.pftrace` extension), or a full/relative path.
@@ -84,7 +86,7 @@ Loads and processes the trace for analysis. Accepts a hex session ID, filename (
 ### 4. Get Performance Overview
 
 ```bash
-hzdb perf context
+metavr perf context
 ```
 
 Returns a structured performance analysis including:
@@ -96,7 +98,7 @@ Returns a structured performance analysis including:
 ### 5. Run SQL Queries
 
 ```bash
-hzdb perf query <session-id> "SELECT ts, dur, name FROM slice WHERE name LIKE '%PlayerLoop%' LIMIT 20"
+metavr perf query <session-id> "SELECT ts, dur, name FROM slice WHERE name LIKE '%PlayerLoop%' LIMIT 20"
 ```
 
 Executes arbitrary SQL against the loaded Perfetto trace database. All Perfetto tables are available: `slice`, `thread_track`, `thread`, `process`, `counter`, `counter_track`, `args`, `sched_slice`, and more.
@@ -104,10 +106,10 @@ Executes arbitrary SQL against the loaded Perfetto trace database. All Perfetto 
 ### 6. Analyze Thread States
 
 ```bash
-hzdb perf thread-state <session-id> <utid>
+metavr perf thread-state <session-id> <utid>
 
 # With time range
-hzdb perf thread-state <session-id> <utid> --start-ts 1000000 --end-ts 5000000000
+metavr perf thread-state <session-id> <utid> --start-ts 1000000 --end-ts 5000000000
 ```
 
 Returns a thread state breakdown showing how much time the thread spent running, sleeping, blocked, or waiting for CPU. Useful for identifying whether a thread is CPU-bound, I/O-bound, or starved.
@@ -115,7 +117,7 @@ Returns a thread state breakdown showing how much time the thread spent running,
 ### 7. Get GPU Metrics
 
 ```bash
-hzdb perf gpu-counters <session-id> --start-ts 100,200,300 --end-ts 150,250,350
+metavr perf gpu-counters <session-id> --start-ts 100,200,300 --end-ts 150,250,350
 ```
 
 Returns GPU metric counters (mean, standard deviation, quantiles) for GPU frame ranges. Requires at least 20 frames for statistical accuracy. Metrics include texture fetch rates, shader ALU capacity, vertex processing, and fragment shading statistics.
@@ -139,7 +141,7 @@ SELECT
 FROM slice
 ```
 
-If the trace has fewer than 1000 slices or is under 1 second, it may not contain enough data for meaningful analysis. Capture a new trace with `hzdb perf capture`.
+If the trace has fewer than 1000 slices or is under 1 second, it may not contain enough data for meaningful analysis. Capture a new trace with `metavr perf capture`.
 
 ### Step 2: Identify Target Process
 
@@ -188,7 +190,7 @@ Critical threads to locate:
 | GPU completion (GPU completion / RHI Thread) | GPU fence waiting |
 | Worker threads (Job.Worker / TaskGraph) | Parallel workloads |
 
-Once you have a thread's `utid`, use `hzdb perf thread-state <session-id> <utid>` to get a quick breakdown of its running/sleeping/blocked time.
+Once you have a thread's `utid`, use `metavr perf thread-state <session-id> <utid>` to get a quick breakdown of its running/sleeping/blocked time.
 
 ### Step 5: Detect Frame Boundaries
 

@@ -2,6 +2,7 @@
 name: hz-unity-code-review
 description: Reviews Unity code targeting Meta Quest and Horizon OS for performance issues, rendering best practices, and common VR pitfalls. Use during code review or when diagnosing Quest performance problems in Unity projects.
 allowed-tools:
+  - Bash(metavr:*)
   - Bash(hzdb:*)
 ---
 
@@ -201,23 +202,23 @@ void Awake() {
 }
 ```
 
-## Using hzdb for Validation
+## Using metavr for Validation
 
-You can use the `hzdb` tool to validate builds and check device-side behavior. Invoke via `npx -y @meta-quest/hzdb <args>` — no install required.
+You can use the `metavr` tool to validate builds and check device-side behavior. Invoke via `metavr <args>` (published as the npm package `metavr`; if `metavr` is not on PATH, run `npx -y metavr <args>`) — no install required.
 
 ```bash
 # Check connected Quest device
-hzdb device list
+metavr device list
 
 # Install and run a build
-hzdb app install path/to/build.apk
-hzdb app launch com.company.app
+metavr app install path/to/build.apk
+metavr app launch com.company.app
 
 # Check device logs for errors
-hzdb adb logcat --tag Unity
+metavr adb logcat --tag Unity
 
 # Monitor GPU performance
-hzdb perf capture
+metavr perf capture
 ```
 
 Use device-side profiling to validate that code review findings translate to real performance improvements.

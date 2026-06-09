@@ -1,6 +1,6 @@
 # Screenshots Capture
 
-This reference covers capturing screenshots from a Meta Quest device using the `hzdb` CLI.
+This reference covers capturing screenshots from a Meta Quest device using the `metavr` CLI.
 
 ## Taking Screenshots
 
@@ -9,7 +9,7 @@ This reference covers capturing screenshots from a Meta Quest device using the `
 Capture a screenshot of the current device view:
 
 ```bash
-hzdb capture screenshot
+metavr capture screenshot
 ```
 
 By default, the screenshot is saved to the current working directory with a timestamped filename (e.g., `screenshot_20250115_143022.png`).
@@ -19,8 +19,8 @@ By default, the screenshot is saved to the current working directory with a time
 Save the screenshot to a specific file:
 
 ```bash
-hzdb capture screenshot --output my_screenshot.png
-hzdb capture screenshot -o /path/to/screenshot.png
+metavr capture screenshot --output my_screenshot.png
+metavr capture screenshot -o /path/to/screenshot.png
 ```
 
 ### Screenshot Methods
@@ -30,7 +30,7 @@ There are two capture methods, each producing different results:
 #### metacam (Default)
 
 ```bash
-hzdb capture screenshot --method metacam
+metavr capture screenshot --method metacam
 ```
 
 - Uses Meta's camera service to capture the VR/MR view
@@ -41,7 +41,7 @@ hzdb capture screenshot --method metacam
 #### screencap (Fallback)
 
 ```bash
-hzdb capture screenshot --method screencap
+metavr capture screenshot --method screencap
 ```
 
 - Uses Android's standard `screencap` utility
@@ -55,28 +55,28 @@ Control the resolution of the captured screenshot:
 
 ```bash
 # Capture at specific dimensions (default: 1024x1024)
-hzdb capture screenshot --width 1920 --height 1080
+metavr capture screenshot --width 1920 --height 1080
 
 # Capture at a lower resolution for faster transfer
-hzdb capture screenshot --width 512 --height 512
+metavr capture screenshot --width 512 --height 512
 ```
 
 ## Pulling Headset-Recorded Files from the Device
 
-Screenshots and videos recorded by the headset's built-in capture feature (not by `hzdb`) are stored on the device filesystem. You can pull them to your local machine using `hzdb files pull`:
+Screenshots and videos recorded by the headset's built-in capture feature (not by `metavr`) are stored on the device filesystem. You can pull them to your local machine using `metavr files pull`:
 
 ```bash
 # Pull a specific screenshot
-hzdb files pull /sdcard/Oculus/Screenshots/screenshot_20250115_143022.jpg ./
+metavr files pull /sdcard/Oculus/Screenshots/screenshot_20250115_143022.jpg ./
 
 # Pull all screenshots
-hzdb files pull /sdcard/Oculus/Screenshots/ ./screenshots/
+metavr files pull /sdcard/Oculus/Screenshots/ ./screenshots/
 
 # Pull a specific video recording
-hzdb files pull /sdcard/Oculus/VideoShots/video_20250115_143500.mp4 ./
+metavr files pull /sdcard/Oculus/VideoShots/video_20250115_143500.mp4 ./
 
 # Pull all video recordings
-hzdb files pull /sdcard/Oculus/VideoShots/ ./videos/
+metavr files pull /sdcard/Oculus/VideoShots/ ./videos/
 ```
 
 ### File Locations on Device
@@ -97,7 +97,7 @@ If you need to capture a specific moment, use a shell delay:
 
 ```bash
 # Wait 5 seconds, then capture -- gives you time to set up the scene in the headset
-sleep 5 && hzdb capture screenshot
+sleep 5 && metavr capture screenshot
 ```
 
 ### Scripted Capture Sequence
@@ -107,7 +107,7 @@ Capture a series of screenshots at intervals:
 ```bash
 # Take a screenshot every 2 seconds, 10 times
 for i in $(seq 1 10); do
-  hzdb capture screenshot -o "screenshot_${i}.png"
+  metavr capture screenshot -o "screenshot_${i}.png"
   sleep 2
 done
 ```
@@ -118,7 +118,7 @@ Trigger an action and immediately capture:
 
 ```bash
 # Launch the app and capture the startup screen
-hzdb app launch com.example.myapp && sleep 10 && hzdb capture screenshot
+metavr app launch com.example.myapp && sleep 10 && metavr capture screenshot
 ```
 
 ### Capture During Log Monitoring
@@ -127,27 +127,27 @@ Run log capture and screenshot capture in separate terminals for correlated debu
 
 ```bash
 # Terminal 1: monitor logs
-hzdb adb logcat --follow
+metavr adb logcat --follow
 
 # Terminal 2: capture screenshots as needed
-hzdb capture screenshot
+metavr capture screenshot
 ```
 
 ## Troubleshooting Capture Issues
 
 | Problem                          | Solution                                                  |
 | -------------------------------- | --------------------------------------------------------- |
-| Screenshot is black              | The app may not be rendering. Check `hzdb log`.           |
+| Screenshot is black              | The app may not be rendering. Check `metavr log`.           |
 | metacam method fails             | Fall back to `--method screencap`.                        |
 | Blurry or low-resolution output  | Specify higher `--width` and `--height` values.           |
 | Cannot pull files from device    | Check that the file path exists on the device.            |
 
 ## Command Reference
 
-### hzdb capture screenshot
+### metavr capture screenshot
 
 ```
-hzdb capture screenshot [OPTIONS]
+metavr capture screenshot [OPTIONS]
 
 Options:
   -o, --output <FILE>   Output file path (defaults to screenshot_<timestamp>.png)

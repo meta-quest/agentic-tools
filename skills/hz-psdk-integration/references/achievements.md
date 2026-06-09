@@ -249,7 +249,17 @@ pagedResults.collect { progressList ->
 
 All methods throw `AchievementsException` (extends `HzPlatformSdkException`) on failure. Always wrap calls in try/catch.
 
-This package does not define package-specific status codes beyond the common ones. See [common-setup.md](common-setup.md) for the full common status codes table.
+Beyond the common codes (see [common-setup.md](common-setup.md)), `AchievementsException.code` can return these **Achievements domain codes** (`AchievementsStatusCode`, `@Public`, range 2001-2005):
+
+| Code | Name | Meaning |
+|------|------|---------|
+| 2001 | `INVALID_REQUEST` | A required parameter is missing (e.g. `api_name`) |
+| 2002 | `PERMISSIONS_ERROR` | The user lacks permission for the operation |
+| 2003 | `INVALID_FIELD_FOR_ACHIEVEMENT_TYPE` | Field invalid for the type (e.g. bitfield on a COUNT achievement) |
+| 2004 | `BITFIELD_LENGTH_MISMATCH` | Bitfield length ≠ the achievement definition's length |
+| 2005 | `ACHIEVEMENT_NOT_CONFIGURED` | The achievement isn't configured for this app |
+
+> Note: on the **OVR→Evo forwarded** path these domain codes are normalized to OVR codes in the C++ layer (D107280365); a **native Evo** consumer sees the 2001-2005 codes above.
 
 ## Examples
 
@@ -386,7 +396,7 @@ class AchievementsRepository {
         } catch (e: AchievementsException) {
             AchievementResult.Error(
                 e.message ?: "Failed to unlock achievement",
-                e.statusCode
+                e.code
             )
         }
     }
@@ -398,7 +408,7 @@ class AchievementsRepository {
         } catch (e: AchievementsException) {
             AchievementResult.Error(
                 e.message ?: "Failed to add count",
-                e.statusCode
+                e.code
             )
         }
     }
@@ -410,7 +420,7 @@ class AchievementsRepository {
         } catch (e: AchievementsException) {
             AchievementResult.Error(
                 e.message ?: "Failed to add fields",
-                e.statusCode
+                e.code
             )
         }
     }
@@ -427,7 +437,7 @@ class AchievementsRepository {
         } catch (e: AchievementsException) {
             AchievementResult.Error(
                 e.message ?: "Failed to get definitions",
-                e.statusCode
+                e.code
             )
         }
     }
@@ -444,7 +454,7 @@ class AchievementsRepository {
         } catch (e: AchievementsException) {
             AchievementResult.Error(
                 e.message ?: "Failed to get progress",
-                e.statusCode
+                e.code
             )
         }
     }
@@ -555,4 +565,4 @@ class AchievementsViewModel(
 
 6. **Requires HzOS v85+ (public) or v83+ (partner)** -- on older OS versions, API calls return status code 1003 (`ProviderOperationNotSupported`). You can require a minimum OS version in `AndroidManifest.xml` (see [Minimum OS Versions](https://developers.meta.com/horizon/documentation/android-apps/min-os-versions/)) or handle error code 1003 at runtime.
 
-7. **No package-specific status codes** -- the Achievements API uses only common status codes (0-6, 190, 1001-1005). There are no achievement-specific error codes in the 2001+ range.
+7. **Achievements domain status codes (2001-2005)** -- beyond the common codes (0-6, 190, 1001-1005), `e.code` can be an `AchievementsStatusCode`: 2001 `INVALID_REQUEST`, 2002 `PERMISSIONS_ERROR`, 2003 `INVALID_FIELD_FOR_ACHIEVEMENT_TYPE`, 2004 `BITFIELD_LENGTH_MISMATCH`, 2005 `ACHIEVEMENT_NOT_CONFIGURED` (see the Status Codes table above).

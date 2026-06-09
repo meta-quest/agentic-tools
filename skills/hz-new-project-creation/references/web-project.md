@@ -10,7 +10,7 @@ Immersive Web SDK (IWSDK) toolchain for Meta Quest.
 - **A modern browser**: Quest Browser for device validation, plus a desktop
   browser for quick iteration
 - **HTTPS**: required for WebXR API access
-- **hzdb CLI**: optional, for preview/open/test workflows and device-side
+- **metavr CLI**: optional, for preview/open/test workflows and device-side
   debugging
 
 ## Step 1: Create The Project

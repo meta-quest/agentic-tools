@@ -7,7 +7,7 @@ Install the JDK, Android SDK, and tools you need to build Portal-targeting APKs.
 > - **Android API 28/29** is the on-device runtime your app targets via `minSdkVersion` / `targetSdkVersion`.
 > An existing project may compile against `compileSdk` 35 or 36 and still run on Portal — install whatever `compileSdk` the project requires, separate from the runtime min.
 
-This guide uses Google's `android` CLI installer for the Android SDK. (`hzdb` will eventually install SDK packages for you; until then, do it manually.)
+This guide uses Google's `android` CLI installer for the Android SDK. (`metavr` will eventually install SDK packages for you; until then, do it manually.)
 
 > ## ⚠️ Caveats with the Google `android` CLI tool
 >
@@ -283,10 +283,10 @@ Build the debug APK:
 # Output: app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Install on Portal (requires `hzdb` and ADB enabled — see `device-setup.md`):
+Install on Portal (requires `metavr` and ADB enabled — see `device-setup.md`):
 
 ```bash
-hzdb adb install app/build/outputs/apk/debug/app-debug.apk
+metavr adb install app/build/outputs/apk/debug/app-debug.apk
 ```
 
 ## One-shot setup script (macOS / Linux)
@@ -310,7 +310,7 @@ android info
 
 echo
 echo "Next steps:"
-echo "  1. Install hzdb (https://github.com/meta-quest/agentic-tools)"
+echo "  1. Install metavr (https://github.com/meta-quest/agentic-tools)"
 echo "  2. Enable ADB on your Portal: Settings → Debug → ADB Enabled"
-echo "  3. Connect USB-C, run: hzdb adb devices"
+echo "  3. Connect USB-C, run: metavr adb devices"
 ```

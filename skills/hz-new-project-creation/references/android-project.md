@@ -9,7 +9,7 @@ This guide walks through creating a new Android project using Meta Spatial SDK f
 - **JDK 17**: Required for Gradle builds
 - **Kotlin**: 1.8+ (Spatial SDK uses Kotlin as primary language)
 - **Meta Spatial SDK**: Added via Maven dependencies
-- **hzdb CLI**: For deploying and testing on device
+- **metavr CLI**: For deploying and testing on device
 
 ## Step 1: Install Android Studio and the Meta Plugin
 
@@ -396,14 +396,14 @@ class SpinSystem : System() {
 cd /path/to/your/project
 ./gradlew assembleDebug
 
-# Install using hzdb
-hzdb app install app/build/outputs/apk/debug/app-debug.apk
+# Install using metavr
+metavr app install app/build/outputs/apk/debug/app-debug.apk
 
 # Launch the application
-hzdb app launch com.yourcompany.yourapp
+metavr app launch com.yourcompany.yourapp
 
 # Monitor logs
-hzdb log --tag yourcompany
+metavr log --tag yourcompany
 ```
 
 ### Build release APK
@@ -413,7 +413,7 @@ hzdb log --tag yourcompany
 ./gradlew assembleRelease
 
 # Install release build
-hzdb app install app/build/outputs/apk/release/app-release.apk
+metavr app install app/build/outputs/apk/release/app-release.apk
 ```
 
 ## Step 8: Meta Spatial Editor (Optional)
