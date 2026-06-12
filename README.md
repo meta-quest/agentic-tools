@@ -127,8 +127,10 @@ npx -y metavr mcp server
 | `hz-store-submit` | Guides Meta Quest and Horizon OS app submission to the Meta Horizon Store, including build validation, VRC compliance, assets, upload, and review tracking. |
 | `hz-unity-code-review` | Reviews Unity code targeting Meta Quest and Horizon OS for rendering, performance, input handling, allocations, and common VR pitfalls. |
 | `hz-unity-fbx-import` | Ensures complete FBX URLs or absolute paths are used when importing external 3D models into Unity projects targeting Meta Quest and Horizon OS. |
+| `hz-unity-meta-core-sdk` | Guides Meta XR Core SDK (`com.meta.xr.sdk.core`) usage for Meta Quest and Horizon OS Unity XR development, including OVRManager, OVRCameraRig, passthrough, hand tracking, spatial anchors, boundaryless mode, controller input, Scene API, OVRProjectSetup, and AndroidManifest generation. |
 | `hz-unity-meta-quest-ui` | Configures Unity UI for Meta Quest and Horizon OS VR development, including world-space canvases, TextMesh Pro, sizing, and interaction readiness. |
 | `hz-unity-placement` | Ensures accurate object placement in Unity projects targeting Meta Quest and Horizon OS using Renderer and Collider bounds. |
+| `hz-unity-platform-sdk` | Guides Horizon Platform SDK integration for Meta Quest and Horizon OS Unity/C# apps across all 18 public platform packages, including achievements, IAP, users, leaderboards, challenges, presence, notifications, entitlements, setup, initialization, and error handling. |
 | `hz-unity-project-analyzer` | Analyzes and maintains `.agent-docs/` project knowledge bases for Unity projects targeting Meta Quest and Horizon OS. |
 | `hz-unity-tmp-resources` | Imports and verifies TextMesh Pro Essential Resources for Unity projects targeting Meta Quest and Horizon OS. |
 | `hz-vr-debug` | Debugs Meta Quest and Horizon OS VR/MR apps with `metavr` logs, screenshots, app inspection, and common issue diagnosis. |
