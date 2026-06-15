@@ -1,5 +1,6 @@
 ---
 name: hz-unity-placement
+license: Apache-2.0
 description: Ensures accurate object placement in Unity projects targeting Meta Quest and Horizon OS by using Renderer and Collider bounds when objects are added, moved, or positioned relative to other objects.
 ---
 

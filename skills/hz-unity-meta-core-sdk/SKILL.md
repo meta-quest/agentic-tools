@@ -1,5 +1,6 @@
 ---
 name: hz-unity-meta-core-sdk
+license: Apache-2.0
 description: Meta XR Core SDK (com.meta.xr.sdk.core) for Unity XR development. Use when setting up VR/MR projects, configuring OVRManager, adding OVRCameraRig, enabling passthrough, hand tracking, spatial anchors, boundaryless mode, controller input, Scene API, or any Meta Quest XR feature. Covers OVRProjectSetup, AndroidManifest generation, and project configuration for Meta Quest headsets.
 ---
 

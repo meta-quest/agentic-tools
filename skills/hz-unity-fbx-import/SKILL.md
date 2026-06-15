@@ -1,5 +1,6 @@
 ---
 name: hz-unity-fbx-import
+license: Apache-2.0
 description: Ensures complete FBX URLs or absolute paths are used when importing external 3D models into Unity projects targeting Meta Quest and Horizon OS. Use when adding FBX files, 3D models, or external assets.
 ---
 

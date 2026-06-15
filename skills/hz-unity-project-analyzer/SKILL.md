@@ -1,5 +1,6 @@
 ---
 name: hz-unity-project-analyzer
+license: Apache-2.0
 description: Analyzes, documents, and maintains a living `.agent-docs/` knowledge base for Unity projects targeting Meta Quest and Horizon OS. Use when the user asks to scan project structure, explain how a Unity system works, or update project docs after structural changes.
 ---
 

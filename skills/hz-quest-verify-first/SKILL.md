@@ -1,5 +1,6 @@
 ---
 name: hz-quest-verify-first
+license: Apache-2.0
 description: >-
   MANDATORY pre-flight check before answering any question or writing any code
   related to Meta Quest VR headsets (Quest 2, Quest 3, Quest 3S, Quest Pro)
@@ -12,10 +13,7 @@ description: >-
   Unity OVR or Meta XR packages, com.meta.* / com.oculus.* package IDs,
   Quest-targeted AndroidManifest, .meta files, or developers.meta.com /
   developer.oculus.com URLs).
-allowed-tools:
-  - Bash(metavr:*)
-  - Bash(hzdb:*)
-  - Bash(npx -y metavr:*)
+allowed-tools: Bash(metavr:*), Bash(hzdb:*), Bash(npx -y metavr:*)
 ---
 
 # Verify First — Meta Quest Development

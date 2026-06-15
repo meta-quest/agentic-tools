@@ -1,5 +1,6 @@
 ---
 name: hz-new-project-creation
+license: Apache-2.0
 description: Scaffolds new Meta Quest and Horizon OS projects with recommended settings for Unity, Unreal, Android/Spatial SDK, or WebXR. Use when creating a new Quest app from scratch.
 allowed-tools: Bash(metavr:*), Bash(hzdb:*), Bash(npx -y metavr:*), mcp__metavr__metavr_unity_setup
 ---

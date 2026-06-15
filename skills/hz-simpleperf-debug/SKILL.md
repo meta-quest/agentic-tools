@@ -1,9 +1,8 @@
 ---
 name: hz-simpleperf-debug
+license: Apache-2.0
 description: Profiles Meta Quest and Horizon OS application CPU performance using simpleperf — workload classification, CPU hotspot recording, kernel overhead measurement. Use when diagnosing whether an app is CPU-bound, memory-bound, or I/O-bound on Quest devices.
-allowed-tools:
-  - Bash(metavr:*)
-  - Bash(hzdb:*)
+allowed-tools: Bash(metavr:*), Bash(hzdb:*)
 ---
 
 # Simpleperf Debug Skill

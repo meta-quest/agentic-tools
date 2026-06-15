@@ -1,9 +1,8 @@
 ---
 name: hz-store-submit
+license: Apache-2.0
 description: Guides end-to-end Meta Quest and Horizon OS app submission to the Meta Horizon Store — build validation, VRC compliance, asset preparation, upload, and submission tracking. Use when preparing a Quest app for store publishing.
-allowed-tools:
-  - Bash(metavr:*)
-  - Bash(hzdb:*)
+allowed-tools: Bash(metavr:*), Bash(hzdb:*)
 ---
 
 # Store Submission Skill

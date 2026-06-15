@@ -1,5 +1,6 @@
 ---
 name: hz-platform-sdk
+license: Apache-2.0
 description: Guides integration of the Horizon Platform SDK for Meta Quest and Horizon OS Android/Kotlin apps — achievements, IAP, users, leaderboards, presence, notifications, abuse reporting, entitlements, asset files, application lifecycle, consent, device integrity, language packs, user age categories, and rate and review. Covers setup, initialization, API usage, data types, error handling, and best practices for all 17 public platform SDK packages.
 ---
 

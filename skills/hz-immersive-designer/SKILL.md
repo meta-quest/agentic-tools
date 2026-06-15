@@ -1,5 +1,6 @@
 ---
 name: hz-immersive-designer
+license: Apache-2.0
 description: Guides design of comfortable, intuitive VR/MR experiences for Meta Quest and Horizon OS — comfort guidelines, interaction patterns, spatial layout, accessibility. Use during UX design review or when evaluating comfort and accessibility.
 ---
 

@@ -1,10 +1,8 @@
 ---
 name: hz-vr-debug
+license: Apache-2.0
 description: Debugs Meta Quest and Horizon OS VR/MR applications using the metavr CLI — view logs, capture screenshots, diagnose common issues. Use when troubleshooting crashes, errors, or unexpected behavior on Quest devices.
-allowed-tools:
-  - Bash(metavr:*)
-  - Bash(hzdb:*)
-  - Bash(npx -y metavr:*)
+allowed-tools: Bash(metavr:*), Bash(hzdb:*), Bash(npx -y metavr:*)
 ---
 
 # VR Debug Skill

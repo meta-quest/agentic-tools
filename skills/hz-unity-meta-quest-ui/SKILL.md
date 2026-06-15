@@ -1,5 +1,6 @@
 ---
 name: hz-unity-meta-quest-ui
+license: Apache-2.0
 description: Configures Unity UI for Meta Quest and Horizon OS VR development — world-space canvases, TextMesh Pro setup, comfortable sizing, viewing distances, and interaction readiness.
 ---
 

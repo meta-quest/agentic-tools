@@ -1,5 +1,6 @@
 ---
 name: hz-unity-tmp-resources
+license: Apache-2.0
 description: Imports and configures TextMesh Pro Essential Resources for Unity projects targeting Meta Quest and Horizon OS. Use when setting up TMP UI, fixing missing TMP materials or fonts, or resolving pink/magenta TMP text.
 ---
 

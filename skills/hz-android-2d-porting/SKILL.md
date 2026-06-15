@@ -1,9 +1,8 @@
 ---
 name: hz-android-2d-porting
+license: Apache-2.0
 description: Guides porting existing Android 2D apps to Meta Quest and Horizon OS — input adaptation, panel layout, and design requirements. Use when adapting a mobile Android app for Quest.
-allowed-tools:
-  - Bash(metavr:*)
-  - Bash(hzdb:*)
+allowed-tools: Bash(metavr:*), Bash(hzdb:*)
 ---
 
 # Android 2D App Porting to Horizon OS

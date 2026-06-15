@@ -1,9 +1,8 @@
 ---
 name: hz-api-upgrade
+license: Apache-2.0
 description: Upgrades Meta Quest apps to newer Horizon OS SDK versions — migration guides, deprecated API replacements, changelog. Use when updating SDK versions or fixing deprecated API warnings.
-allowed-tools:
-  - Bash(metavr:*)
-  - Bash(hzdb:*)
+allowed-tools: Bash(metavr:*), Bash(hzdb:*)
 ---
 
 # Horizon API Upgrade Skill

@@ -1,5 +1,6 @@
 ---
 name: metavr-cli
+license: Apache-2.0
 description: >-
   Provides the complete metavr (Meta VR CLI) reference for Meta Quest
   and Horizon OS development — installation, device setup, command discovery,
@@ -7,10 +8,7 @@ description: >-
   audio control, screenshots, and performance analysis. Use when the user needs
   to install metavr, asks what commands are available, needs CLI syntax help, or
   wants to know what metavr can do.
-allowed-tools:
-  - Bash(metavr:*)
-  - Bash(hzdb:*)
-  - Bash(npx:*)
+allowed-tools: Bash(metavr:*), Bash(hzdb:*), Bash(npx:*)
 ---
 
 # metavr CLI Reference
