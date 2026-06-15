@@ -51,6 +51,27 @@ Or install online at: https://cursor.com/marketplace/meta-reality-labs
 gemini extensions install https://github.com/meta-quest/agentic-tools
 ```
 
+### Agent Skills CLI (`gh skill`)
+
+These skills are published as [Agent Skills](https://agentskills.io) releases and can be installed with the built-in `gh skill` command, independent of any specific editor or plugin marketplace. Requires a recent [GitHub CLI](https://cli.github.com) (`gh`) — `gh skill` is a preview feature.
+
+```bash
+# Install all skills from this repo
+gh skill install meta-quest/agentic-tools
+
+# Install a single skill
+gh skill install meta-quest/agentic-tools hz-spatial-sdk
+
+# Pin to a specific release tag
+gh skill install meta-quest/agentic-tools hz-spatial-sdk --pin v1.2.1
+```
+
+By default skills install at project scope for GitHub Copilot. Use `--agent` (e.g. `claude-code`, `cursor`, `codex`, `gemini-cli`) and `--scope user` to target a specific agent or make skills available everywhere:
+
+```bash
+gh skill install meta-quest/agentic-tools --agent claude-code --scope user
+```
+
 
 ## MCP Server
 
