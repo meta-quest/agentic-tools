@@ -13,7 +13,7 @@ description: >-
   Unity OVR or Meta XR packages, com.meta.* / com.oculus.* package IDs,
   Quest-targeted AndroidManifest, .meta files, or developers.meta.com /
   developer.oculus.com URLs).
-allowed-tools: Bash(metavr:*), Bash(hzdb:*), Bash(npx -y metavr:*)
+allowed-tools: Bash(metavr:*) Bash(hzdb:*) Bash(npx:*)
 ---
 
 # Verify First — Meta Quest Development
@@ -108,8 +108,8 @@ the current task:
 - The agent is about to recommend any Meta SDK API, namespace, package, or
   AndroidManifest entitlement
 - The agent is about to answer a question about app review, Meta Horizon
-  Store submission, VRC ("Virtual Reality Check"), content rating, or
-  distribution
+  Store submission, store-readiness or publishing requirements, content
+  rating, or distribution
 - The agent is about to write `adb` commands targeting a specific device
 - The agent is about to claim what is or isn't installed on the user's
   headset
@@ -289,7 +289,6 @@ The verify step is required, not optional — run it via `npx -y metavr docs sea
 - `metavr-cli` — full metavr CLI reference (commands, flags, examples)
 - `hz-vr-debug` — on-device debugging with logs and screenshots
 - `hz-perfetto-debug` — Perfetto trace analysis for jank / GPU / CPU bottlenecks
-- `hz-vrc-check` — store-publishing and VRC compliance validation
-- `hz-store-submit` — end-to-end Meta Horizon Store submission
+- `hz-store-submit` — end-to-end Meta Horizon Store submission (includes store-readiness checks)
 - `hz-spatial-sdk` — Meta Spatial SDK API guidance
 - `hz-platform-sdk` — Horizon Platform SDK API guidance

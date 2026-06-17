@@ -2,7 +2,7 @@
 name: hz-spatial-sdk
 license: Apache-2.0
 description: Builds spatial Android apps for Meta Quest and Horizon OS with Meta Spatial SDK — ECS architecture, 2D panels, 3D objects, hybrid experiences. Use when creating Kotlin-based spatial applications.
-allowed-tools: Bash(metavr:*), Bash(hzdb:*)
+allowed-tools: Bash(metavr:*) Bash(hzdb:*)
 ---
 
 # Spatial SDK Skill

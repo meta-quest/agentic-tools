@@ -1,26 +1,26 @@
 ---
 name: hz-store-submit
 license: Apache-2.0
-description: Guides end-to-end Meta Quest and Horizon OS app submission to the Meta Horizon Store — build validation, VRC compliance, asset preparation, upload, and submission tracking. Use when preparing a Quest app for store publishing.
-allowed-tools: Bash(metavr:*), Bash(hzdb:*)
+description: Guides end-to-end Meta Quest and Horizon OS app submission to the Meta Horizon Store — build validation, store-readiness checks, asset preparation, upload, and submission tracking. Use when preparing a Quest app for store publishing.
+allowed-tools: Bash(metavr:*) Bash(hzdb:*)
 ---
 
 # Store Submission Skill
 
-Guide the end-to-end process of submitting a Meta Quest application to the Meta Horizon Store. This skill covers build validation, VRC compliance checking, store asset preparation, upload, and submission tracking.
+Guide the end-to-end process of submitting a Meta Quest application to the Meta Horizon Store. This skill covers build validation, store-readiness checks, store asset preparation, upload, and submission tracking.
 
 ## When to Use This Skill
 
 Use this skill when you need to:
 
 - Prepare a Quest app build for store submission
-- Validate that an APK meets VRC (Virtual Reality Check) requirements before uploading
+- Validate that an APK meets the Horizon Store's publishing requirements before uploading
 - Prepare and validate store listing assets (icons, screenshots, videos, descriptions)
 - Walk through the submission workflow on the developer dashboard
 - Track a submission through the review process
 - Troubleshoot submission rejections
 
-This skill references the [hz-vrc-check](../hz-vrc-check/SKILL.md) skill for detailed VRC validation. If hz-vrc-check is installed, invoke it for thorough compliance testing before proceeding to submission.
+Run the VRC (Virtual Reality Check) validation inline (see the VRC checklist below) for thorough compliance testing before proceeding to submission.
 
 ## Submission Workflow Overview
 
@@ -28,7 +28,7 @@ The full submission process follows this order:
 
 ```
 1. Build Validation     → Verify APK is correctly signed, targets ARM64, meets packaging requirements
-2. VRC Compliance       → Run through VRC checklist, fix any violations
+2. Store Readiness      → Run through the readiness checks, fix any violations
 3. Asset Preparation    → Prepare store listing images, videos, descriptions, metadata
 4. Dashboard Setup      → Create app on developer.meta.com, configure pricing, age rating
 5. Upload               → Upload the build to the platform
@@ -91,17 +91,17 @@ metavr device battery
 metavr adb logcat --tag ThermalService --level W
 ```
 
-## Step 2: VRC Compliance
+## Step 2: Store Readiness Checks
 
-Run through the VRC checklist. If the `hz-vrc-check` skill is installed, invoke it for a detailed walkthrough. Key VRC categories:
+Run through the VRC checklist below for a detailed walkthrough. Key VRC categories:
 
-- **Packaging** -- APK format, signing, versioning, manifest
-- **Functional** -- No crashes, no ANRs, correct behavior for all features
-- **Performance** -- Frame rate, load time, no judder
-- **Security** -- No disallowed permissions, proper data handling
-- **Asset** -- Store listing images meet dimension and content requirements
+- **Packaging** — Release-signed APK (APK Signature Scheme v2; v1-only is rejected), `targetSdkVersion >= 32` (2D panel apps: 34+), `minSdkVersion >= 29`, ARM64-only, a version code strictly higher than any previously uploaded build, and the `com.oculus.intent.category.VR` intent category declared in the launch activity.
+- **Functional** — No crashes or ANRs in any core flow (first-run setup, permission dialogs, rapid scene transitions, low-battery/thermal). Keep long network, IO, and asset work off the main thread.
+- **Performance** — Sustained 72 Hz on Quest 2 / 90 Hz on Quest 3, no thermal throttling within 5 minutes, interactive within 15 seconds of launch, and no memory leaks over an extended session.
+- **Security / Permissions** — Declare only permissions the app actually uses; disallowed permissions cause automatic rejection *before* manual review. Remove telephony/SMS/contacts (`CALL_PHONE`, `SEND_SMS`, `READ_CONTACTS`), precise location (`ACCESS_FINE_LOCATION`), and unjustified `READ_EXTERNAL_STORAGE`; guard optional hardware with `hasSystemFeature()` and drop the matching `<uses-permission>` when unused. Audit the *merged* manifest (including third-party libraries) with `aapt dump permissions <app>.apk`. Paid apps must verify entitlement within 10 seconds of launch (no internet required) or they are auto-rejected. See the prohibited and review-required permission lists at `developers.meta.com/horizon/resources/permissions-prohibited/` and `.../permissions-review-required/`.
+- **Asset** — Store images meet the dimension and content specs in [Step 3](#step-3-asset-preparation), screenshots are real on-device captures (not editor views or mockups), text stays inside the inner 80% safe area of hero art, and the comfort rating matches the actual locomotion (Comfortable = stationary/teleport, Moderate = slow smooth locomotion with comfort options, Intense = fast movement).
 
-Common VRC rejection reasons:
+Common store rejection reasons:
 
 | Rejection Reason | Fix |
 |---|---|
@@ -110,6 +110,9 @@ Common VRC rejection reasons:
 | Missing store assets | Ensure all required images are uploaded at correct dimensions. |
 | Disallowed permissions | Remove permissions not needed by the app (e.g., `CALL_PHONE`, `SEND_SMS`). |
 | Text in unsafe zone of hero art | Keep text within the inner 80% safe area of hero images. |
+| App Not Responding (ANR) | Move long network, IO, or asset work off the main thread. Reproduce with `metavr adb logcat --buffer crash`. |
+| Comfort rating mismatch | Set the comfort rating to match actual locomotion (Comfortable / Moderate / Intense). |
+| Paid app entitlement check missing | Verify entitlement within 10 seconds of launch (no internet required) before unlocking content. |
 
 ## Step 3: Asset Preparation
 
@@ -193,12 +196,12 @@ Post-approval:
 - **Screenshot requirements are strict** -- Screenshots must be captured from the actual app, not from marketing mockups or engine editor views. Reviewers compare screenshots to the actual app experience.
 - **Review timeline varies** -- While typical review takes 1-2 weeks, holidays, resubmissions, and high volume can extend this. Do not promise a launch date without buffer time.
 - **Managed vs. self-service releases** -- If Meta manages your release, you cannot set your own release date from the dashboard. Coordinate with your account manager.
-- **2D apps have different VRCs** -- If submitting a 2D Android app (not immersive VR), the VRC requirements are a subset. Do not assume all VR VRCs apply to 2D apps.
-- **Asset safe zones** -- Hero art and screenshots have a "safe zone" for text. Text that bleeds into the outer 20% may be cropped on different store placements, causing a VRC failure.
+- **2D apps have different requirements** -- If submitting a 2D Android app (not immersive VR), the store-readiness requirements are a subset. Do not assume all immersive-VR checks apply to 2D apps.
+- **Asset safe zones** -- Hero art and screenshots have a "safe zone" for text. Text that bleeds into the outer 20% may be cropped on different store placements, causing a rejection.
 - **Privacy policy is mandatory** -- Even free apps with no user accounts require a privacy policy URL. Submission will be blocked without one.
 
 ## References
 
-- [VRC Compliance (hz-vrc-check skill)](../hz-vrc-check/SKILL.md) -- Detailed VRC validation checklist
+- VRC Compliance -- run the detailed VRC validation checklist above before submission
 - [Submission Checklist](references/submission-checklist.md) -- Quick-reference pre-submission checklist
 - [Rejection Troubleshooting](references/rejection-troubleshooting.md) -- Common rejection reasons and fixes

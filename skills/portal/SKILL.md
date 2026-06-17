@@ -2,7 +2,7 @@
 name: portal
 license: Apache-2.0
 description: Build and sideload Android apps for Meta Portal devices (Portal, Portal+, Portal Mini, Portal Go, Portal TV) using metavr. Use when targeting Portal hardware — covers ADB enablement, the no-GMS constraint, manifest/launcher intent-filter requirements, icon density quirks (PNG-only, mipmap-xxxhdpi), the Smart Camera SDK, and the gradle + `metavr adb` build/deploy/debug loop. Auto-load when the user mentions "Portal" device, targets `minSdkVersion` 28-29 for a tabletop/TV form factor, or works with the `com.facebook.portal` package.
-allowed-tools: Read, Bash(metavr:*), Bash(hzdb:*), Bash(npx -y metavr:*), Bash(android:*), Bash(./gradlew:*)
+allowed-tools: Read Bash(metavr:*) Bash(hzdb:*) Bash(npx:*) Bash(android:*) Bash(./gradlew:*)
 ---
 
 # Portal

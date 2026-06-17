@@ -265,7 +265,7 @@ See the `hz-platform-sdk` skill for the full Horizon Platform SDK integration pa
 Before submitting to the Horizon Store:
 
 1. **App signing**: Use a release keystore (not debug) with a consistent signing key. The Horizon Store requires APK Signature Scheme v2 (v1-only APKs are rejected).
-2. **Store assets**: Prepare all required assets before starting submission (see `hz-vrc-check` for full specs):
+2. **Store assets**: Prepare all required assets before starting submission (the `hz-store-submit` skill covers the end-to-end submission workflow):
    - **App icon**: 512×512px, 24-bit PNG, solid fill, no transparency, squared corners
    - **Cover Landscape**: 2560×1440px (16:9), 24-bit PNG
    - **Cover Square**: 1440×1440px, 24-bit PNG

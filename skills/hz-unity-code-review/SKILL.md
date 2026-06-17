@@ -2,7 +2,7 @@
 name: hz-unity-code-review
 license: Apache-2.0
 description: Reviews Unity code targeting Meta Quest and Horizon OS for performance issues, rendering best practices, and common VR pitfalls. Use during code review or when diagnosing Quest performance problems in Unity projects.
-allowed-tools: Bash(metavr:*), Bash(hzdb:*)
+allowed-tools: Bash(metavr:*) Bash(hzdb:*)
 ---
 
 # Unity Code Review for Meta Quest

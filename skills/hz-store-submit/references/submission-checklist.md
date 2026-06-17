@@ -20,9 +20,9 @@ Quick-reference checklist for Meta Horizon Store submission. Complete all items 
 - [ ] No crash or ANR during 15-minute play session
 - [ ] No memory leaks (monitor memory over extended session)
 
-## VRC Compliance
+## Store Readiness
 
-- [ ] Completed VRC checklist (use hz-vrc-check skill for full walkthrough)
+- [ ] Reviewed every store-readiness area (packaging, functional, performance, security/permissions, assets)
 - [ ] No crashes during any core user flow
 - [ ] Comfort rating appropriate for the experience type
 - [ ] All Quest-specific permissions are justified and functional

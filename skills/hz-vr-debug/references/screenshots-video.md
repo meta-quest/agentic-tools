@@ -155,4 +155,3 @@ Options:
       --height <PIXELS> Screenshot height in pixels (default: 1024)
       --method <METHOD> Capture method: 'metacam' (default) or 'screencap'
 ```
-

@@ -1,0 +1,20 @@
+{
+  "name": "meta-quest",
+  "interface": {
+    "displayName": "Meta Quest Agentic Tools"
+  },
+  "plugins": [
+    {
+      "name": "meta-vr",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

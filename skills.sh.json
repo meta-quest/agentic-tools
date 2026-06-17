@@ -1,0 +1,55 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "Getting Started",
+      "description": "Verify-first guardrails, project scaffolding, and the metavr CLI.",
+      "skills": ["hz-quest-verify-first", "hz-new-project-creation", "metavr-cli"]
+    },
+    {
+      "title": "Unity",
+      "description": "Building Meta Quest and Horizon OS apps in Unity.",
+      "skills": [
+        "hz-unity-meta-core-sdk",
+        "hz-unity-platform-sdk",
+        "hz-unity-code-review",
+        "hz-unity-meta-quest-ui",
+        "hz-unity-placement",
+        "hz-unity-fbx-import",
+        "hz-unity-tmp-resources",
+        "hz-unity-project-analyzer"
+      ]
+    },
+    {
+      "title": "Spatial & Native SDKs",
+      "description": "Kotlin/Android Spatial SDK and Horizon Platform SDK integration.",
+      "skills": ["hz-spatial-sdk", "hz-platform-sdk", "hz-psdk-integration", "hz-android-2d-porting"]
+    },
+    {
+      "title": "WebXR",
+      "description": "WebXR experiences with the Immersive Web SDK.",
+      "skills": ["hz-iwsdk-webxr"]
+    },
+    {
+      "title": "Performance & Debugging",
+      "description": "Profiling, tracing, and debugging Quest apps.",
+      "skills": ["hz-perfetto-debug", "hz-simpleperf-debug", "hz-vr-debug", "hz-xr-simulator-setup"]
+    },
+    {
+      "title": "Design",
+      "description": "Comfort, accessibility, and spatial UX review.",
+      "skills": ["hz-immersive-designer"]
+    },
+    {
+      "title": "Ship",
+      "description": "Store submission and SDK upgrades.",
+      "skills": ["hz-store-submit", "hz-api-upgrade"]
+    },
+    {
+      "title": "Other Devices",
+      "description": "Targeting non-Quest Meta hardware.",
+      "skills": ["portal"]
+    }
+  ]
+}

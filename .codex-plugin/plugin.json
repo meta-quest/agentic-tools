@@ -1,0 +1,28 @@
+{
+  "name": "meta-vr",
+  "description": "Agent skills for Meta Quest and Horizon OS development. Helps Claude assist with Quest app debugging, performance analysis, project setup, Unity and WebXR workflows, Spatial SDK and Platform SDK integration, store submission checks, and metavr device workflows.",
+  "version": "1.2.2",
+  "author": {
+    "name": "Meta Platforms, Inc."
+  },
+  "homepage": "https://developers.meta.com/horizon/discover/ai-tools/",
+  "repository": "https://github.com/meta-quest/agentic-tools",
+  "license": "Apache-2.0",
+  "keywords": ["meta-quest", "horizon-os", "meta-vr", "vr", "xr", "mixed-reality", "unity", "webxr", "spatial-sdk", "platform-sdk", "android", "metavr", "debugging", "performance", "store-submission"],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Meta Quest Agentic Tools",
+    "shortDescription": "Build and debug Meta Quest & Horizon OS apps from your agent.",
+    "longDescription": "Official Meta skills and the metavr MCP server for Meta Quest and Horizon OS development — debug apps, analyze performance, scaffold projects, build Unity, WebXR, Spatial SDK and Platform SDK integrations, validate store submissions, and drive Quest devices.",
+    "developerName": "Meta Platforms, Inc.",
+    "category": "Developer Tools",
+    "capabilities": ["Skills", "MCP"],
+    "websiteURL": "https://developers.meta.com/horizon/discover/ai-tools/",
+    "defaultPrompt": [
+      "Set up a new Meta Quest project.",
+      "Debug why my Quest app is dropping frames.",
+      "Check my app against the Meta Horizon Store requirements."
+    ]
+  }
+}

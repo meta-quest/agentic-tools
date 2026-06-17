@@ -1999,5 +1999,3 @@ shell [COMMANDS]...
 | Argument | Description |
 |----------|-------------|
 | `<commands>` | Command and arguments to run (interactive shell if omitted) |
-
-

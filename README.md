@@ -7,19 +7,20 @@ Agentic skills and tools for Meta Quest and Horizon OS development.
 
 ## What is this?
 
-This repository packages a curated set of agentic tools and skills for Meta Quest and Horizon OS development, along with shared Meta VR CLI (`metavr`) references and contribution/process documentation for maintaining the skill ecosystem.
+This repository packages a curated set of agentic tools and skills for Meta Quest and Horizon OS development, along with shared `metavr` references and contribution/process documentation for maintaining the skill ecosystem.
 
-The skills follow the open Agent Skills model: each skill has a required `SKILL.md` plus optional supporting files that are loaded on demand. This repo includes packaging artifacts for Claude Code, Cursor, GitHub Copilot CLI, and Gemini-compatible environments.
+The skills follow the open Agent Skills model: each skill has a required `SKILL.md` plus optional supporting files that are loaded on demand. This repo includes packaging artifacts for Claude Code, Cursor, Codex, GitHub Copilot CLI, and Gemini-compatible environments.
 
-Skills are powered by the **Meta VR CLI** (`metavr`), which provides device management, app management, performance tooling, and documentation search through both direct commands and an MCP server.
+Skills are powered by the **metavr** (Meta VR CLI), which provides device management, app management, performance tooling, and documentation search through both direct commands and an MCP server.
 
 ## Prerequisites
 
 - **Node.js** 18 or later
-- **Meta VR CLI** (`metavr`) — invoke via `npx` (no install required):
+- **metavr CLI** — invoke via `npx` (no install required):
   ```bash
   npx -y metavr --version
   ```
+  Using [Bun](https://bun.sh)? Substitute `bunx metavr` for `npx -y metavr` in any command in this README — no `-y` is needed (e.g. `bunx metavr --version`).
 - **Meta Quest device** with [Developer Mode](https://developers.meta.com/horizon/documentation/native/android/mobile-device-setup/) enabled (for on-device skills)
 
 ## Installation
@@ -45,15 +46,33 @@ Install from the [Cursor marketplace](https://cursor.com/marketplace/meta-realit
 
 Or install online at: https://cursor.com/marketplace/meta-reality-labs
 
+### Codex
+
+```bash
+codex plugin marketplace add meta-quest/agentic-tools
+codex plugin install meta-vr
+```
+
+### GitHub Copilot CLI
+
+```bash
+copilot plugin marketplace add meta-quest/agentic-tools
+copilot plugin install meta-vr@meta-quest
+```
+
 ### Gemini
 
 ```bash
 gemini extensions install https://github.com/meta-quest/agentic-tools
 ```
 
+## Install with a skills CLI
+
+Prefer to install the skills directly — independent of any specific editor or plugin marketplace? These editor-agnostic CLIs install the skills from this repo into whichever agent you choose.
+
 ### Agent Skills CLI (`gh skill`)
 
-These skills are published as [Agent Skills](https://agentskills.io) releases and can be installed with the built-in `gh skill` command, independent of any specific editor or plugin marketplace. Requires a recent [GitHub CLI](https://cli.github.com) (`gh`) — `gh skill` is a preview feature.
+Published as [Agent Skills](https://agentskills.io) releases and installable with the built-in `gh skill` command. Requires a recent [GitHub CLI](https://cli.github.com) (`gh`) — `gh skill` is a preview feature.
 
 ```bash
 # Install all skills from this repo
@@ -62,14 +81,31 @@ gh skill install meta-quest/agentic-tools
 # Install a single skill
 gh skill install meta-quest/agentic-tools hz-spatial-sdk
 
-# Pin to a specific release tag
-gh skill install meta-quest/agentic-tools hz-spatial-sdk --pin v1.2.1
+# Target a specific agent, or install for all projects
+gh skill install meta-quest/agentic-tools --agent claude-code --scope user
 ```
 
-By default skills install at project scope for GitHub Copilot. Use `--agent` (e.g. `claude-code`, `cursor`, `codex`, `gemini-cli`) and `--scope user` to target a specific agent or make skills available everywhere:
+### skills.sh (`npx skills`)
 
 ```bash
-gh skill install meta-quest/agentic-tools --agent claude-code --scope user
+# Add every skill from this repo
+npx skills add meta-quest/agentic-tools
+```
+
+Browse the catalog at [skills.sh/meta-quest/agentic-tools](https://skills.sh/meta-quest/agentic-tools).
+
+### Context7 (`npx ctx7`)
+
+```bash
+# Interactive — pick from a list
+npx ctx7@latest skills install /meta-quest/agentic-tools
+
+# Install a specific skill, or everything
+npx ctx7@latest skills install /meta-quest/agentic-tools hz-spatial-sdk
+npx ctx7@latest skills install /meta-quest/agentic-tools --all
+
+# Target a specific IDE: --claude, --cursor, --universal (.agents/skills/), or --global
+npx ctx7@latest skills install /meta-quest/agentic-tools --all --claude
 ```
 
 
@@ -78,6 +114,8 @@ gh skill install meta-quest/agentic-tools --agent claude-code --scope user
 metavr includes a built-in [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server with 40+ tools for device management, app control, file operations, documentation search, performance tracing, and more. This lets AI coding assistants interact directly with your Meta Quest device.
 
 ### Install the MCP server into your AI tool
+
+> **Bun users:** replace `npx -y metavr` with `bunx metavr` in any command below (no `-y` needed).
 
 ```bash
 # Claude Code
@@ -127,10 +165,9 @@ Or start the MCP server directly:
 npx -y metavr mcp server
 ```
 
-> Bun users: substitute `bunx metavr` for `npx -y metavr` (no `-y` needed).
-
 ## Skills
 
+<!-- BEGIN GENERATED: skills-table (managed by tools/export_skills.py) -->
 | Skill | Description |
 |-------|-------------|
 | `metavr-cli` | Provides the Meta VR CLI (`metavr` command) reference for Meta Quest and Horizon OS device management, app management, docs search, audio control, test setup, performance tooling, and MCP usage. |
@@ -142,23 +179,29 @@ npx -y metavr mcp server
 | `hz-perfetto-debug` | Analyzes Meta Quest and Horizon OS performance with Perfetto traces, including frame timing, CPU/GPU bottlenecks, and thermal issues. |
 | `hz-platform-sdk` | Guides Horizon Platform SDK API usage for Meta Quest and Horizon OS Android/Kotlin apps across the public platform packages. |
 | `hz-psdk-integration` | Guides interactive Horizon Platform SDK integration for Meta Quest and Horizon OS Android/Kotlin projects, from codebase analysis through on-device validation. |
-| `hz-quest-verify-first` | Forces docs-first verification against current Meta Quest and Horizon OS documentation and `metavr` capabilities before answering or editing Quest-specific code. |
+| `hz-quest-verify-first` | Forces docs-first verification against current Meta Quest and Horizon OS documentation and metavr capabilities before answering or editing Quest-specific code. |
 | `hz-simpleperf-debug` | Profiles Meta Quest and Horizon OS CPU performance with simpleperf, including workload classification, hotspot recording, and kernel overhead analysis. |
 | `hz-spatial-sdk` | Builds spatial Android apps for Meta Quest and Horizon OS with Meta Spatial SDK, including ECS architecture, panels, 3D objects, and hybrid experiences. |
+| `hz-store-pwa` | Guides shipping a web app to the Meta Quest and Horizon OS Store as a PWA/TWA, both 2D windowed panels and immersive WebXR, covering the IWSDK/web build, Vercel deploy, PWA manifest and icons, bubblewrap packaging with keystore and Digital Asset Links, and ovr-platform-util upload. |
 | `hz-store-submit` | Guides Meta Quest and Horizon OS app submission to the Meta Horizon Store, including build validation, VRC compliance, assets, upload, and review tracking. |
 | `hz-unity-code-review` | Reviews Unity code targeting Meta Quest and Horizon OS for rendering, performance, input handling, allocations, and common VR pitfalls. |
+| `hz-unity-face-tracking` | Drives ARKit-blendshape-rigged head/face models in Unity from the wearer's facial expressions on Meta Quest and Horizon OS via Meta Movement SDK (face tracking + Audio-to-Expression), for FBX models with the 52 ARKit blendshapes on Quest Pro / Quest 3 / Quest 3S. |
 | `hz-unity-fbx-import` | Ensures complete FBX URLs or absolute paths are used when importing external 3D models into Unity projects targeting Meta Quest and Horizon OS. |
 | `hz-unity-meta-core-sdk` | Guides Meta XR Core SDK (`com.meta.xr.sdk.core`) usage for Meta Quest and Horizon OS Unity XR development, including OVRManager, OVRCameraRig, passthrough, hand tracking, spatial anchors, boundaryless mode, controller input, Scene API, OVRProjectSetup, and AndroidManifest generation. |
+| `hz-unity-meta-mixed-reality-utility-kit` | Builds scene-aware mixed reality in Unity for Meta Quest and Horizon OS with the Meta XR Mixed Reality Utility Kit (MRUK / `com.meta.xr.mrutilitykit`), including Scene API data, anchor-based prefab spawning, world locking, room-geometry raycasting, NavMesh generation, passthrough camera access, trackable detection, and room sharing. |
+| `hz-unity-meta-movement-sdk-retargeting` | Sets up and tweaks Meta Movement SDK (MSDK) retargeting for humanoid character models on Meta Quest and Horizon OS, generating the retargeting config and hand-editing the resulting `<asset>.json` (joint mappings, mapping weights and behaviors, T-pose values). |
 | `hz-unity-meta-quest-ui` | Configures Unity UI for Meta Quest and Horizon OS VR development, including world-space canvases, TextMesh Pro, sizing, and interaction readiness. |
+| `hz-unity-passthrough-camera-access` | Accesses the forward-facing RGB cameras on Meta Quest and Horizon OS (Quest 3 / Quest 3S) via Passthrough Camera Access (PCA) in Unity to feed Computer Vision and ML pipelines, covering camera image/texture capture, pose and intrinsics, pixel-to-world projection, resolution, and permissions. |
 | `hz-unity-placement` | Ensures accurate object placement in Unity projects targeting Meta Quest and Horizon OS using Renderer and Collider bounds. |
 | `hz-unity-platform-sdk` | Guides Horizon Platform SDK integration for Meta Quest and Horizon OS Unity/C# apps across all 18 public platform packages, including achievements, IAP, users, leaderboards, challenges, presence, notifications, entitlements, setup, initialization, and error handling. |
 | `hz-unity-project-analyzer` | Analyzes and maintains `.agent-docs/` project knowledge bases for Unity projects targeting Meta Quest and Horizon OS. |
 | `hz-unity-tmp-resources` | Imports and verifies TextMesh Pro Essential Resources for Unity projects targeting Meta Quest and Horizon OS. |
-| `hz-vr-debug` | Debugs Meta Quest and Horizon OS VR/MR apps with `metavr` logs, screenshots, app inspection, and common issue diagnosis. |
+| `hz-vr-debug` | Debugs Meta Quest and Horizon OS VR/MR apps with metavr logs, screenshots, app inspection, and common issue diagnosis. |
 | `hz-xr-simulator-setup` | Sets up Meta XR Simulator workflows for testing Meta Quest and Horizon OS Unity or Unreal apps without a physical device. |
-| `portal` | Builds and sideloads Android apps for Meta Portal devices (Portal, Portal+, Portal Mini, Portal Go, Portal TV) with `metavr`, covering ADB enablement, the no-GMS constraint, launcher intent-filters, icon density quirks, the Smart Camera SDK, and the gradle build/deploy/debug loop. |
+| `portal` | Builds and sideloads Android apps for Meta Portal devices (Portal, Portal+, Portal Mini, Portal Go, Portal TV) with metavr, covering ADB enablement, the no-GMS constraint, launcher intent-filters, icon density quirks, the Smart Camera SDK, and the gradle build/deploy/debug loop. |
+<!-- END GENERATED: skills-table -->
 
-## Meta VR CLI quick reference
+## metavr CLI quick reference
 
 metavr organizes commands into groups:
 
@@ -194,7 +237,7 @@ Run `npx -y metavr --help` or `npx -y metavr <group> --help` for full usage deta
 │   └── marketplace.json     # Marketplace listing
 ├── .mcp.json                # Shared MCP server config used by supported clients
 ├── docs/
-│   └── hzdb.md              # Full Meta VR CLI reference
+│   └── hzdb.md              # Full metavr CLI reference
 ├── gemini-extension.json    # Gemini-compatible MCP configuration
 ├── skills/                  # One directory per skill
 │   └── ...
@@ -213,7 +256,7 @@ Each skill directory contains a `SKILL.md` file. Supporting directories such as 
 
 - [CONTRIBUTING.md](CONTRIBUTING.md) covers the general pull request flow for this repository.
 - [AGENTS.md](AGENTS.md) explains the current repo structure and the live skill inventory for coding agents.
-- [docs/hzdb.md](docs/hzdb.md) is the generated Meta VR CLI reference.
+- [docs/hzdb.md](docs/hzdb.md) is the generated metavr CLI reference.
 
 ## Contributing
 

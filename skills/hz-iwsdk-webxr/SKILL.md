@@ -2,7 +2,7 @@
 name: hz-iwsdk-webxr
 license: Apache-2.0
 description: Builds WebXR experiences for Meta Quest and Horizon OS using the Immersive Web SDK (IWSDK) — ECS architecture, Three.js integration, spatial UI. Use when creating web-based VR/MR apps for Quest Browser.
-allowed-tools: Bash(metavr:*), Bash(hzdb:*)
+allowed-tools: Bash(metavr:*) Bash(hzdb:*)
 ---
 
 # IWSDK WebXR Skill

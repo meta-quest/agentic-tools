@@ -2,8 +2,9 @@
 name: hz-psdk-integration
 license: Apache-2.0
 description: "For 3P / EXTERNAL developers: guides interactive Horizon Platform SDK (PSDK) integration for Meta Quest and Horizon OS Android/Kotlin apps — analyzes the codebase, recommends public platform features, plans the integration, and validates on device. Uses the external toolchain (Gradle, metavr, a developers.meta.com / Rocksteady App ID). For 1P apps inside fbsource (buck, Chesterfield/ni, adb), use psdk_1p_onboarding_agent instead."
-interactive: true
-allowed-tools: Read, Glob, Grep, Bash(metavr:*), Bash(hzdb:*), Bash(./gradlew:*), Write, Edit
+metadata:
+  interactive: "true"
+allowed-tools: Read Glob Grep Bash(metavr:*) Bash(hzdb:*) Bash(./gradlew:*) Write Edit
 ---
 
 # PSDK Feature Integration Wizard

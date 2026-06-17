@@ -8,7 +8,7 @@ description: >-
   audio control, screenshots, and performance analysis. Use when the user needs
   to install metavr, asks what commands are available, needs CLI syntax help, or
   wants to know what metavr can do.
-allowed-tools: Bash(metavr:*), Bash(hzdb:*), Bash(npx:*)
+allowed-tools: Bash(metavr:*) Bash(hzdb:*) Bash(npx:*)
 ---
 
 # metavr CLI Reference
