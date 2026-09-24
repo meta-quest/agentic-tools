@@ -1,6 +1,6 @@
 # Hand Tracking Reference
 
-Hand tracking enables natural hand interaction on Meta Quest headsets without controllers.
+Hand tracking enables natural hand interaction on Meta VR devices without controllers.
 
 ## Setup
 

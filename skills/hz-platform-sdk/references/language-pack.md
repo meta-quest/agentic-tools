@@ -7,7 +7,7 @@
 
 ## Overview
 
-The Language Pack API is part of the Horizon Platform SDK. It provides two operations for Meta Quest Android applications:
+The Language Pack API is part of the Horizon Platform SDK. It provides two operations for Meta VR Android applications:
 
 1. **`getCurrent()`** -- Retrieve details about the currently installed language pack
 2. **`setCurrent(tag)`** -- Set (download and install) a language pack by its BCP47 language tag

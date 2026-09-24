@@ -1,6 +1,6 @@
 # Passthrough (Mixed Reality) Reference
 
-Passthrough provides real-time 3D visualization of the physical world inside Meta Quest headsets, enabling mixed reality experiences.
+Passthrough provides real-time 3D visualization of the physical world inside Meta VR headsets, enabling mixed reality experiences.
 
 ## How It Works
 
@@ -34,7 +34,7 @@ On the OVRCameraRig Inspector:
 
 ### 5. Set Tracking Origin (for MR)
 
-Set **Tracking Origin Type** to "Floor Level" (recommended for MR). Do **not** use Stage — it does not respond to user recentering on Quest and is ill-defined for boundaryless apps.
+Set **Tracking Origin Type** to "Floor Level" (recommended for MR). Do **not** use Stage — it does not respond to user recentering on Meta VR devices and is ill-defined for boundaryless apps.
 
 ## OVRPassthroughLayer Properties
 

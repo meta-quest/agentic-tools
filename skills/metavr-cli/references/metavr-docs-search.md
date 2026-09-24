@@ -1,6 +1,6 @@
 # metavr Documentation Search
 
-Documentation commands let you search and retrieve Meta Quest developer documentation
+Documentation commands let you search and retrieve Meta VR developer documentation
 directly from the command line. This is useful for quickly looking up APIs, guides,
 and best practices without leaving your development environment.
 
@@ -8,7 +8,7 @@ and best practices without leaving your development environment.
 
 | Command | Description |
 |---|---|
-| `metavr docs search <query>` | Search Meta Quest documentation |
+| `metavr docs search <query>` | Search Meta VR documentation |
 | `metavr docs fetch <url>` | Fetch a specific documentation page |
 | `metavr docs api-search <query>` | Search API references using BM25 ranking |
 | `metavr docs api-details <name>` | Get full details for an API entry |
@@ -26,7 +26,7 @@ This is especially important for:
 
 - current SDK APIs
 - build and deploy steps
-- new Quest behavior
+- new Meta VR behavior
 - policy and store questions
 - SDK features that may have changed recently
 
@@ -35,7 +35,7 @@ so the source can be re-fetched and verified later.
 
 ## metavr docs search
 
-Search across the full Meta Quest developer documentation library.
+Search across the full Meta VR developer documentation library.
 
 ```bash
 # Search by topic
@@ -63,9 +63,9 @@ Results:
 1. Scene Understanding Overview
    https://developers.meta.com/horizon/documentation/unity/unity-scene-overview
 2. Scene API Reference
-   https://developers.meta.com/horizon/documentation/native/scene-api
-3. Spatial Data in Unreal Engine
-   https://developers.meta.com/horizon/documentation/unreal/unreal-spatial-data
+   https://developers.meta.com/horizon/documentation/native/android/mobile-scene-api-ref
+3. Spatial Anchors Overview
+   https://developers.meta.com/horizon/documentation/unreal/unreal-spatial-anchors
 ```
 
 ## metavr docs fetch
@@ -92,7 +92,7 @@ A common workflow is to search first, then fetch the most relevant result:
 metavr docs search "controller input"
 
 # 2. Fetch the page you need
-metavr docs fetch https://developers.meta.com/horizon/documentation/unity/unity-controller-input
+metavr docs fetch https://developers.meta.com/horizon/documentation/unity/unity-ovrinput
 ```
 
 For agent workflows, prefer quoting the fetched page rather than paraphrasing from
@@ -104,12 +104,12 @@ have to guess the next call arguments.
 
 ## Documentation Categories
 
-Meta Quest developer documentation is organized by platform and SDK. Each category
+Meta VR developer documentation is organized by platform and SDK. Each category
 has its own documentation index.
 
 ### Unity
 
-Guides and API references for building Quest apps with the Unity engine.
+Guides and API references for building Meta VR apps with the Unity engine.
 
 ```bash
 metavr docs search "Unity setup guide"
@@ -123,7 +123,7 @@ spatial anchors, scene understanding, interaction SDK, and performance optimizat
 
 ### Unreal Engine
 
-Guides and API references for building Quest apps with Unreal Engine.
+Guides and API references for building Meta VR apps with Unreal Engine.
 
 ```bash
 metavr docs search "Unreal Engine Quest setup"
@@ -148,7 +148,7 @@ object-based interactions.
 
 ### Android (Native Java/Kotlin)
 
-Documentation for building Quest apps as standard Android applications.
+Documentation for building Meta VR apps as standard Android applications.
 
 ```bash
 metavr docs search "Android Quest development"

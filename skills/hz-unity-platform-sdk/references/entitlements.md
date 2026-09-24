@@ -1,13 +1,13 @@
 # Entitlements API
 
 - **Unity Package**: com.meta.xr.sdk.platform
-- **Documentation**: https://developer.oculus.com/documentation/unity/ps-entitlement-check/
+- **Documentation**: https://developers.meta.com/horizon/documentation/unity/ps-entitlement-check/
 - **Namespace**: Oculus.Platform
 
 ## Overview
 
 1. Verify the user legitimately owns the app (anti-piracy check)
-2. Required for every Quest app published to the Meta Horizon Store
+2. Required for every Meta VR app published to the Meta Horizon Store
 3. Must complete within 10 seconds of app launch
 4. Single API call: `Entitlements.GetIsViewerEntitled()`
 
@@ -17,7 +17,7 @@
 
 | | |
 |---|---|
-| **Required by the Store** | Every Quest app submission must implement an entitlement check or it will fail VRC review. |
+| **Required by the Store** | Every Meta VR app submission must implement an entitlement check or it will fail VRC review. |
 | **Anti-piracy** | Prevents sideloaded copies from running for users who didn't purchase. |
 | **10-second SLA** | The check **must complete within 10 seconds** of app launch. |
 | **Works offline** | The check does not require internet. The platform caches entitlement state locally. |
@@ -252,12 +252,12 @@ public class EntitlementWithFeedback : MonoBehaviour
 
 ## Important Notes
 
-- **Required for every Quest app**: Submitting without an entitlement check will fail VRC review.
+- **Required for every Meta VR app**: Submitting without an entitlement check will fail VRC review.
 - **10-second wall-clock deadline**: The check must complete within 10 seconds of app launch. Use a lightweight bootstrap scene.
 - **Must quit on failure**: `Application.Quit()` is required. Do not soft-fail by hiding features.
 - **Works offline**: The platform caches entitlement state locally. No need to special-case offline scenarios.
 - **Editor behavior**: The check runs against the configured Standalone Platform test user. Configure via **Meta > Platform > Edit Settings**.
-- **Sideloaded debug builds**: The check runs against the signed-in Quest account. Developer accounts are entitled automatically.
+- **Sideloaded debug builds**: The check runs against the signed-in Meta account. Developer accounts are entitled automatically.
 - **Store builds**: The check runs against the user's purchase records. Cached, so works offline.
 - **Sample tester**: `samples/unity/Baremetal/Assets/SamplesInternal/entitlements/EntitlementsTester.cs`
-- [Virtual Reality Checks (VRC)](https://developer.oculus.com/resources/publish-quest-req/)
+- [Virtual Reality Checks (VRC)](https://developers.meta.com/horizon/resources/publish-quest-req/)

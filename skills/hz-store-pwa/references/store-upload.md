@@ -46,7 +46,7 @@ The first upload often fails with:
 An **org admin** must sign it once at:
 
 ```
-https://developer.oculus.com/manage/organizations/<ORG_ID>/legal-documents/
+https://developers.meta.com/horizon/manage/organizations/<ORG_ID>/legal-documents/
 ```
 
 This is a legal action only the user can do — PAUSE, ask the user to sign, then

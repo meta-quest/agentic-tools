@@ -2,7 +2,7 @@
 name: portal
 license: Apache-2.0
 description: Build and sideload Android apps for Meta Portal devices (Portal, Portal+, Portal Mini, Portal Go, Portal TV) using metavr. Use when targeting Portal hardware — covers ADB enablement, the no-GMS constraint, manifest/launcher intent-filter requirements, icon density quirks (PNG-only, mipmap-xxxhdpi), the Smart Camera SDK, and the gradle + `metavr adb` build/deploy/debug loop. Auto-load when the user mentions "Portal" device, targets `minSdkVersion` 28-29 for a tabletop/TV form factor, or works with the `com.facebook.portal` package.
-allowed-tools: Read Bash(metavr:*) Bash(hzdb:*) Bash(npx:*) Bash(android:*) Bash(./gradlew:*)
+allowed-tools: Read, Bash(metavr:*), Bash(npx:*), Bash(android:*), Bash(./gradlew:*)
 ---
 
 # Portal
@@ -11,7 +11,7 @@ This skill is for building Android apps that target Meta's Portal device family.
 
 The hardware: Snapdragon-based Android tablets and TV sticks running a modified AOSP **without** Google Mobile Services. Several models, all touch or TV. `minSdkVersion` 28 (Android 9) or 29 (Android 10) depending on device.
 
-This skill pairs with **metavr** (Meta VR CLI) — install it first. Use `metavr adb` in place of raw `adb` everywhere. See `resources/hzdb.md` for the one-line install (via `npx`), the MCP-into-your-editor setup, and the Portal-relevant command surface. The full `metavr-cli` skill ships in the same repo and can also be loaded for deeper reference.
+This skill pairs with **metavr** (Meta VR CLI) — install it first. Use `metavr adb` in place of raw `adb` everywhere. See `resources/metavr.md` for the one-line install (via `npx`), the MCP-into-your-editor setup, and the Portal-relevant command surface. The full `metavr-cli` skill ships in the same repo and can also be loaded for deeper reference.
 
 ## Hard constraints — read before writing any code
 
@@ -59,11 +59,12 @@ android update                                     # keep the CLI current
 android sdk install platforms/android-28 platforms/android-29 platform-tools build-tools/34.0.0
 export ANDROID_HOME="$HOME/Library/Android/sdk"   # macOS — Linux uses ~/Android/Sdk
 
-# 3) Install metavr (one-time, host machine — requires Node.js 20+)
-#    See resources/hzdb.md for full details and MCP-into-your-editor setup.
-npx -y metavr --version
-# (or install globally)
-npm install -g @meta-quest/metavr
+# 3) Install metavr (one-time, host machine — standalone binary, no Node.js needed)
+#    See resources/metavr.md for all install options (incl. npx without install) and MCP-into-your-editor setup.
+curl -fsSL https://developers.meta.com/horizon/install-cli/ | sh   # macOS/Linux
+# Windows (PowerShell): iwr -useb https://developers.meta.com/horizon/install-cli/windows/ | iex
+metavr --version
+# (or with Node.js 16+: npx -y metavr --version, no install required)
 
 # 4) Enable ADB on the Portal
 #    Portal: Settings → Debug → ADB Enabled. Enter PIN if prompted.
@@ -79,7 +80,7 @@ metavr device list
 ./gradlew assembleDebug
 metavr app install -r app/build/outputs/apk/debug/app-debug.apk   # -r/--replace reinstalls, keeping data
 metavr app launch com.example.myapp                               # or: metavr adb shell am start -n com.example.myapp/.MainActivity
-# (or use npx -y metavr instead of metavr if not globally installed)
+# (or prefix with npx -y if you use the npm distribution instead of the standalone binary)
 ```
 
 If the device is missing from `metavr device list`, tap **ADB Enabled** on the Portal again — the toggle can race the USB connect.
@@ -175,7 +176,7 @@ See `resources/debugging.md` for more patterns and common failure modes (icon mi
 
 ## Resources
 
-- `resources/hzdb.md` — what metavr is, one-line install, MCP-into-your-editor, Portal-relevant commands
+- `resources/metavr.md` — what metavr is, one-line install, MCP-into-your-editor, Portal-relevant commands
 - `resources/device-setup.md` — full device prep walkthrough for a human user
 - `resources/android-sdk-setup.md` — install JDK 17, Android CLI, SDK platforms / build-tools
 - `resources/native-toolchain.md` — NDK / CMake / Ninja setup (use this when the project has native code; covers the deep-validation contract because `source.properties` alone isn't enough)

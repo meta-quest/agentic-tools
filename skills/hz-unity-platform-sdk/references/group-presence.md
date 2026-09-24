@@ -1,12 +1,12 @@
 # Group Presence API
 
 - **Unity Package**: com.meta.xr.sdk.platform
-- **Documentation**: https://developer.oculus.com/documentation/unity/ps-group-presence-overview/
+- **Documentation**: https://developers.meta.com/horizon/documentation/unity/ps-group-presence-overview/
 - **Namespace**: Oculus.Platform
 
 ## Overview
 
-The Group Presence API is part of the Horizon Platform SDK Unity package. It provides operations for Meta Quest Unity applications to manage multiplayer presence, invitations, and social interactions:
+The Group Presence API is part of the Horizon Platform SDK Unity package. It provides operations for Meta VR Unity applications to manage multiplayer presence, invitations, and social interactions:
 
 1. **`GroupPresence.Set(options)`** -- Set all group presence parameters at once (recommended)
 2. **`GroupPresence.Clear()`** -- Clear the current group presence
@@ -35,7 +35,7 @@ The Group Presence API is part of the Horizon Platform SDK Unity package. It pro
 
 ## Prerequisites
 
-1. **Register your app** at [developer.oculus.com/manage](https://developer.oculus.com/manage/)
+1. **Register your app** at [developers.meta.com/horizon/manage](https://developers.meta.com/horizon/manage/)
 2. **Create at least one Destination** in the Developer Dashboard. A Destination is a named, deep-linkable location in your app (e.g., `lobby`, `boss_arena`, `tutorial`). Note the **API Name**.
 3. **Note your App ID**
 
@@ -367,7 +367,7 @@ public class GroupPresenceManager : MonoBehaviour
 
 ## Useful Links
 
-- [Meta Quest Group Presence Documentation (Unity)](https://developer.oculus.com/documentation/unity/ps-group-presence-overview/)
-- [Destinations Overview](https://developer.oculus.com/documentation/unity/ps-destinations-overview/)
-- [Invokable Error Dialogs](https://developer.oculus.com/documentation/unity/ps-multiplayer-error-dialog/)
-- [Meta Quest Developer Dashboard](https://developer.oculus.com/manage/)
+- [Meta VR Group Presence Documentation (Unity)](https://developers.meta.com/horizon/documentation/unity/ps-group-presence-overview/)
+- [Destinations Overview](https://developers.meta.com/horizon/documentation/unity/ps-destinations-overview/)
+- [Invokable Error Dialogs](https://developers.meta.com/horizon/documentation/unity/ps-error-dialogs/)
+- [Meta Horizon Developer Dashboard](https://developers.meta.com/horizon/manage/)

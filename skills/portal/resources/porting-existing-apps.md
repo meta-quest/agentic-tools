@@ -19,7 +19,7 @@ If `compileSdk` is newer than what you have installed (`ls $ANDROID_HOME/platfor
 
 ## Step 1 — Look for an existing no-GMS variant
 
-This is the single biggest accelerator. Many open-source Android apps already ship a no-Google-Mobile-Services flavor because they distribute on F-Droid, Amazon Appstore, Meta Quest, OEM channels, etc. **Use it instead of stripping GMS yourself.**
+This is the single biggest accelerator. Many open-source Android apps already ship a no-Google-Mobile-Services flavor because they distribute on F-Droid, Amazon Appstore, Horizon Store, OEM channels, etc. **Use it instead of stripping GMS yourself.**
 
 Common names to grep for in `build.gradle.kts` files (and `:app/build-logic/` convention plugins):
 
@@ -101,9 +101,9 @@ metavr app list -f <name-fragment>
 Stream logcat while you launch:
 
 ```bash
-metavr log --follow
+metavr adb logcat --follow
 # or, focused on AndroidRuntime crashes:
-metavr adb logcat -s AndroidRuntime DEBUG libc
+metavr adb logcat -F "AndroidRuntime:V DEBUG:V libc:V"
 ```
 
 Common first-launch failures on Portal:

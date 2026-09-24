@@ -58,7 +58,7 @@ LIMIT 50
 
 Key properties to extract from render pass args:
 
-| Property | What It Means | Optimal for Quest |
+| Property | What It Means | Optimal for Meta VR |
 |----------|--------------|-------------------|
 | Resolution | Render target dimensions | 1440x1584 per eye (Quest 3) |
 | MSAA level | Multisample anti-aliasing samples | 2x or 4x |
@@ -161,7 +161,7 @@ Qualcomm Adreno GPUs (used in Quest) are tile-based renderers. The binning pass 
 | No MSAA | 1.0x | Not recommended for VR (aliasing) |
 | 2x MSAA | ~1.2x | Minimum for VR |
 | 4x MSAA | ~1.5x | Best quality/performance balance |
-| 8x MSAA | ~2.0x+ | Too expensive for most Quest apps |
+| 8x MSAA | ~2.0x+ | Too expensive for most Meta VR apps |
 
 MSAA cost scales with fragment shading. If `% Time Shading Fragments` is already high, reducing MSAA level can provide significant savings.
 

@@ -1,15 +1,15 @@
 ---
 name: hz-simpleperf-debug
 license: Apache-2.0
-description: Profiles Meta Quest and Horizon OS application CPU performance using simpleperf — workload classification, CPU hotspot recording, kernel overhead measurement. Use when diagnosing whether an app is CPU-bound, memory-bound, or I/O-bound on Quest devices.
-allowed-tools: Bash(metavr:*) Bash(hzdb:*)
+description: "Profiles Meta VR and Horizon OS application CPU performance using simpleperf — workload classification, CPU hotspot recording, kernel overhead measurement. Use when diagnosing whether an app is CPU-bound, memory-bound, or I/O-bound on Meta VR devices. Build paths: all Meta VR app stacks; use hz-quest-verify-first if the build path is unclear."
+allowed-tools: Bash(metavr:*), Bash(hzdb:*)
 ---
 
 # Simpleperf Debug Skill
 
 ## When to Use
 
-Use this skill when you need hardware-level CPU performance insights on Meta Quest devices:
+Use this skill when you need hardware-level CPU performance insights on Meta VR devices:
 
 - Classifying whether an app is CPU-bound, memory-bound, or I/O-bound
 - Finding CPU hotspot functions consuming the most cycles
@@ -21,7 +21,7 @@ This skill complements `hz-perfetto-debug`. Perfetto shows *what* your app is do
 
 ## VR Performance Context
 
-Quest devices run on mobile ARM SoCs with strict thermal and power budgets. CPU-bound apps hit frame drops when:
+Meta VR devices run on mobile ARM SoCs with strict thermal and power budgets. CPU-bound apps hit frame drops when:
 
 | Refresh Rate | CPU Frame Budget | Notes |
 |-------------|-----------------|-------|
@@ -33,13 +33,13 @@ Simpleperf's hardware counters reveal bottlenecks invisible to software tracing.
 
 ## metavr Setup
 
-Simpleperf profiling is powered by the metavr CLI. Invoke via `npx` — no install required:
+Simpleperf profiling is powered by the metavr CLI — install the standalone binary on your PATH (see the `metavr-cli` skill), or invoke via `npx` with no install:
 
 ```bash
-npx -y metavr --version
+metavr --version
 ```
 
-Examples below use the bare `metavr` command for brevity. If `metavr` is not on PATH, invoke the same CLI via `npx -y metavr <args>` (the CLI is published under the npm package `metavr`). Connect your Quest via USB with developer mode enabled.
+Examples below use the bare `metavr` command; if you use the npm distribution, prefix with `npx -y`. Connect your Meta VR device via USB with developer mode enabled.
 
 ## Quick Start Workflow
 

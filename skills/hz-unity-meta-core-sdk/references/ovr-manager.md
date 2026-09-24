@@ -16,13 +16,13 @@ First locate the SDK root (see "Finding the SDK Source" in SKILL.md), then grep:
 
 ### Target Devices
 
-Controls which Meta Quest headsets the app targets. Target device selection automatically adds appropriate `<meta-data/>` elements to AndroidManifest.
+Controls which Meta VR devices the app targets. Target device selection automatically adds appropriate `<meta-data/>` elements to AndroidManifest.
 
 ### Performance and Quality
 
 | Setting | Description | Default |
 |---|---|---|
-| **Use Recommended MSAA Level** | Auto-select MSAA based on device (4x for Quest). Built-in pipeline only. For URP, manually set MSAA to 4x. | true |
+| **Use Recommended MSAA Level** | Auto-select MSAA based on device (4x for Meta VR headsets). Built-in pipeline only. For URP, manually set MSAA to 4x. | true |
 | **Monoscopic** | Both eyes render same image from center pose. Not recommended. | false |
 | **Enable Adaptive Resolution** | Scale resolution based on GPU utilization (85% target). Link PC-VR only. | false |
 | **Min/Max Dynamic Resolution Scale** | Bounds for adaptive resolution (default 1.0) | 1.0 |
@@ -43,7 +43,7 @@ Controls which Meta Quest headsets the app targets. Target device selection auto
 **Tracking Origin Type recommendations:**
 - **VR apps**: Use Eye Level or Floor Level (repositioned with user recentering)
 - **MR apps**: Use Floor Level + Spatial Anchors for tracking space sync, or Stationary (experimental)
-- **Stage**: Not recommended (does not respond to user recentering on Quest)
+- **Stage**: Not recommended (does not respond to user recentering on Meta VR devices)
 
 ### Display
 

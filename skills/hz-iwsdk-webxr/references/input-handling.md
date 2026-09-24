@@ -226,6 +226,6 @@ configuration unless you are building a custom locomotion stack.
   `features.locomotion` are safer starting points than bespoke low-level input
   wiring.
 - **Offer comfort options.** Teleport vs slide, snap vs smooth turning, and
-  comfort assist settings materially affect usability on Quest.
+  comfort assist settings materially affect usability on Meta VR devices.
 - **Test hand tracking precision on-device.** Desktop emulation is useful, but
-  Quest hardware still reveals the real pinch, reach, and pointer feel.
+  Meta VR hardware still reveals the real pinch, reach, and pointer feel.

@@ -1,7 +1,7 @@
 # Entitlements API
 
 - **Kotlin Package**: `horizon.platform.entitlements`
-- **Documentation**: https://developers.meta.com/horizon/documentation/android-apps/ps-entitlements
+- **Documentation**: https://developers.meta.com/horizon/documentation/android-apps/ps-entitlement-check
 - **Minimum OS**: HzOS v85
 - **Maven Artifact**: `horizon-platform-sdk-entitlements-kotlin`
 
@@ -9,11 +9,11 @@
 
 ## Overview
 
-The Entitlements API is part of the Horizon Platform SDK. It provides a single operation for Meta Quest Android applications:
+The Entitlements API is part of the Horizon Platform SDK. It provides a single operation for Meta VR Android applications:
 
 1. **`getIsViewerEntitled()`** -- Verify that the current user has purchased or otherwise legitimately obtained the app
 
-The entitlement check is a crucial component of the Meta Quest Store's app verification process. It must be called within 10 seconds of the user launching the app. The check does not require internet connectivity. If the check fails, developers are responsible for handling the error (e.g., displaying an error message and quitting the app).
+The entitlement check is a crucial component of the Meta Horizon Store's app verification process. It must be called within 10 seconds of the user launching the app. The check does not require internet connectivity. If the check fails, developers are responsible for handling the error (e.g., displaying an error message and quitting the app).
 
 ## API Usage
 
@@ -123,9 +123,9 @@ suspend fun checkEntitlement(): EntitlementResult {
             e.message?.contains("2") == true ->
                 "Platform not initialized. Please restart the app."
             e.message?.contains("3") == true ->
-                "You do not own this app. Please purchase it from the Meta Quest Store."
+                "You do not own this app. Please purchase it from the Meta Horizon Store."
             e.message?.contains("1003") == true ->
-                "Your device software is out of date. Please update your Quest."
+                "Your device software is out of date. Please update your Meta VR device."
             else ->
                 "Entitlement check failed: ${e.message}"
         }
@@ -255,11 +255,11 @@ suspend fun checkEntitlementWithRetry(
 
 ## Important Notes
 
-1. **Must be called within 10 seconds of app launch** -- the Meta Quest Store requires the entitlement check to happen promptly after the app starts. Call it in `onCreate` or as early as possible in your app lifecycle.
+1. **Must be called within 10 seconds of app launch** -- the Meta Horizon Store requires the entitlement check to happen promptly after the app starts. Call it in `onCreate` or as early as possible in your app lifecycle.
 
 2. **Does not require internet connectivity** -- the entitlement check works offline. It verifies locally whether the user is authorized to use the app.
 
-3. **Handle failure by quitting the app** -- if the entitlement check fails (status code 3, `EntitlementFailure`), the recommended behavior is to display an error message explaining that the app must be purchased from the Meta Quest Store, then close the app.
+3. **Handle failure by quitting the app** -- if the entitlement check fails (status code 3, `EntitlementFailure`), the recommended behavior is to display an error message explaining that the app must be purchased from the Meta Horizon Store, then close the app.
 
 4. **Status code 3 means the user is not entitled** -- this is the primary failure case. The user has not purchased the app or does not have a valid license. Other status codes indicate infrastructure problems rather than entitlement issues.
 
@@ -269,4 +269,4 @@ suspend fun checkEntitlementWithRetry(
 
 7. **No pagination, events, or sessions** -- this is a simple request/response API. Each call is independent and stateless. There is only one method in the entire API surface.
 
-8. **Critical for app store compliance** -- failing to implement the entitlement check may result in your app being rejected from the Meta Quest Store or being flagged for non-compliance.
+8. **Critical for app store compliance** -- failing to implement the entitlement check may result in your app being rejected from the Meta Horizon Store or being flagged for non-compliance.

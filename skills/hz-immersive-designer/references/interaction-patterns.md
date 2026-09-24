@@ -1,6 +1,6 @@
 # Interaction Patterns
 
-Interaction design in immersive environments must account for three-dimensional space, multiple input modalities, and the absence of familiar flat-screen conventions. These guidelines cover the primary interaction paradigms available on Meta Quest and best practices for combining them into a coherent experience.
+Interaction design in immersive environments must account for three-dimensional space, multiple input modalities, and the absence of familiar flat-screen conventions. These guidelines cover the primary interaction paradigms available on Meta VR and best practices for combining them into a coherent experience.
 
 ## Direct Manipulation
 
@@ -42,11 +42,11 @@ Voice provides a hands-free interaction channel that can complement spatial inpu
 
 ## Gesture Recognition
 
-Hand tracking on Meta Quest enables gesture-based input without controllers.
+Hand tracking on Meta VR enables gesture-based input without controllers.
 
 - **Keep gestures simple and reliable.** Pinch (thumb to index finger) and point are the most reliably detected gestures. Complex hand poses have higher failure rates and are harder for users to learn.
 - **Use pinch as the primary selection gesture.** Pinch is the hand tracking equivalent of a trigger pull. It is natural, reliable, and works at both near and far distances.
-- **Provide a palm-up menu gesture.** Turning the palm upward to reveal a menu is an established convention in the Quest ecosystem. Follow this pattern for system-level or app-level menus.
+- **Provide a palm-up menu gesture.** Turning the palm upward to reveal a menu is an established convention in the Meta VR ecosystem. Follow this pattern for system-level or app-level menus.
 - **Avoid sustained gestures.** Holding a specific hand pose for an extended period causes muscle fatigue. Design interactions that require brief gestures rather than prolonged holds.
 - **Account for tracking loss.** Hand tracking can lose the user's hands when they move out of the camera's field of view or in low-light conditions. Design gracefully for these moments rather than breaking the experience.
 

@@ -1,10 +1,10 @@
-# Performance Checklist for Unity on Meta Quest
+# Performance Checklist for Unity on Meta VR
 
-This checklist covers the critical performance areas to review when developing Unity applications for Meta Quest headsets. Each section includes targets, techniques, and code examples.
+This checklist covers the critical performance areas to review when developing Unity applications for Meta VR headsets. Each section includes targets, techniques, and code examples.
 
 ## Draw Calls
 
-**Budget: 50-100 draw calls per frame on Quest 2, up to 150 on Quest 3.**
+**Budget: 50-100 draw calls per frame on Quest 2, up to 150 on Quest 3 and Meta VR Glasses.**
 
 Every draw call has CPU overhead for state setup and GPU command submission. Exceeding the budget causes frame drops and reprojection.
 
@@ -32,11 +32,11 @@ Monitor using Unity Profiler or OVR Metrics Tool:
 
 ## Triangle Count
 
-**Target: < 750K triangles per frame on Quest 2, < 1M on Quest 3.**
+**Target: < 750K triangles per frame on Quest 2, < 1M on Quest 3 and Meta VR Glasses.**
 
 ### Optimization Techniques
 
-- **LOD Groups**: Use 3-4 LOD levels with aggressive transitions for Quest.
+- **LOD Groups**: Use 3-4 LOD levels with aggressive transitions for Meta VR.
   - LOD0: Full detail (< 5m distance)
   - LOD1: 50% triangles (5-15m)
   - LOD2: 25% triangles (15-30m)
@@ -68,7 +68,7 @@ lodGroup.RecalculateBounds();
 
 **Target: 2K max for most textures, 4K only for large environment textures or skyboxes.**
 
-Texture memory is a major constraint on Quest. Oversized textures waste VRAM and cause loading stalls.
+Texture memory is a major constraint on Meta VR. Oversized textures waste VRAM and cause loading stalls.
 
 ### Guidelines
 
@@ -83,7 +83,7 @@ Texture memory is a major constraint on Quest. Oversized textures waste VRAM and
 
 ### Optimization Techniques
 
-- **ASTC compression**: Required for Quest. Use ASTC 6x6 as default, ASTC 4x4 for UI/text that needs higher quality.
+- **ASTC compression**: Required for Meta VR. Use ASTC 6x6 as default, ASTC 4x4 for UI/text that needs higher quality.
 - **Mipmaps**: Enable for all 3D textures (reduces aliasing and improves cache performance). Disable only for UI textures rendered at native resolution.
 - **Texture Atlasing**: Pack multiple small textures into one larger atlas to reduce material count and enable batching.
 - **Streaming Mipmaps**: Enable to load only the mip levels needed based on camera distance, reducing peak memory usage.
@@ -105,7 +105,7 @@ importer.SetPlatformTextureSettings(platformSettings);
 
 **Target: Minimize overdraw to < 2x average across the frame.**
 
-Overdraw occurs when fragments are shaded but then overwritten by closer geometry. The Quest GPU is fill-rate limited, making overdraw particularly expensive.
+Overdraw occurs when fragments are shaded but then overwritten by closer geometry. The Meta VR GPU is fill-rate limited, making overdraw particularly expensive.
 
 ### Optimization Techniques
 
@@ -179,13 +179,13 @@ renderer.SetPropertyBlock(props);
 
 ## Memory Budget
 
-| Resource | Quest 2 | Quest 3 |
-|----------|---------|---------|
-| Total available RAM | ~1.5 GB | ~2 GB |
-| Texture memory | ~300-500 MB | ~500-700 MB |
-| Mesh memory | ~100-200 MB | ~150-300 MB |
-| Audio memory | ~50-100 MB | ~50-100 MB |
-| Mono/IL2CPP heap | ~100-200 MB | ~100-200 MB |
+| Resource | Quest 2 | Quest Pro | Quest 3 | Quest 3S | Meta VR Glasses |
+|----------|---------|-----------|---------|----------|-----------------|
+| Total available RAM | ~1.5 GB | ~1.5 GB | ~2 GB | ~2 GB | ~2 GB |
+| Texture memory | ~300-500 MB | ~300-500 MB | ~500-700 MB | ~500-700 MB | ~500-700 MB |
+| Mesh memory | ~100-200 MB | ~100-200 MB | ~150-300 MB | ~150-300 MB | ~150-300 MB |
+| Audio memory | ~50-100 MB | ~50-100 MB | ~50-100 MB | ~50-100 MB | ~50-100 MB |
+| Mono/IL2CPP heap | ~100-200 MB | ~100-200 MB | ~100-200 MB | ~100-200 MB | ~100-200 MB |
 
 ### Monitoring Memory
 

@@ -16,7 +16,7 @@ val entity = Entity.create()
 
 // Create an entity with initial components
 val entity = Entity.create(
-  Transform(Pose(Vector3(0f, 1f, -2f))),
+  Transform(Pose(Vector3(0f, 1f, 2f))),
   Mesh(Uri.parse("apk:///models/chair.glb"))
 )
 
@@ -33,7 +33,7 @@ Components are data containers that define the properties of an entity. Each com
 val transform = entity.getComponent<Transform>()
 
 // Modify and set back
-transform.position = Vector3(1f, 2f, 3f)
+transform.transform.t = Vector3(1f, 2f, 3f)
 entity.setComponent(transform)
 
 // Check if an entity has a component
@@ -52,13 +52,19 @@ Systems contain the behavior logic. Each system queries the DataModel for entiti
 ```kotlin
 class GravitySystem : SystemBase() {
   private val gravityQuery = Query.where { has(RigidBody.id, Transform.id) }
+  private var previousTime = 0L
 
   override fun execute() {
+    val currentTime = System.currentTimeMillis()
+    if (previousTime == 0L) previousTime = currentTime
+    val timeDeltaInSeconds = (currentTime - previousTime) / 1000f
+    previousTime = currentTime
+
     for (entity in gravityQuery.eval()) {
       val transform = entity.getComponent<Transform>()
       val rigidBody = entity.getComponent<RigidBody>()
-      rigidBody.velocity.y -= 9.8f * getDeltaTime()
-      transform.position += rigidBody.velocity * getDeltaTime()
+      rigidBody.velocity.y -= 9.8f * timeDeltaInSeconds
+      transform.transform.t += rigidBody.velocity * timeDeltaInSeconds
       entity.setComponent(transform)
       entity.setComponent(rigidBody)
     }
@@ -69,18 +75,17 @@ class GravitySystem : SystemBase() {
 Systems are registered in the activity:
 
 ```kotlin
-override fun registerSystems(): List<SystemBase> {
-  return listOf(
-    GravitySystem(),
-    SpinnerSystem(),
-    ScoreSystem()
-  )
+override fun onCreate(savedInstanceState: Bundle?) {
+  super.onCreate(savedInstanceState)
+  systemManager.registerSystem(GravitySystem())
+  systemManager.registerSystem(SpinnerSystem())
+  systemManager.registerSystem(ScoreSystem())
 }
 ```
 
 ## DataModel
 
-The DataModel is the central data store of the ECS. All entities and their components reside in the DataModel. The DataModel is owned by the `SpatialActivity` and is accessible from systems and the activity itself.
+The DataModel is the central data store of the ECS. All entities and their components reside in the DataModel. The DataModel is owned by the `AppSystemActivity` and is accessible from systems and the activity itself.
 
 Key DataModel operations:
 
@@ -173,9 +178,12 @@ class HealthSystem : SystemBase() {
 - `execute()` -- called once per frame while the system is active
 - `onStop()` -- called once when the system is deactivated or the activity is destroyed
 
-### getDeltaTime()
+### Frame delta time
 
-Use `getDeltaTime()` inside `execute()` to get the time elapsed since the last frame in seconds. Always multiply time-dependent values by delta time for frame-rate-independent behavior.
+`SystemBase` does not expose a delta-time property or method. Track the previous
+frame time in the system and compute seconds at the start of `execute()`, as in
+the `GravitySystem` example above. Always multiply time-dependent values by that
+delta for frame-rate-independent behavior.
 
 ## Queries
 
@@ -212,12 +220,11 @@ val count = query.eval().count()
 SpatialFeatures are modular ECS feature bundles that add specific capabilities to your activity. Each feature brings its own components and systems.
 
 ```kotlin
-override fun getSpatialFeatures(): List<SpatialFeature> {
+override fun registerFeatures(): List<SpatialFeature> {
   return listOf(
-    SpatialFeature.PHYSICS,       // Physics simulation
-    SpatialFeature.MRUK,          // Mixed Reality Utility Kit
-    SpatialFeature.INTERACTION,   // Interaction SDK (ISDK)
-    SpatialFeature.ANIMATION      // Animation playback
+    VRFeature(this),
+    ComposeFeature(),
+    PhysicsFeature(spatial), // `spatial` is inherited from AppSystemActivity.
   )
 }
 ```
@@ -226,11 +233,11 @@ When you enable a feature, its systems are automatically registered and its comp
 
 ## Activity Lifecycle
 
-`SpatialActivity` extends Android `Activity` and integrates the ECS lifecycle with the Android activity lifecycle.
+`AppSystemActivity` extends Android `Activity` and integrates the ECS lifecycle with the Android activity lifecycle.
 
 For overall app structure, most Quest-native Spatial SDK apps should keep a
 single spatial root activity. Tool-style apps usually work best with one
-`SpatialActivity` subclass that owns the scene, registered panels, and ECS
+`AppSystemActivity` subclass that owns the scene, registered panels, and ECS
 systems, while UI states change inside that shell.
 
 Avoid carrying over a phone-style multi-activity navigation stack unless you
@@ -238,61 +245,69 @@ have a strong reason. It usually complicates panel ownership, scene lifecycle,
 and XR state management.
 
 ```kotlin
-class MyActivity : SpatialActivity() {
+class MyActivity : AppSystemActivity() {
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    componentManager.registerComponent<MyCustomComponent>(MyCustomComponent.Companion)
+    systemManager.registerSystem(MyCustomSystem())
+  }
 
   override fun registerPanels(): List<PanelRegistration> {
     // Register all panels before the scene is ready
     return listOf(/* ... */)
   }
 
-  override fun registerSystems(): List<SystemBase> {
-    // Register all custom systems
-    return listOf(/* ... */)
-  }
-
-  override fun getSpatialFeatures(): List<SpatialFeature> {
+  override fun registerFeatures(): List<SpatialFeature> {
     // Declare which spatial features to enable
-    return listOf(/* ... */)
+    return listOf(VRFeature(this), ComposeFeature())
   }
 
-  override fun onSceneReady(scene: Scene) {
-    super.onSceneReady(scene)
+  override fun onSceneReady() {
+    super.onSceneReady()
     // Scene is initialized -- spawn entities, load content
-    scene.setViewerPosition(Vector3(0f, 0f, 0f))
-    Entity.createPanelEntity("home_panel")
+    scene.setReferenceSpace(ReferenceSpace.LOCAL_FLOOR)
+    Entity.create(
+      Panel(panelRegistrationId = R.id.home_panel),
+      Transform(Pose(Vector3(0f, 1.2f, 2f))),
+      Visible(true),
+    )
   }
 }
 ```
 
 ### Lifecycle order
 
-1. `onCreate()` -- standard Android lifecycle
-2. `registerPanels()` -- called to collect panel definitions
-3. `registerSystems()` -- called to collect system instances
-4. `getSpatialFeatures()` -- called to determine which features to activate
-5. `onSceneReady(scene)` -- the 3D scene is initialized and ready for content
-6. Systems begin executing each frame
-7. `onDestroy()` -- cleanup, systems stopped
+1. Android calls `onCreate()`.
+2. `super.onCreate()` initializes Spatial SDK and invokes registration hooks
+   such as `registerFeatures()` and `registerPanels()`.
+3. After `super.onCreate()` returns, register custom components and systems
+   with `componentManager` and `systemManager`.
+4. `onSceneReady()` runs on the first resume after the scene is loaded.
+5. Systems execute while the scene is active.
+6. `onSpatialShutdown()` handles required Spatial SDK cleanup; normal Android
+   lifecycle callbacks such as `onDestroy()` may follow.
 
 ## Scene Management
 
 The `Scene` class configures the 3D environment for the activity.
 
 ```kotlin
-override fun onSceneReady(scene: Scene) {
-  super.onSceneReady(scene)
+private val activityScope =
+  CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
-  // Set the viewer (camera) starting position
-  scene.setViewerPosition(Vector3(0f, 1.6f, 0f))
-
-  // Configure the environment skybox
-  scene.setSkybox(Uri.parse("apk:///environments/sky.env"))
-
-  // Configure image-based lighting
-  scene.setIBL(Uri.parse("apk:///environments/ibl.env"))
-
-  // Enable passthrough (mixed reality mode)
-  scene.enablePassthrough(true)
+override fun onSceneReady() {
+  super.onSceneReady()
+  scene.setReferenceSpace(ReferenceSpace.LOCAL_FLOOR)
+  scene.setLightingEnvironment(
+    ambientColor = Vector3(0f),
+    sunColor = Vector3(7f, 7f, 7f),
+    sunDirection = -Vector3(1f, 3f, -2f),
+    environmentIntensity = 0.3f,
+  )
+  // IBL uses a packaged environment filename, not a mesh-style apk:/// URI.
+  scene.updateIBLEnvironment("environment.env")
+  scene.setViewOrigin(0f, 0f, 0f, 0f)
 }
 ```
 
@@ -305,10 +320,15 @@ The reference space defines the coordinate system origin. By default, the origin
 The glXF format (`.glxf` files) is a scene composition format used by the Spatial Editor. It describes arrangements of entities, their components, and references to glTF assets and panels. At runtime, `glxf` files are loaded to populate the scene:
 
 ```kotlin
-override fun onSceneReady(scene: Scene) {
-  super.onSceneReady(scene)
-  // Load a scene composed in the Spatial Editor
-  scene.loadGlxf(Uri.parse("apk:///scenes/main_scene.glxf"))
+override fun onSceneReady() {
+  super.onSceneReady()
+  val rootEntity = Entity.create()
+  activityScope.launch {
+    glXFManager.inflateGLXF(
+      Uri.parse("apk:///scenes/main_scene.glxf"),
+      rootEntity = rootEntity,
+    )
+  }
 }
 ```
 

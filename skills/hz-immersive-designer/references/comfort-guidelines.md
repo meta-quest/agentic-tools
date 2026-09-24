@@ -1,6 +1,6 @@
 # Comfort Guidelines
 
-Comfort is the foundation of every successful immersive experience. A user who feels physically uncomfortable will disengage regardless of content quality. These guidelines cover the primary factors that affect user comfort in VR and MR applications on Meta Quest.
+Comfort is the foundation of every successful immersive experience. A user who feels physically uncomfortable will disengage regardless of content quality. These guidelines cover the primary factors that affect user comfort in VR and MR applications on Meta VR.
 
 ## Motion Sickness Prevention
 
@@ -58,7 +58,7 @@ Content placement relative to the user's forward gaze direction significantly af
 
 The display refresh rate directly affects comfort. A higher refresh rate reduces the perceived flicker between frames and makes head tracking feel more responsive.
 
-- **90 Hz or higher is recommended** for comfortable extended use. This is the standard target on Quest hardware.
+- **90 Hz or higher is recommended** for comfortable extended use. This is the standard target on Meta VR hardware.
 - **72 Hz is acceptable** for less intensive experiences but may cause discomfort in fast-moving content.
 - **60 Hz or below significantly increases discomfort risk** and should be avoided.
 - **Frame rate must be stable.** A consistent 72 Hz is preferable to a 90 Hz target that frequently drops frames. Dropped frames cause visible judder that is a strong discomfort trigger.

@@ -1,12 +1,12 @@
 # Application Lifecycle API
 
 - **Unity Package**: com.meta.xr.sdk.platform
-- **Documentation**: https://developer.oculus.com/documentation/unity/ps-app-to-app-travel/
+- **Documentation**: https://developers.meta.com/horizon/documentation/unity/ps-app-to-app-travel/
 - **Namespace**: Oculus.Platform
 
 ## Overview
 
-The Application Lifecycle API is part of the Horizon Platform SDK Unity package. It provides operations for Meta Quest Unity applications to detect how the user launched the app and handle deeplinks and invites:
+The Application Lifecycle API is part of the Horizon Platform SDK Unity package. It provides operations for Meta VR Unity applications to detect how the user launched the app and handle deeplinks and invites:
 
 1. **`ApplicationLifecycle.GetLaunchDetailsRequest()`** -- Get the current launch intent (cold start or last warm start)
 2. **`ApplicationLifecycle.LogDeeplinkResultRequest(trackingId, result)`** -- Report whether the app honored a deeplink
@@ -16,7 +16,7 @@ The Application Lifecycle API is part of the Horizon Platform SDK Unity package.
 
 ## Prerequisites
 
-1. **Register your app** at [developer.oculus.com/manage](https://developer.oculus.com/manage/)
+1. **Register your app** at [developers.meta.com/horizon/manage](https://developers.meta.com/horizon/manage/)
 2. **Set up Destinations** in the Developer Dashboard (used for deeplinks)
 3. **Note your App ID**
 
@@ -261,6 +261,6 @@ appLifecycle.LaunchProcessed += details =>
 
 ## Useful Links
 
-- [Meta Quest App-to-App Travel & Deeplinks (Unity)](https://developer.oculus.com/documentation/unity/ps-app-to-app-travel/)
-- [Destinations Overview](https://developer.oculus.com/documentation/unity/ps-destinations-overview/)
-- [Meta Quest Developer Dashboard](https://developer.oculus.com/manage/)
+- [Meta VR App-to-App Travel & Deeplinks (Unity)](https://developers.meta.com/horizon/documentation/unity/ps-app-to-app-travel/)
+- [Destinations Overview](https://developers.meta.com/horizon/documentation/unity/ps-destinations-overview/)
+- [Meta Horizon Developer Dashboard](https://developers.meta.com/horizon/manage/)

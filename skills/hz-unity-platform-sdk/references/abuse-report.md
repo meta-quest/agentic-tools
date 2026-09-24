@@ -6,7 +6,7 @@
 
 ## Overview
 
-The Abuse Report API is part of the Horizon Platform SDK Unity package. It provides operations for Meta Quest Unity applications to handle the system Report button and show in-app reporting UI:
+The Abuse Report API is part of the Horizon Platform SDK Unity package. It provides operations for Meta VR Unity applications to handle the system Report button and show in-app reporting UI:
 
 1. **`AbuseReport.SetReportButtonPressedNotificationCallback(cb)`** -- Subscribe to system report-button events
 2. **`AbuseReport.ReportRequestHandled(response)`** -- Tell the platform whether you showed an in-app reporting flow
@@ -17,7 +17,7 @@ The Abuse Report API is part of the Horizon Platform SDK Unity package. It provi
 
 ## Prerequisites
 
-1. **Register your app** at [developer.oculus.com/manage](https://developer.oculus.com/manage/)
+1. **Register your app** at [developers.meta.com/horizon/manage](https://developers.meta.com/horizon/manage/)
 2. **Have an in-app reporting UI** ready (or be willing to build one) -- the platform calls you, and you decide how to handle it
 3. **HzOS v85+** is required for the report-button-pressed callback
 4. **Required for UGC apps** -- apps with user-generated content must support reporting per the Quest VRC
@@ -190,6 +190,6 @@ public class AbuseReportManager : MonoBehaviour
 
 ## Useful Links
 
-- [Meta Quest Abuse Report Documentation (Unity)](https://developer.oculus.com/documentation/unity/ps-abuse-reporting/)
-- [Virtual Reality Checks (VRC) -- Quest](https://developer.oculus.com/resources/publish-quest-req/)
-- [Meta Quest Developer Dashboard](https://developer.oculus.com/manage/)
+- [Meta VR Abuse Report Documentation (Unity)](https://developer.oculus.com/documentation/unity/ps-abuse-reporting/)
+- [Virtual Reality Checks (VRC) -- Quest](https://developers.meta.com/horizon/resources/publish-quest-req/)
+- [Meta Horizon Developer Dashboard](https://developers.meta.com/horizon/manage/)

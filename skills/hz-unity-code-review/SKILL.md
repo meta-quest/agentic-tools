@@ -1,19 +1,19 @@
 ---
 name: hz-unity-code-review
 license: Apache-2.0
-description: Reviews Unity code targeting Meta Quest and Horizon OS for performance issues, rendering best practices, and common VR pitfalls. Use during code review or when diagnosing Quest performance problems in Unity projects.
-allowed-tools: Bash(metavr:*) Bash(hzdb:*)
+description: Reviews Unity code targeting Meta VR and Horizon OS for performance issues, rendering best practices, and common VR pitfalls. Use during code review or when diagnosing Meta VR performance problems in Unity projects.
+allowed-tools: Bash(metavr:*), Bash(hzdb:*)
 ---
 
-# Unity Code Review for Meta Quest
+# Unity Code Review for Meta VR
 
 ## When to Use
 
-Use this skill when reviewing Unity C# code or project settings that target Meta Quest headsets. This includes:
+Use this skill when reviewing Unity C# code or project settings that target Meta VR headsets. This includes:
 
 - Reviewing scripts for VR performance issues
 - Checking rendering pipeline configuration and settings
-- Ensuring adherence to Quest-specific best practices
+- Ensuring adherence to Meta VR-specific best practices
 - Identifying common VR development pitfalls
 - Validating input handling for controllers, hands, and eye tracking
 - Auditing memory usage and GC allocation patterns
@@ -22,7 +22,7 @@ Use this skill when reviewing Unity C# code or project settings that target Meta
 
 ### 1. Rendering Pipeline Configuration
 
-Quest applications must use the Universal Render Pipeline (URP) with specific settings optimized for mobile VR. The Built-in Render Pipeline is not recommended for new Quest projects.
+Meta VR applications must use the Universal Render Pipeline (URP) with specific settings optimized for mobile VR. The Built-in Render Pipeline is not recommended for new Meta VR projects.
 
 Critical settings to verify:
 
@@ -34,15 +34,15 @@ Critical settings to verify:
 
 ### 2. Draw Call Budgets and Batching
 
-Quest has draw call budgets that vary by workload complexity. Every draw call has CPU overhead that directly impacts frame timing.
+Meta VR has draw call budgets that vary by workload complexity. Every draw call has CPU overhead that directly impacts frame timing.
 
-| Metric | Quest 2 / Quest Pro | Quest 3 / Quest 3S |
-|--------|---------------------|---------------------|
-| Draw calls (busy simulation) | 80-200 | 200-300 |
-| Draw calls (medium simulation) | 200-300 | 400-600 |
-| Draw calls (light simulation) | 400-600 | 700-1000 |
-| Triangles per frame | 750K-1M | 1M-2M |
-| SetPass calls | < 50 | < 80 |
+| Metric | Quest 2 / Quest Pro | Quest 3 / Quest 3S | Meta VR Glasses |
+|--------|---------------------|---------------------|-----------------|
+| Draw calls (busy simulation) | 80-200 | 200-300 | 200-300 |
+| Draw calls (medium simulation) | 200-300 | 400-600 | 400-600 |
+| Draw calls (light simulation) | 400-600 | 700-1000 | 700-1000 |
+| Triangles per frame | 750K-1M | 1M-2M | 1M-2M |
+| SetPass calls | < 50 | < 80 | < 80 |
 
 Enable and verify:
 - Static batching for non-moving geometry
@@ -52,7 +52,7 @@ Enable and verify:
 
 ### 3. Shader Complexity
 
-Mobile GPUs on Quest cannot handle desktop-class shaders. Review all materials for:
+Mobile GPUs on Meta VR cannot handle desktop-class shaders. Review all materials for:
 
 - Use of URP/Lit or URP/Simple Lit instead of Standard shader
 - Custom shaders that minimize texture samples and ALU operations
@@ -89,11 +89,11 @@ void Update() {
 
 ### 5. Input Handling
 
-Quest supports multiple input modalities. Code should handle:
+Meta VR supports multiple input modalities. Code should handle:
 
 - **Controllers**: Use Unity's Input System Package for new projects (recommended); `OVRInput` is maintained for legacy support
 - **Hand tracking**: `OVRHand` and `OVRSkeleton` for hand pose data
-- **Eye tracking**: `OVREyeGaze` (Quest Pro / Quest 3, requires permission)
+- **Eye tracking**: `OVREyeGaze` (Quest Pro / Meta VR Glasses, requires permission)
 - **Graceful switching** between controller and hand tracking modes
 
 ### 6. Physics Configuration
@@ -206,7 +206,7 @@ void Awake() {
 You can use the `metavr` tool to validate builds and check device-side behavior. Invoke via `metavr <args>` (published as the npm package `metavr`; if `metavr` is not on PATH, run `npx -y metavr <args>`) — no install required.
 
 ```bash
-# Check connected Quest device
+# Check connected Meta VR device
 metavr device list
 
 # Install and run a build
@@ -227,6 +227,6 @@ Use device-side profiling to validate that code review findings translate to rea
 For detailed guidance on specific topics, see the following reference documents:
 
 - [Performance Checklist](references/performance-checklist.md) — comprehensive performance targets and optimization strategies
-- [Rendering Best Practices](references/rendering-best-practices.md) — Quest-specific rendering configuration and shader guidelines
+- [Rendering Best Practices](references/rendering-best-practices.md) — Meta VR-specific rendering configuration and shader guidelines
 - [Input Handling](references/input-handling.md) — controller, hand tracking, and eye tracking implementation
 - [Common Pitfalls](references/common-pitfalls.md) — frequently encountered mistakes and their fixes

@@ -1,12 +1,12 @@
 # Device & Application Integrity API
 
 - **Unity Package**: `com.meta.xr.sdk.platform`
-- **Documentation**: https://developer.oculus.com/documentation/unity/ps-attestation-api/
+- **Documentation**: https://developers.meta.com/horizon/documentation/unity/ps-attestation-api/
 - **Namespace**: `Oculus.Platform`
 
 ## Overview
 
-The Device & Application Integrity API is part of the Horizon Platform SDK. It gives your backend cryptographic proof that a request is coming from a legitimate Meta Quest device running an unmodified copy of your app -- critical for cheat prevention, anti-fraud, and protecting paid features. It provides one operation:
+The Device & Application Integrity API is part of the Horizon Platform SDK. It gives your backend cryptographic proof that a request is coming from a legitimate Meta VR device running an unmodified copy of your app -- critical for cheat prevention, anti-fraud, and protecting paid features. It provides one operation:
 
 1. **`DeviceApplicationIntegrity.GetIntegrityToken(challengeNonce)`** -- Returns a signed JWT (PS256) with the nonce embedded in claims, for server-side verification against Meta's public keys
 
@@ -68,7 +68,7 @@ function verifyToken(jwt, expected_nonce):
     return payload
 ```
 
-> The exact backend verification details (Meta's public-key endpoint, the full claim set) are documented at [developer.oculus.com/documentation/unity/ps-attestation-api](https://developer.oculus.com/documentation/unity/ps-attestation-api/).
+> The exact backend verification details (Meta's public-key endpoint, the full claim set) are documented at [developers.meta.com/horizon/documentation/unity/ps-attestation-api](https://developers.meta.com/horizon/documentation/unity/ps-attestation-api/).
 
 #### Gate Backend Endpoints with Attestation
 
@@ -179,6 +179,6 @@ public class IntegrityManager : MonoBehaviour
 
 ## Useful Links
 
-- [Meta Quest Attestation API Documentation (Unity)](https://developer.oculus.com/documentation/unity/ps-attestation-api/)
-- [Meta Quest Developer Dashboard](https://developer.oculus.com/manage/)
-- [Platform SDK Overview](https://developer.oculus.com/documentation/unity/ps-platform-intro/)
+- [Meta VR Attestation API Documentation (Unity)](https://developers.meta.com/horizon/documentation/unity/ps-attestation-api/)
+- [Meta Horizon Developer Dashboard](https://developers.meta.com/horizon/manage/)
+- [Platform SDK Overview](https://developers.meta.com/horizon/documentation/unity/ps-platform-intro/)

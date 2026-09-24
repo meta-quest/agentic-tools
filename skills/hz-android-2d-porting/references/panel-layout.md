@@ -13,51 +13,18 @@ Key characteristics:
 
 ## Default Panel Sizes and Resizing
 
-When an app launches, Horizon OS assigns a default panel size based on the app's declared layout preferences:
+The current default panel size is 1024 x 640 dp. The supported minimum is 360 x 225 dp.
 
-| Configuration | Default Width | Default Height | Aspect Ratio |
+| Size | Width | Height | Guidance |
 |---|---|---|---|
-| Unspecified (compatibility mode) | ~1000dp | ~600dp | ~16:10 |
-| Portrait preference | ~600dp | ~1000dp | ~3:5 |
-| Landscape preference | ~1200dp | ~800dp | ~3:2 |
-| Resizable (recommended) | ~1000dp | ~700dp | Flexible |
+| Default | 1024dp | 640dp | Design the initial experience around this size |
+| Minimum | 360dp | 225dp | Keep core navigation and actions usable |
 
 Users can resize panels freely. Your app must handle arbitrary dimensions within reason.
 
 ## Responsive Layout Strategies
 
-### ConstraintLayout (Views)
-
-```xml
-<!-- Use ConstraintLayout for flexible sizing -->
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:title="My App" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
-```
-
-### Jetpack Compose (Recommended)
+Use the responsive layout tools that fit the existing app. For Compose, window-size classes make panel breakpoints explicit:
 
 ```kotlin
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -125,27 +92,20 @@ override fun onConfigurationChanged(newConfig: Configuration) {
 }
 ```
 
-## Multi-Panel Support with Spatial SDK
+## Optional Multi-Panel Experiences
 
-For advanced layouts, the Meta Spatial SDK allows apps to open additional panels and position them spatially:
+Keep the app on the Standard Android path unless it needs multiple app-owned
+panels. Before choosing an SDK for that capability, verify the current public
+multi-panel guidance. The Meta Spatial SDK is for immersive apps that need full
+scene control, and opting into it adds lifecycle and rendering complexity that
+basic 2D ports do not need.
 
-```kotlin
-// Optional: Open a secondary panel alongside the main app panel
-// Requires Meta Spatial SDK dependency
-val secondaryPanel = SpatialPanel(
-    widthInDp = 400,
-    heightInDp = 600,
-    contentDescription = "Detail View"
-)
-```
+## Panel Appearance in Passthrough
 
-Multi-panel is optional and not required for basic porting. It is an enhancement for apps that benefit from multiple views (e.g., email app with list + detail).
+Panel surfaces remain opaque when they appear over passthrough or a virtual
+environment. Design considerations:
 
-## Passthrough Considerations
-
-Panels float over the real world (or a virtual environment). Design considerations:
-
-- **Transparency**: Panel backgrounds are opaque by default. Semi-transparent backgrounds are possible but may reduce readability.
+- **Backgrounds**: App panel backgrounds are opaque. Use a deliberate solid surface color.
 - **Contrast**: UI must be readable against varying real-world backgrounds. Use solid background colors for content areas.
 - **Dark mode**: Strongly recommended. Dark panels are less visually intrusive in passthrough and reduce eye strain.
 - **Panel edges**: The system renders a subtle border around the panel. Do not draw your own outer border.
@@ -155,7 +115,7 @@ Panels float over the real world (or a virtual environment). Design consideratio
 @Composable
 fun MyAppTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = darkColorScheme(), // Prefer dark theme on Quest
+        colorScheme = darkColorScheme(), // Prefer dark theme on Meta VR devices
         typography = Typography,
         content = content
     )
@@ -164,7 +124,7 @@ fun MyAppTheme(content: @Composable () -> Unit) {
 
 ## UI Scaling and Density
 
-Quest panels report a display density, typically around 2.0 (similar to an xxhdpi Android device). Standard Android density-independent pixels (dp) work correctly:
+Meta VR panels report a display density, typically around 2.0 (similar to an xxhdpi Android device). Standard Android density-independent pixels (dp) work correctly:
 
 - **Body text**: 14-16sp
 - **Headers**: 20-24sp
@@ -173,7 +133,7 @@ Quest panels report a display density, typically around 2.0 (similar to an xxhdp
 - **Icons**: 24dp standard, use vector drawables
 
 ```kotlin
-// Use dp and sp consistently -- they scale correctly on Quest
+// Use dp and sp consistently -- they scale correctly on Meta VR devices
 @Composable
 fun QuestOptimizedCard() {
     Card(

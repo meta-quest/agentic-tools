@@ -17,11 +17,11 @@ Why this is a good default:
 
 - The integration is visible in the repository
 - Different projects can pin different MCP setups
-- The agent can use metavr without the Quest app itself becoming an MCP client
+- The agent can use metavr without the Meta VR app itself becoming an MCP client
 
 ## Thin Client vs Host Agent
 
-For Quest-native developer tools, the clean default split is:
+For Meta VR-native developer tools, the clean default split is:
 
 - **Headset app or browser preview**: voice capture, prompt editing, status,
   plan display, diff review, approval
@@ -34,7 +34,7 @@ credentials, and build environment.
 
 ## Verify-first Docs Workflow
 
-When the agent needs current Meta Quest or Horizon OS information, use the docs
+When the agent needs current Meta VR or Horizon OS information, use the docs
 commands as a two-step verification loop:
 
 ```bash

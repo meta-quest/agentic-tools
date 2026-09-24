@@ -1,4 +1,4 @@
-# Capturing Perfetto Traces on Meta Quest
+# Capturing Perfetto Traces on Meta VR
 
 ## Overview
 
@@ -8,7 +8,7 @@ Perfetto traces record detailed timing information about CPU scheduling, GPU ren
 
 ### Basic Capture
 
-Capture a trace from the currently running VR app on a connected Quest device:
+Capture a trace from the currently running VR app on a connected Meta VR device:
 
 ```bash
 metavr perf capture

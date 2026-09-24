@@ -1,6 +1,6 @@
-# Common Pitfalls in Unity Quest Development
+# Common Pitfalls in Unity Meta VR Development
 
-This document catalogs frequently encountered mistakes in Unity code targeting Meta Quest, along with their fixes and best practices.
+This document catalogs frequently encountered mistakes in Unity code targeting Meta VR, along with their fixes and best practices.
 
 ## GC Allocations in Update()
 
@@ -131,7 +131,7 @@ void Start()
 
 **Impact: Frame time spikes from physics simulation**
 
-Heavy physics work on the main thread directly eats into your frame budget. Quest targets 72-120 Hz, leaving only 8-14ms per frame.
+Heavy physics work on the main thread directly eats into your frame budget. Meta VR targets 72-120 Hz, leaving only 8-14ms per frame.
 
 ```csharp
 // BAD: Complex physics queries every frame
@@ -158,7 +158,7 @@ void FixedUpdate()
 }
 ```
 
-### Physics Settings for Quest
+### Physics Settings for Meta VR
 
 - Set **Fixed Timestep** to match target frame rate: `1/72 = 0.01389` or `1/90 = 0.01111`
 - Reduce **Default Solver Iterations** to 4-6 (default is 6)
@@ -348,7 +348,7 @@ public class BulletPool : MonoBehaviour
 
 **Impact: Exception handling is very expensive on mobile IL2CPP**
 
-Thrown exceptions have significant overhead on Quest, especially with IL2CPP. Prevent them with null checks instead of relying on try/catch.
+Thrown exceptions have significant overhead on Meta VR, especially with IL2CPP. Prevent them with null checks instead of relying on try/catch.
 
 ```csharp
 // BAD: Exception thrown if target is destroyed

@@ -1,6 +1,6 @@
-# Input Handling for Unity on Meta Quest
+# Input Handling for Unity on Meta VR
 
-This document covers controller input, hand tracking, and eye tracking implementation for Quest applications in Unity.
+This document covers controller input, hand tracking, and eye tracking implementation for Meta VR applications in Unity.
 
 ## Controller Input
 
@@ -76,7 +76,7 @@ private System.Collections.IEnumerator StopHaptics(OVRInput.Controller controlle
 
 ## Hand Tracking
 
-Quest supports optical hand tracking as an alternative to controllers. Use `OVRHand` and `OVRSkeleton` for hand pose data.
+Meta VR supports optical hand tracking as an alternative to controllers. Use `OVRHand` and `OVRSkeleton` for hand pose data.
 
 ### Setup
 
@@ -156,7 +156,7 @@ public class GestureDetector : MonoBehaviour
 
 ## Eye Tracking
 
-Eye tracking is available on Quest Pro and Quest 3. It requires explicit user permission and must be declared in the app manifest.
+Eye tracking is available on Quest Pro and Meta VR Glasses. It requires explicit user permission and must be declared in the app manifest.
 
 ### Setup
 

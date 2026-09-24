@@ -1,15 +1,15 @@
 ---
 name: hz-perfetto-debug
 license: Apache-2.0
-description: Analyzes Meta Quest and Horizon OS VR performance using Perfetto traces — frame timing, CPU/GPU bottlenecks, render pass analysis. Use when profiling frame drops, jank, or thermal issues on Quest devices.
-allowed-tools: Bash(metavr:*) Bash(hzdb:*) Bash(npx:*)
+description: "Analyzes Meta VR and Horizon OS VR performance using Perfetto traces — frame timing, CPU/GPU bottlenecks, render pass analysis. Use when profiling frame drops, jank, or thermal issues on Meta VR devices. Build paths: all Meta VR app stacks; use hz-quest-verify-first if the build path is unclear."
+allowed-tools: Bash(metavr:*), Bash(hzdb:*), Bash(npx:*)
 ---
 
 # Perfetto Debug Skill
 
 ## When to Use
 
-Use this skill when investigating VR performance issues on Meta Quest devices:
+Use this skill when investigating VR performance issues on Meta VR devices:
 
 - Frame drops, jank, or stuttering
 - CPU or GPU bottlenecks
@@ -34,13 +34,13 @@ Missing a frame deadline by even 1 ms causes a stale frame (reprojection). Stale
 
 ## metavr Setup
 
-Perfetto tracing is powered by the metavr CLI. Invoke via `npx` — no install required:
+Perfetto tracing is powered by the metavr CLI — install the standalone binary on your PATH (see the `metavr-cli` skill), or invoke via `npx` with no install:
 
 ```bash
-npx -y metavr --version
+metavr --version
 ```
 
-Examples below use the bare `metavr` command for brevity; if it is not installed globally, replace `metavr` with `npx -y metavr`. Connect your Quest via USB with developer mode enabled before capturing traces.
+Examples below use the bare `metavr` command; if you use the npm distribution, prefix with `npx -y`. Connect your Meta VR device via USB with developer mode enabled before capturing traces.
 
 ## Quick Start Workflow
 
@@ -268,7 +268,7 @@ See the GPU analysis reference for detailed render pass breakdown, surface analy
 ### Unreal Engine
 
 - **RHI Thread**: Unreal uses a separate RHI (Render Hardware Interface) thread for GPU command submission. Check this thread for driver overhead.
-- **Forward vs Deferred**: Forward rendering is preferred on Quest. Deferred rendering has significantly higher GPU cost.
+- **Forward vs Deferred**: Forward rendering is preferred on Meta VR. Deferred rendering has significantly higher GPU cost.
 - **Blueprint Tick**: Heavy Blueprint usage shows up as `UObject::ProcessEvent`. High counts indicate Blueprints should be converted to C++.
 - **Nativized Blueprints**: Show up with `__StaticExec` suffix in trace names.
 
@@ -285,7 +285,7 @@ See the GPU analysis reference for detailed render pass breakdown, surface analy
 
 For detailed guides on specific topics, see:
 
-- [Capturing Traces](references/capturing-traces.md) — How to capture Perfetto traces on Quest
+- [Capturing Traces](references/capturing-traces.md) — How to capture Perfetto traces on Meta VR
 - [Analyzing Traces](references/analyzing-traces.md) — Step-by-step trace analysis with SQL queries
 - [GPU Analysis](references/gpu-analysis.md) — Render pass analysis, GPU counters, and metrics
 - [Frame Timing](references/frame-timing.md) — VR frame markers, pacing, and compositor timing

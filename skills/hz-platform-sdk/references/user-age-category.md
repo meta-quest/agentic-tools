@@ -11,7 +11,7 @@
 
 ## Overview
 
-The User Age Category API provides two operations for Meta Quest Android applications:
+The User Age Category API provides two operations for Meta VR Android applications:
 
 1. **`get()`** -- Retrieve the current user's age category from their Meta account
 2. **`report()`** -- Report the app's own determination of the user's age category back to Meta

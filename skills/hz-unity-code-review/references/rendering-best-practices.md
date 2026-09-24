@@ -1,6 +1,6 @@
-# Rendering Best Practices for Unity on Meta Quest
+# Rendering Best Practices for Unity on Meta VR
 
-This document covers Quest-specific rendering configuration, pipeline settings, and shader guidelines for optimal VR performance.
+This document covers Meta VR-specific rendering configuration, pipeline settings, and shader guidelines for optimal VR performance.
 
 ## Single-Pass Multiview
 
@@ -57,7 +57,7 @@ FFR reduces the fragment shading resolution at the edges of each eye's view, whe
 | Off | Full | None | Only for benchmarking |
 | Low | Full | Slight | Minimal quality impact |
 | Medium | Full | Moderate | Good default |
-| High | Full | Aggressive | Recommended for Quest |
+| High | Full | Aggressive | Recommended for Meta VR |
 | HighTop | Full | Maximum | Maximum GPU savings |
 
 ### How to Enable
@@ -176,7 +176,7 @@ overlay.textures = new Texture[] { uiRenderTexture };
 
 ## Vulkan vs OpenGL ES
 
-**Vulkan is recommended for Quest development.**
+**Vulkan is recommended for Meta VR development.**
 
 | Feature | Vulkan | OpenGL ES |
 |---------|--------|-----------|
@@ -193,7 +193,7 @@ overlay.textures = new Texture[] { uiRenderTexture };
 2. Remove "OpenGLES3" and ensure "Vulkan" is first in the list
 3. Test thoroughly — some older plugins may not support Vulkan
 
-## URP Settings for Quest
+## URP Settings for Meta VR
 
 ### URP Asset Configuration
 
@@ -218,7 +218,7 @@ Lighting:
 
 Shadows:
   Max Distance: 20-30m (keep short for VR)
-  Cascade Count: 1 (never use multiple cascades on Quest)
+  Cascade Count: 1 (never use multiple cascades on Meta VR)
   Shadow Resolution: 1024 (2048 maximum)
 
 Post-processing:
@@ -232,8 +232,8 @@ Post-processing:
 - **Depth Texture**: Disable unless required (adds a render pass)
 - **Opaque Texture**: Disable unless required (adds a copy pass)
 - **HDR**: Disable (expensive format conversion and tonemapping)
-- **Screen-space shadows**: Never use on Quest
-- **SSAO**: Never use on Quest
+- **Screen-space shadows**: Never use on Meta VR
+- **SSAO**: Never use on Meta VR
 - **Bloom**: Avoid unless critical to art direction (use sparingly)
 
 ## Shader Guidelines
@@ -246,7 +246,7 @@ Post-processing:
 | URP/Simple Lit | Low | Most game objects, Blinn-Phong lighting |
 | URP/Lit | Medium | Hero objects, characters needing PBR |
 | URP/Baked Lit | Low | Lightmapped objects with no dynamic lighting |
-| Standard (Built-in) | High | NEVER use on Quest |
+| Standard (Built-in) | High | NEVER use on Meta VR |
 | Custom | Varies | Optimize for mobile ALU budget |
 
 ### Custom Shader Best Practices
@@ -273,7 +273,7 @@ half4 frag(Varyings input) : SV_Target
 }
 ```
 
-### Rules for Quest Shaders
+### Rules for Meta VR Shaders
 
 1. Limit texture samples to 3-4 per fragment shader
 2. Use `half` precision instead of `float` wherever possible
@@ -284,9 +284,9 @@ half4 frag(Varyings input) : SV_Target
 
 ## MSAA (Multi-Sample Anti-Aliasing)
 
-**4x MSAA is recommended for Quest. It is nearly free on tile-based GPUs when configured correctly.**
+**4x MSAA is recommended for Meta VR. It is nearly free on tile-based GPUs when configured correctly.**
 
-Quest uses a tile-based GPU architecture (Qualcomm Adreno). MSAA resolves within the tile memory and does not require an additional render pass, unlike post-process AA (FXAA, SMAA, TAA).
+Meta VR uses a tile-based GPU architecture (Qualcomm Adreno). MSAA resolves within the tile memory and does not require an additional render pass, unlike post-process AA (FXAA, SMAA, TAA).
 
 ### Configuration
 
@@ -297,9 +297,9 @@ Quest uses a tile-based GPU architecture (Qualcomm Adreno). MSAA resolves within
 
 ### Why Not Post-Process AA?
 
-| Method | Cost | Quality on Quest |
+| Method | Cost | Quality on Meta VR |
 |--------|------|-----------------|
 | MSAA 4x | Near-zero on tile GPU | Excellent edge AA |
 | FXAA | 1 full-screen pass | Blurs text and fine detail |
-| SMAA | 2-3 full-screen passes | Too expensive for Quest |
+| SMAA | 2-3 full-screen passes | Too expensive for Meta VR |
 | TAA | 1+ passes + history buffer | Ghosting, too expensive |

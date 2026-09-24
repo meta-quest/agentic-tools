@@ -1,6 +1,6 @@
 # Common Issues and Diagnostics
 
-This reference catalogs common issues encountered during Meta Quest development and provides diagnostic steps for each.
+This reference catalogs common issues encountered during Meta VR development and provides diagnostic steps for each.
 
 ## Black Screen on Launch
 
@@ -98,7 +98,7 @@ The application terminates unexpectedly.
    ```bash
    metavr log | grep -i "OutOfMemoryError\|OOM\|lowmemory"
    ```
-   Quest devices have limited memory. Large textures, uncompressed audio, and memory leaks are common culprits.
+   Meta VR devices have limited memory. Large textures, uncompressed audio, and memory leaks are common culprits.
 
 4. **Check for ANR (Application Not Responding):**
    ```bash
@@ -227,7 +227,7 @@ The passthrough camera feed does not appear or shows a black/gray background.
 ### Diagnostic Steps
 
 1. **Check device compatibility:**
-   Full-color passthrough is available on Quest 3, Quest 3S, and Quest Pro. Quest 2 supports grayscale passthrough only.
+   Full-color passthrough is available on Quest 3, Quest 3S, Quest Pro, and Meta VR Glasses. Quest 2 supports grayscale passthrough only.
 
 2. **Check manifest permissions:**
    ```xml

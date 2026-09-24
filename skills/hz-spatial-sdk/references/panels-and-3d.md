@@ -6,36 +6,42 @@ This reference covers 2D panel rendering, 3D object loading and manipulation, an
 
 Panels are the primary mechanism for displaying Android UI content in a spatial application. Each panel renders standard Android UI (Jetpack Compose or Android Views) as a flat rectangular surface positioned in 3D space.
 
-### PanelRegistration
+### Typed panel registrations
 
-Panels are defined by creating `PanelRegistration` instances in your activity's `registerPanels()` method. Each registration binds a unique name to a UI definition.
+Panels are defined in `registerPanels()` with a registration type that matches
+their content. Use an integer resource ID (`R.id.*`) as the stable registration
+key. For Compose UI, prefer `ComposeViewPanelRegistration`:
 
 ```kotlin
 override fun registerPanels(): List<PanelRegistration> {
   return listOf(
-    PanelRegistration("settings_panel") {
-      layoutParams = LayoutParams(
-        592f,  // width in dp
-        444f,  // height in dp
-        SpatialPanelLayoutParams.HORIZONTAL
-      )
-      panel {
-        SettingsScreen(viewModel = settingsViewModel)
-      }
-    },
-    PanelRegistration("info_panel") {
-      layoutParams = LayoutParams(400f, 300f, SpatialPanelLayoutParams.HORIZONTAL)
-      panel {
-        InfoOverlay()
-      }
-    }
+    ComposeViewPanelRegistration(
+      registrationId = R.id.settings_panel,
+      composeViewCreator = { _, context ->
+        ComposeView(context).apply {
+          setContent { SettingsScreen(viewModel = settingsViewModel) }
+        }
+      },
+      settingsCreator = {
+        UIPanelSettings(
+          shape = QuadShapeOptions(width = 0.8f, height = 0.6f),
+          display = DpDisplayOptions(width = 592f, height = 444f),
+        )
+      },
+    )
   )
 }
 ```
 
+Other current registration types include `ActivityPanelRegistration`,
+`IntentPanelRegistration`, `LayoutXMLPanelRegistration`,
+`ViewPanelRegistration`, and `VideoSurfacePanelRegistration`.
+
 ### Jetpack Compose Panels
 
-Jetpack Compose is the preferred UI framework for Spatial SDK panels. The `panel { }` block accepts any `@Composable` function.
+Jetpack Compose is the preferred UI framework for Spatial SDK panels. Create a
+`ComposeView` in the registration's `composeViewCreator` and call `setContent`
+with the panel composable.
 
 ```kotlin
 @Composable
@@ -58,21 +64,17 @@ fun MainScreen() {
 }
 ```
 
-### Panel Resolution and DPI
+### Match settings to the panel type
 
-Panel dimensions are specified in density-independent pixels (dp). The actual rendering resolution depends on the panel's DPI setting:
+UI and media registrations use different display-option types:
 
-```kotlin
-PanelRegistration("hd_panel") {
-  layoutParams = LayoutParams(800f, 600f, SpatialPanelLayoutParams.HORIZONTAL)
-  dpi = 360  // Higher DPI for sharper text
-  panel {
-    DetailView()
-  }
-}
-```
+- `UIPanelSettings.display` accepts UI options such as `DpDisplayOptions`,
+  `DpPerMeterDisplayOptions`, or `ScreenFractionDisplayOptions`.
+- `MediaPanelSettings.display` accepts `PixelDisplayOptions`.
 
-Higher DPI values produce sharper rendering but consume more GPU resources. The default DPI is suitable for most use cases.
+Do not pass `PixelDisplayOptions` to `UIPanelSettings`; the types are deliberately
+not interchangeable. Use shape dimensions in meters and display dimensions in
+the units represented by the selected display option.
 
 ### Layer vs Mesh Rendering
 
@@ -81,28 +83,19 @@ Panels can render in two modes:
 - **Layer mode** (default): the panel is composited as a separate layer by the Horizon OS compositor. This provides the highest visual quality and sharpest text rendering. Best for UI-heavy panels.
 - **Mesh mode**: the panel is rendered as a textured quad in the 3D scene. This allows the panel to interact with 3D lighting, shadows, and post-processing effects. Useful for diegetic UI (in-world screens).
 
-```kotlin
-PanelRegistration("world_screen") {
-  layoutParams = LayoutParams(400f, 300f, SpatialPanelLayoutParams.HORIZONTAL)
-  renderMode = PanelRenderMode.MESH  // Render as a 3D textured quad
-  panel {
-    MonitorDisplay()
-  }
-}
-```
+Keep the default layer rendering for app UI. Do not switch a panel to mesh
+rendering as a general-purpose optimization; follow a current official sample
+when a verified mesh-backed use case requires it.
 
 ### Spawning Panels
 
 Panels can be spawned at runtime from the activity or from a system:
 
 ```kotlin
-// Spawn a panel at the default position
-Entity.createPanelEntity("settings_panel")
-
-// Spawn a panel at a specific position
-Entity.createPanelEntity(
-  "info_panel",
-  Transform(Pose(Vector3(1.5f, 1.2f, -2f)))
+Entity.create(
+  Panel(panelRegistrationId = R.id.settings_panel),
+  Transform(Pose(Vector3(0f, 1.2f, 2f))),
+  Visible(true),
 )
 ```
 
@@ -122,12 +115,20 @@ private val gameViewModel: GameViewModel by viewModels()
 
 override fun registerPanels(): List<PanelRegistration> {
   return listOf(
-    PanelRegistration("score_panel") {
-      layoutParams = LayoutParams(300f, 200f, SpatialPanelLayoutParams.HORIZONTAL)
-      panel {
-        ScoreDisplay(viewModel = gameViewModel)
-      }
-    }
+    ComposeViewPanelRegistration(
+      registrationId = R.id.score_panel,
+      composeViewCreator = { _, context ->
+        ComposeView(context).apply {
+          setContent { ScoreDisplay(viewModel = gameViewModel) }
+        }
+      },
+      settingsCreator = {
+        UIPanelSettings(
+          shape = QuadShapeOptions(width = 0.6f, height = 0.4f),
+          display = DpDisplayOptions(width = 300f, height = 200f),
+        )
+      },
+    )
   )
 }
 
@@ -149,13 +150,13 @@ The Spatial SDK uses glTF (`.glb` and `.gltf`) as its primary 3D asset format. M
 // Load a model from the APK assets
 val robot = Entity.create(
   Mesh(Uri.parse("apk:///models/robot.glb")),
-  Transform(Pose(Vector3(0f, 0f, -2f)))
+  Transform(Pose(Vector3(0f, 0f, 2f)))
 )
 
 // Load a model from device storage
 val imported = Entity.create(
   Mesh(Uri.parse("file:///sdcard/Download/model.glb")),
-  Transform(Pose(Vector3(1f, 0.5f, -1f)))
+  Transform(Pose(Vector3(1f, 0.5f, 1f)))
 )
 ```
 
@@ -163,37 +164,30 @@ Place glTF files in the `src/main/assets/models/` directory so they are packaged
 
 ### Transforms
 
-The `Transform` component controls an entity's position, rotation, and scale in 3D space:
+The `Transform` component stores position and rotation in its `Pose`. Scale is
+a separate component:
 
 ```kotlin
 val entity = Entity.create()
-
-// Set position, rotation, and scale
-entity.setComponent(
-  Transform(
-    Pose(
-      position = Vector3(2f, 1f, -3f),
-      rotation = Quaternion.fromAxisAngle(Vector3.UP, 45f)
-    ),
-    scale = Vector3(0.5f, 0.5f, 0.5f)
-  )
-)
-
-// Update position over time (in a system)
-val transform = entity.getComponent<Transform>()
-transform.position.x += speed * getDeltaTime()
+val transform = Transform(Pose(Vector3(2f, 1f, 3f)))
 entity.setComponent(transform)
+entity.setComponent(Scale(Vector3(0.5f, 0.5f, 0.5f)))
 ```
 
 ### Coordinate System
 
-The Spatial SDK uses a right-handed coordinate system:
+With `ReferenceSpace.LOCAL_FLOOR` and an unrotated view origin, the viewer faces
+toward positive Z:
 
 - **X**: right
 - **Y**: up
-- **Z**: towards the viewer (negative Z is forward/away from the viewer)
+- **Z**: positive values are in front of the viewer; negative values are behind
 
-Distances are in meters. A position of `Vector3(0f, 1.5f, -2f)` places an object 1.5 meters above the floor and 2 meters in front of the viewer.
+Distances are in meters. A position of `Vector3(0f, 1.5f, 2f)` places an object
+1.5 meters above the floor and 2 meters in front of the default view origin.
+If the app rotates or moves the view origin with `scene.setViewOrigin`, interpret
+entity positions relative to that transformed origin rather than assuming a
+fixed world-facing direction.
 
 ### Animations
 
@@ -217,14 +211,21 @@ For custom animations, create a system that modifies `Transform` components each
 ```kotlin
 class BobSystem : SystemBase() {
   private var time = 0f
+  private var previousTime = 0L
 
   override fun execute() {
-    time += getDeltaTime()
+    val currentTime = System.currentTimeMillis()
+    if (previousTime == 0L) previousTime = currentTime
+    val timeDeltaInSeconds = (currentTime - previousTime) / 1000f
+    previousTime = currentTime
+    time += timeDeltaInSeconds
+
     val query = Query.where { has(Bobbing.id, Transform.id) }
     for (entity in query.eval()) {
       val transform = entity.getComponent<Transform>()
       val bobbing = entity.getComponent<Bobbing>()
-      transform.position.y = bobbing.baseHeight + sin(time * bobbing.frequency) * bobbing.amplitude
+      transform.transform.t.y =
+        bobbing.baseHeight + sin(time * bobbing.frequency) * bobbing.amplitude
       entity.setComponent(transform)
     }
   }
@@ -258,26 +259,28 @@ Hybrid apps combine 2D panels with 3D content in a single spatial experience. Th
 A typical hybrid app might show a UI panel with controls alongside 3D objects the user can interact with:
 
 ```kotlin
-override fun onSceneReady(scene: Scene) {
-  super.onSceneReady(scene)
+override fun onSceneReady() {
+  super.onSceneReady()
 
   // Place a control panel to the left
-  Entity.createPanelEntity(
-    "control_panel",
-    Transform(Pose(Vector3(-1f, 1.2f, -2f)))
+  Entity.create(
+    Panel(panelRegistrationId = R.id.control_panel),
+    Transform(Pose(Vector3(-1f, 1.2f, 2f))),
+    Visible(true),
   )
 
   // Place a 3D model in front
   Entity.create(
     Mesh(Uri.parse("apk:///models/product.glb")),
-    Transform(Pose(Vector3(0f, 1f, -2f))),
+    Transform(Pose(Vector3(0f, 1f, 2f))),
     Grabbable()  // User can grab and rotate the model
   )
 
   // Place an info panel to the right
-  Entity.createPanelEntity(
-    "info_panel",
-    Transform(Pose(Vector3(1f, 1.2f, -2f)))
+  Entity.create(
+    Panel(panelRegistrationId = R.id.info_panel),
+    Transform(Pose(Vector3(1f, 1.2f, 2f))),
+    Visible(true),
   )
 }
 ```

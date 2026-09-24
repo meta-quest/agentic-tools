@@ -9,7 +9,7 @@
 
 ## Overview
 
-The Push Notification API lets a Meta Quest Android app **register the device/user to receive server-triggered push notifications** (the "Headset Push" flow — server-defined toasts that re-engage users). It provides two operations:
+The Push Notification API lets a Meta VR Android app **register the device/user to receive server-triggered push notifications** (the "Headset Push" flow — server-defined toasts that re-engage users). It provides two operations:
 
 1. **`register()`** -- Register the device to receive push notifications. Returns a `PushNotificationResult` whose `id` is the registered notification target you push to.
 2. **`unregister()`** -- Unregister the device from receiving push notifications. Returns a `Boolean` indicating success.

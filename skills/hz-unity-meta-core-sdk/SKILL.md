@@ -1,14 +1,33 @@
 ---
 name: hz-unity-meta-core-sdk
 license: Apache-2.0
-description: Meta XR Core SDK (com.meta.xr.sdk.core) for Unity XR development. Use when setting up VR/MR projects, configuring OVRManager, adding OVRCameraRig, enabling passthrough, hand tracking, spatial anchors, boundaryless mode, controller input, Scene API, or any Meta Quest XR feature. Covers OVRProjectSetup, AndroidManifest generation, and project configuration for Meta Quest headsets.
+description: Meta XR Core SDK (com.meta.xr.sdk.core) for Unity XR development. Use when setting up VR/MR projects, configuring OVRManager, adding OVRCameraRig, enabling passthrough, hand tracking, spatial anchors, boundaryless mode, controller input, Scene API, or any Meta VR feature. Covers OVRProjectSetup, AndroidManifest generation, and project configuration for Meta VR devices, driven against a live Editor with unity-cli.
 ---
 
 # Meta XR Core SDK (com.meta.xr.sdk.core)
 
-The Meta XR Core SDK is the foundational Unity package for developing VR and MR applications targeting Meta Quest headsets. It provides the core XR rig, device management, input handling, and access to platform features like passthrough, hand tracking, spatial anchors, and scene understanding.
+The Meta XR Core SDK is the foundational Unity package for developing VR and MR applications targeting Meta VR devices. It provides the core XR rig, device management, input handling, and access to platform features like passthrough, hand tracking, spatial anchors, and scene understanding.
 
 Package: `com.meta.xr.sdk.core`
+
+## Running SDK code — drive a live Editor with `unity-cli`
+
+Everything here is **Editor-only** C#. Run it against an open Editor instead of hand-editing scene, manifest, or settings files. Connecting, `--project-path`, and Safe Mode recovery are in the **`unity-cli`** skill.
+
+```bash
+unity status --format json          # look for state "ready"
+unity command run_script --project-path <proj> --file AgentScripts/Setup.cs --entry Setup.Run --format json
+```
+
+Prefer `run_script` over `eval` — put the `.cs` outside `Assets/` (path resolves against the project root) so writing it triggers no import or domain reload, and shell quoting can't mangle C# literals.
+
+SDK-specific gotchas:
+
+- **No type-discovery reflection needed.** `run_script` references every loaded assembly, so `OVRProjectSetup`, `OVRManifestPreprocessor` etc. compile directly; `using System.Reflection;` and `BindingFlags` work for the internal bits (`_principalRegistry`, `GetTasks`).
+- **Pass `silentMode: true`** to anything that may open an `EditorUtility.DisplayDialog` — a modal blocks the request until it times out.
+- **Async work lands after the script returns** (`FixAllAsync`, `Client.Add`) — verify in a separate follow-up `run_script`; never `Task.Wait()` on the main thread.
+- Scene edits: `MarkSceneDirty` + `SaveScene` (+ `AssetDatabase.SaveAssets()`), then read the value back.
+- Driving Unity **MCP** instead of the CLI? Its constraints break the above: [references/unity-mcp-fallback.md](references/unity-mcp-fallback.md).
 
 ## Finding the SDK Source
 
@@ -68,7 +87,7 @@ When working with a scene that needs XR support:
 
 **OVRManager** (`OVRManager.cs`) is the main interface to VR hardware. It is a **singleton** attached to the OVRCameraRig prefab that exposes the Meta XR SDK to Unity. It controls:
 
-- **Target Devices** - Which Quest headsets to target
+- **Target Devices** - Which Meta VR devices to target
 - **Performance & Quality** - MSAA, adaptive resolution, dynamic resolution
 - **Tracking** - Tracking origin type (Eye Level, Floor Level, Stage, Stationary)
 - **Display** - Color gamut settings
@@ -81,18 +100,43 @@ To understand what features are available and how they're configured, **analyze 
 
 For the full settings reference (tracking origin, passthrough, boundary, hand tracking on OVRProjectConfig, etc.), see [references/ovr-manager.md](references/ovr-manager.md).
 
+## CRITICAL: Changing Serialized Fields — Use SerializedObject, Not Reflection
+
+To change a serialized field on any component, edit it via `SerializedObject` + `FindProperty(name)` + `ApplyModifiedProperties()` — never reflection (`FieldInfo`/`PropertyInfo.SetValue`). Reflection mutates the in-memory object but bypasses serialization: for a component on a **prefab instance** (e.g. OVRManager on OVRCameraRig), the change isn't recorded as a prefab override and is **silently dropped on save** (`SaveScene` returns `true`, but the field reverts to the prefab default).
+
+- Get the component as `UnityEngine.Object` (`FindObjectOfType` / `GetComponent`); `SerializedObject`/`FindProperty` work by name, so no asmref is needed.
+- The serialized name is the `[SerializeField]` backing field (often `_camelCase`), **not** the public property. If `FindProperty` returns null, discover names by iterating `so.GetIterator()` (`Next(true)` → log `propertyPath`).
+- After `ApplyModifiedProperties()`, call `MarkSceneDirty` → `SaveScene` → `SaveAssets`, then read the field back to confirm it persisted.
+
+```csharp
+// component obtained as UnityEngine.Object (e.g. FindObjectOfType(type) as Object)
+var so = new SerializedObject(component);
+so.FindProperty("_SERIALIZED_FIELD_NAME").boolValue = true;   // typed accessor: boolValue/floatValue/intValue/...
+so.ApplyModifiedProperties();                                 // records the prefab-instance override + marks dirty
+
+var scene = EditorSceneManager.GetActiveScene();
+EditorSceneManager.MarkSceneDirty(scene);
+EditorSceneManager.SaveScene(scene);
+AssetDatabase.SaveAssets();
+
+// verify before declaring success
+var check = new SerializedObject(component).FindProperty("_SERIALIZED_FIELD_NAME").boolValue;
+```
+
 ## OVRProjectSetup (UPST): Listing and Fixing Project Issues
 
-The **Unity Project Setup Tool (UPST)** (`OVRProjectSetup`) is a Unity Editor extension that validates project configuration for Meta Quest. It maintains a registry of **Configuration Tasks** — each task checks a specific setting and reports whether it is satisfied or outstanding.
+The **Unity Project Setup Tool (UPST)** (`OVRProjectSetup`) is a Unity Editor extension that validates project configuration for Meta VR. It maintains a registry of **Configuration Tasks** — each task checks a specific setting and reports whether it is satisfied or outstanding.
 
 **Primary use: list all outstanding issues for the current platform, then fix them.**
 
 - **List issues** — Query all tasks, filter by platform/validity, and report those where `IsDone` is false. Each issue has a level (Required, Recommended, Optional), a group (Compatibility, Rendering, Features, etc.), and a fix type (Auto-fix or Manual).
 - **Fix issues** — Use `FixAllAsync(BuildTargetGroup)` to auto-fix all fixable issues, or invoke individual `FixAction` delegates directly.
 
-**UPST can be driven programmatically via Unity MCP** using reflection (see [references/project-setup-tool.md](references/project-setup-tool.md) for the full API, task registry access, property reading, and fix invocation patterns).
+**Drive UPST programmatically against a live Editor with `unity-cli`** (see [references/project-setup-tool.md](references/project-setup-tool.md) for the full API, task registry access, property reading, and fix invocation patterns).
 
 Access via UI: **Meta > Tools > Project Setup Tool**.
+
+After UPST is green, prove it on hardware: build an APK, `metavr app install <apk>`, and confirm the expected features initialized in a `metavr log --tag Unity` snapshot.
 
 ### CRITICAL: AndroidManifest Update
 
@@ -158,56 +202,12 @@ All documentation references point to the official Meta developer docs at develo
 - [Controller Input](https://developers.meta.com/horizon/documentation/unity/unity-ovrinput)
 - [Project Configuration](https://developers.meta.com/horizon/documentation/unity/unity-project-configuration)
 
-## Calling SDK Methods via Unity MCP
-
-SDK classes (e.g. `OVRManifestPreprocessor`, `OVRProjectSetup`) live in assemblies that are **not directly referenceable** from Unity MCP compiled scripts. You must use runtime reflection to call them. The Unity MCP compilation environment also has specific quirks that will cause silent crashes if not followed.
-
-### Rules
-
-1. **Never add `using System.Reflection;`** — it causes `UNEXPECTED_ERROR` crashes in the MCP framework. Fully qualify reflection types instead (e.g. `System.Reflection.TargetInvocationException`).
-2. **Never use `BindingFlags` overloads** of `GetMethod` / `GetProperty` — they also trigger MCP crashes. Use the parameterless `GetMethod("MethodName")` overload (finds public methods by default).
-3. **Always pass `silentMode: true`** (or equivalent) for any method that may call `EditorUtility.DisplayDialog` — dialogs block indefinitely in MCP context.
-4. **Always catch `System.Reflection.TargetInvocationException`** and log `InnerException` — reflection wraps the real error.
-
-### Template
-
-```csharp
-using UnityEngine;
-using UnityEditor;
-
-internal class CommandScript : IRunCommand
-{
-    public void Execute(ExecutionResult result)
-    {
-        // 1. Find the type by name across all loaded assemblies
-        System.Type t = null;
-        foreach (var asm in System.AppDomain.CurrentDomain.GetAssemblies())
-        {
-            try { t = asm.GetType("CLASS_NAME_HERE"); } catch { }
-            if (t != null) break;
-        }
-        if (t == null) { result.LogError("Type CLASS_NAME_HERE not found."); return; }
-
-        // 2. Get the method (parameterless overload only — no BindingFlags)
-        var m = t.GetMethod("METHOD_NAME_HERE");
-        if (m == null) { result.LogError("Method METHOD_NAME_HERE not found."); return; }
-
-        // 3. Invoke with error handling
-        try
-        {
-            m.Invoke(null, new object[] { /* args */ });
-            result.Log("Done.");
-        }
-        catch (System.Reflection.TargetInvocationException tie)
-        {
-            result.LogError("Error: " + tie.InnerException);
-        }
-    }
-}
-```
-
-Replace `CLASS_NAME_HERE`, `METHOD_NAME_HERE`, and the args array as needed. For instance methods, pass the target object instead of `null`.
-
 ## Using metavr Tools for Latest Docs
 
-If the `metavr` MCP server is available, use the `mcp__metavr__meta_docs_search` and `mcp__metavr__meta_docs_get_page` tools to verify current API details, as Meta SDK documentation updates frequently. Use `mcp__metavr__search_api_reference` with `engine='unity'` to look up exact method signatures for OVRManager, OVRCameraRig, OVRInput, and other classes.
+If the `metavr` MCP server is available, use the `mcp__metavr__vr_docs_search` and `mcp__metavr__vr_docs_get_page` tools to verify current API details, as Meta SDK documentation updates frequently. Use `mcp__metavr__vr_api_search` with `engine='unity'` to look up exact method signatures for OVRManager, OVRCameraRig, OVRInput, and other classes.
+
+## Related skills
+
+- **`unity-cli`** — drive a live Editor, install editors, build/test
+- **`hz-unity-meta-interaction-sdk`** — interaction layer (grab, poke, teleport, interaction rig)
+- **`hz-xr-simulator-install-and-configure`** / **`hz-vr-debug`** — run and debug beyond Play mode

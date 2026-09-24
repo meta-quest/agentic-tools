@@ -1,12 +1,12 @@
 # Notifications API
 
 - **Unity Package**: com.meta.xr.sdk.platform
-- **Documentation**: https://developer.oculus.com/documentation/unity/ps-notifications/
+- **Documentation**: https://developers.meta.com/horizon/documentation/unity/ps-user-notifications/
 - **Namespace**: Oculus.Platform
 
 ## Overview
 
-The Notifications API is part of the Horizon Platform SDK Unity package. It provides operations for Meta Quest Unity applications to send on-device notifications (toast + notification feed):
+The Notifications API is part of the Horizon Platform SDK Unity package. It provides operations for Meta VR Unity applications to send on-device notifications (toast + notification feed):
 
 1. **`Notifications.DeviceNotification(config)`** -- Send a device notification with toast and optional feed persistence
 
@@ -115,7 +115,7 @@ For most use cases, leave this unset -- the notification uses your app's own ico
 | `ActionDisplayType` | `SetActionDisplayType` | No | Iconable, IconableColorless, TextOnly |
 | `ActionTitle` | `SetActionTitle` | No (required if any action set) | Action button label |
 | `ActionIcon` | `SetActionIcon` | No | One of the `ActionIcon` enum values |
-| `ActionAppId` | `SetActionAppId` | No | Open this Quest app on tap |
+| `ActionAppId` | `SetActionAppId` | No | Open this Meta VR app on tap |
 | `ActionPackageName` | `SetActionPackageName` | No | Open this Android package on tap |
 | `ActionIntentData` | `SetActionIntentData` | No | Android intent data URI |
 | `ActionIntentExtras` | `SetActionIntentExtras` | No | JSON string of intent extras |
@@ -156,7 +156,7 @@ For most use cases, leave this unset -- the notification uses your app's own ico
 | Field set | Behavior |
 |-----------|----------|
 | `ActionPackageName` only | Opens that app's main activity |
-| `ActionAppId` only | Opens that Quest app by App ID |
+| `ActionAppId` only | Opens that Meta VR app by App ID |
 | `ActionPackageName` + `ActionIntentData` | Sends Android intent with data URI to that package |
 | `ActionPackageName` + `ActionIntentData` + `ActionIntentExtras` (JSON) | Full intent with extras |
 
@@ -269,5 +269,5 @@ await QuestNotifications.WithAction(
 
 ## Useful Links
 
-- [Meta Quest Notifications Documentation (Unity)](https://developer.oculus.com/documentation/unity/ps-notifications/)
-- [Meta Quest Developer Dashboard](https://developer.oculus.com/manage/)
+- [Meta VR Notifications Documentation (Unity)](https://developers.meta.com/horizon/documentation/unity/ps-user-notifications/)
+- [Meta Horizon Developer Dashboard](https://developers.meta.com/horizon/manage/)

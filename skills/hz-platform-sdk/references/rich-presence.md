@@ -1,11 +1,11 @@
 # Rich Presence API
 
-> **Deprecated**: Rich Presence has been deprecated in favor of [Group Presence](https://developers.meta.com/horizon/documentation/android-apps/ps-group-presence-overview). New integrations should use the Group Presence API instead. See the migration notes at the bottom of this file.
+> **Deprecated**: Rich Presence has been deprecated in favor of [Group Presence](https://developers.meta.com/horizon/documentation/android-apps/ps-platform-sdk-group-presence). New integrations should use the Group Presence API instead. See the migration notes at the bottom of this file.
 
 | Field | Value |
 |-------|-------|
 | **Kotlin Package** | `horizon.platform.richpresence` |
-| **Documentation** | https://developers.meta.com/horizon/documentation/android-apps/ps-group-presence-overview |
+| **Documentation** | https://developers.meta.com/horizon/documentation/android-apps/ps-platform-sdk-group-presence |
 | **Minimum OS** | HzOS v85 |
 | **Maven Artifact** | `horizon-platform-sdk-rich-presence-kotlin` |
 
@@ -13,7 +13,7 @@
 
 ## Overview
 
-The Rich Presence API allows Meta Quest Android applications to manage the user's presence information, including what they are doing and where they are in the app. The API provides the following public operations:
+The Rich Presence API allows Meta VR Android applications to manage the user's presence information, including what they are doing and where they are in the app. The API provides the following public operations:
 
 1. **`clear()`** -- Clear the current rich presence
 2. **`getDestinations(coroutineScope)`** -- Retrieve all available destinations that the presence can be set to (paginated)
@@ -385,7 +385,7 @@ class RichPresenceRepository {
 
 ## Important Notes
 
-1. **Rich Presence is deprecated** -- this entire API has been deprecated in favor of [Group Presence](https://developers.meta.com/horizon/documentation/android-apps/ps-group-presence-overview). New integrations should use `GroupPresence` instead. Each Rich Presence method has a direct Group Presence equivalent: `clear()` -> `GroupPresence.clear()`, `getDestinations()` -> `GroupPresence.getDestinations()`, `set()` -> `GroupPresence.set()`.
+1. **Rich Presence is deprecated** -- this entire API has been deprecated in favor of [Group Presence](https://developers.meta.com/horizon/documentation/android-apps/ps-platform-sdk-group-presence). New integrations should use `GroupPresence` instead. Each Rich Presence method has a direct Group Presence equivalent: `clear()` -> `GroupPresence.clear()`, `getDestinations()` -> `GroupPresence.getDestinations()`, `set()` -> `GroupPresence.set()`.
 
 2. **`getDestinations()` is not a `suspend` function** -- it takes a `CoroutineScope` parameter and returns `PagedResults<Destination>`. The returned `PagedResults` object handles pagination internally using the provided scope. Call `hasNext()` and `next()` to iterate through pages.
 

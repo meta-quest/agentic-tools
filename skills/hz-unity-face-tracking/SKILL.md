@@ -1,19 +1,19 @@
 ---
 name: hz-unity-face-tracking
 license: Apache-2.0
-description: Drive ARKit-blendshape-rigged head/face models in Unity with the wearer's facial expressions on Meta Quest via Meta Movement SDK (face tracking + A2E). Use when a user has an FBX with the 52 ARKit blendshapes (any prefix, _L/_R suffixes) and wants it to animate from face tracking on Quest Pro / Quest 3 / Quest 3S.
+description: Drive ARKit-blendshape-rigged head/face models in Unity with the wearer's facial expressions on Meta VR via Meta Movement SDK (face tracking + A2E). Use when a user has an FBX with the 52 ARKit blendshapes (any prefix, _L/_R suffixes) and wants it to animate from face tracking on Quest Pro / Quest 3 / Quest 3S.
 ---
 
 # Unity Face Tracking for ARKit-Rigged Models (Meta Movement SDK)
 
-End-to-end recipe to make a head/face model rigged with the standard 52 ARKit blendshapes animate from the wearer's face on Quest. Uses the **public** `OVRCustomFace` extension hook — no `OVR_INTERNAL_CODE`, ships to 3P.
+End-to-end recipe to make a head/face model rigged with the standard 52 ARKit blendshapes animate from the wearer's face on Meta VR. Uses the **public** `OVRCustomFace` extension hook — no `OVR_INTERNAL_CODE`, ships to 3P.
 
 The model's blendshape names must follow the ARKit naming convention (camelCase, `_L`/`_R` suffixes, e.g. `eyeBlink_L`, `jawOpen`, `mouthSmile_R`). An optional prefix like `blendShape2.eyeBlink_L` is automatically stripped.
 
 ## When to use
 
-- User has an FBX/GLB/mesh with ARKit-named blendshapes and wants it driven by Quest face tracking.
-- User asks: "animate this head with my face", "drive these blendshapes from face tracking", "use Movement SDK A2E with my model", "wire ARKit shapes to Quest".
+- User has an FBX/GLB/mesh with ARKit-named blendshapes and wants it driven by Meta VR face tracking.
+- User asks: "animate this head with my face", "drive these blendshapes from face tracking", "use Movement SDK A2E with my model", "wire ARKit shapes to Meta VR".
 - Target device: Quest Pro, Quest 3, Quest 3S (Quest 2 is no-op — no face cameras).
 
 ## Prerequisites checklist
@@ -32,7 +32,7 @@ The model's blendshape names must follow the ARKit naming convention (camelCase,
    - For eye gaze: `oculus.software.eye_tracking` + `com.oculus.permission.EYE_TRACKING`
 5. **OVRCameraRig** in the scene with `OVRManager.FaceTrackingDataSources` including `Audio` (A2E) — if you skip Audio, mouth motion is visual-only.
 
-After any change to OculusProjectConfig, call `meta_update_android_manifest` to regenerate the manifest.
+After any change to OculusProjectConfig, regenerate the manifest (see [Regenerating the manifest](#regenerating-the-manifest) below).
 
 ## Approach (high level)
 
@@ -78,15 +78,43 @@ Project Settings → Meta XR → Face Tracking Support = Supported
 Project Settings → Meta XR → Eye Tracking Support = Supported (if needed)
 ```
 
-Then regenerate manifest:
-- Unity MCP: `meta_update_android_manifest`
-- Or Editor menu: **Meta → Tools → Update AndroidManifest.xml**
+Then regenerate the manifest.
+
+#### Regenerating the manifest
+
+Against a live Editor, call the SDK's generator through `run_script` — the type resolves directly, so
+no reflection is needed:
+
+```csharp
+// AgentScripts/UpdateManifest.cs
+public static class UpdateManifest
+{
+    public static string Run()
+    {
+        OVRManifestPreprocessor.GenerateOrUpdateAndroidManifest(true);   // silentMode: true
+        return "ok";
+    }
+}
+```
+
+```bash
+unity command run_script --file AgentScripts/UpdateManifest.cs --entry UpdateManifest.Run --format json
+```
+
+`silentMode: true` is required — without it the generator opens a modal dialog that blocks the
+request. Then confirm the face-tracking entries from the checklist above actually landed in
+`Assets/Plugins/Android/AndroidManifest.xml`. See **`hz-unity-meta-core-sdk`** for the full manifest
+workflow and the rule against hand-editing managed entries.
+
+Alternatives: the Editor menu **Meta → Tools → Update AndroidManifest.xml**, or the
+`meta_update_android_manifest` tool if you are on a Unity MCP server with the Meta Unity extension.
 
 ### 3. Scene setup
 
 ```
 Scene Hierarchy
-├── OVRCameraRig                         (from meta_add_camerarig)
+├── OVRCameraRig                         (OVRQuickActionsAPI.AddOVRInteractionRig(), or the
+│   │                                     OVRCameraRig prefab; meta_add_camerarig under MCP)
 │   └── (add) OVRFaceExpressions         component
 └── YourHeadModel
     └── ...SkinnedMeshRenderer GO...
@@ -113,7 +141,31 @@ On `OVRCameraRig`'s OVRManager component:
 go.GetComponent<ARKitOVRCustomFace>().MapBlendshapes();
 ```
 
-From Unity MCP `Unity_RunCommand`, the cleanest invocation (the OVR/MSDK types aren't referenced in the MCP dynamic assembly, so use SendMessage to avoid reflection):
+Against a live Editor via `run_script`, the project script's type is directly referenceable (it lives
+in `Assets/`), so just call it:
+
+```csharp
+// AgentScripts/Remap.cs
+using UnityEngine;
+
+public static class Remap
+{
+    public static string Run(string modelName)
+    {
+        var smr = GameObject.Find(modelName).GetComponentInChildren<SkinnedMeshRenderer>();
+        smr.gameObject.GetComponent<ARKitOVRCustomFace>().MapBlendshapes();
+        return $"Remapped {smr.sharedMesh.blendShapeCount} blendshapes on {smr.name}";
+    }
+}
+```
+
+```bash
+unity command run_script --file AgentScripts/Remap.cs --entry Remap.Run --args '["YourHeadModel"]' --format json
+unity command save_scene --format json
+```
+
+Under a Unity MCP server the OVR/MSDK types are **not** visible to the dynamic assembly, so the
+reflection-free workaround there is `SendMessage`:
 
 ```csharp
 GameObject.Find("YourHeadModel")
@@ -123,9 +175,26 @@ GameObject.Find("YourHeadModel")
 
 ### 6. Verify
 
-- **In Editor**, with Meta XR Link / Quest Link, enter Play mode and make faces. The model should mirror them.
-- **On device**, build APK, side-load, grant Face Tracking + Microphone permissions on first launch.
-- **Check the mapping** at edit time: inspect the `ARKitOVRCustomFace` component. `Mappings.Length` should equal `SkinnedMeshRenderer.sharedMesh.blendShapeCount`. The Console log from `MapBlendshapes()` reports `mapped X/N blendshapes` — X should be 50 (or 52 if the FBX has all of them).
+- **In Editor**, with Meta XR Link / Quest Link, enter Play mode and make faces. The model should mirror them. Driving that loop from the CLI:
+
+  ```bash
+  unity command clear_console --format json
+  unity command editor_play --format json          # blocks until play mode is live
+  # --- the wearer now makes faces; ask the user to confirm before continuing ---
+  unity command get_console_logs --severity error --format json
+  unity command editor_stop --format json
+  ```
+
+  **Do not chain these four back to back.** `editor_stop` immediately after `editor_play` leaves no
+  time for anyone to make a face, so the check proves nothing. Enter Play mode, tell the user to make
+  faces and report what they see, and only then read the log and stop.
+
+- **On device**, build APK, side-load (`metavr app install <apk>`), grant Face Tracking + Microphone permissions on first launch, and stream `metavr adb logcat --follow --tag Unity` while making faces to catch mapping errors.
+- **Check the mapping** at edit time: inspect the `ARKitOVRCustomFace` component. `Mappings.Length` should equal `SkinnedMeshRenderer.sharedMesh.blendShapeCount`. The Console log from `MapBlendshapes()` reports `mapped X/N blendshapes` — X should be 50 (or 52 if the FBX has all of them). Read the serialized array length without opening the Inspector — `--field` takes a **SerializedProperty path**, so it wants the `[SerializeField]` backing field `_mappings` on `OVRCustomFace`, not the public `Mappings` property, which is not serialized:
+
+  ```bash
+  unity command get_serialized_fields --target <head GO> --component ARKitOVRCustomFace --field _mappings --format json
+  ```
 
 ## Troubleshooting
 

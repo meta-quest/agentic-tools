@@ -1,7 +1,7 @@
 ---
 name: hz-unity-project-analyzer
 license: Apache-2.0
-description: Analyzes, documents, and maintains a living `.agent-docs/` knowledge base for Unity projects targeting Meta Quest and Horizon OS. Use when the user asks to scan project structure, explain how a Unity system works, or update project docs after structural changes.
+description: Analyzes, documents, and maintains a living `.agent-docs/` knowledge base for Unity projects targeting Meta VR and Horizon OS. Use when the user asks to scan project structure, explain how a Unity system works, or update project docs after structural changes.
 ---
 
 # Unity Project Analyzer
@@ -38,7 +38,8 @@ This skill operates in four modes. Determine which mode to use based on context:
 4. List all script folders and assembly definitions: `Assets/**/*.asmdef`
 5. List all prefab folders: find directories containing `.prefab` files
 6. Identify the project's Unity version from `ProjectSettings/ProjectVersion.txt`
-7. If Unity MCP is connected, optionally inspect scene hierarchies, prefab components, and project settings programmatically for richer data
+7. If an Editor is reachable (`unity status --format json` shows state `ready`), inspect it live for richer data than the files alone give — `unity command get_scene_hierarchy`, `find_assets`, `package_list --scope installed`, and the `get_*_settings` commands (`get_player_settings`, `get_quality_settings`, `get_graphics_settings`). See the **`unity-cli`** skill.
+8. If a headset is attached, record the test-device baseline — `metavr device list` and `metavr device info <id>` (OS version, form factor) — so later findings can cite the hardware they were observed on.
 
 ### Step 2: Ask Clarifying Questions
 

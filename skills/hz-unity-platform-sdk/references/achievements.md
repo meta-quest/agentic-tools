@@ -1,7 +1,7 @@
 # Achievements API
 
 - **Unity Package**: com.meta.xr.sdk.platform
-- **Documentation**: https://developer.oculus.com/documentation/unity/ps-achievements/
+- **Documentation**: https://developers.meta.com/horizon/documentation/unity/ps-achievements/
 - **Namespace**: Oculus.Platform
 
 ## Overview

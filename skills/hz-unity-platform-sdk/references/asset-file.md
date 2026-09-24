@@ -1,12 +1,12 @@
 # Asset File API
 
 - **Unity Package**: com.meta.xr.sdk.platform
-- **Documentation**: https://developer.oculus.com/documentation/unity/ps-assetfiles/
+- **Documentation**: https://developers.meta.com/horizon/documentation/unity/ps-assets/
 - **Namespace**: Oculus.Platform
 
 ## Overview
 
-The Asset File API is part of the Horizon Platform SDK Unity package. It provides operations for Meta Quest Unity applications to manage downloadable asset files (DLC, expansion packs, optional content):
+The Asset File API is part of the Horizon Platform SDK Unity package. It provides operations for Meta VR Unity applications to manage downloadable asset files (DLC, expansion packs, optional content):
 
 1. **`AssetFile.GetList()`** -- List all assets configured for the app
 2. **`AssetFile.StatusByName(name)`** -- Get status of one asset by name
@@ -27,7 +27,7 @@ The Asset File API is part of the Horizon Platform SDK Unity package. It provide
 
 ## Prerequisites
 
-1. **Register your app** at [developer.oculus.com/manage](https://developer.oculus.com/manage/)
+1. **Register your app** at [developers.meta.com/horizon/manage](https://developers.meta.com/horizon/manage/)
 2. **Configure your assets** in the Developer Dashboard under your app's "Builds > Asset Files" section. Each asset gets an **API Name** (case-sensitive) and **ID**. Upload the actual file payload there.
 3. **Note your App ID** and asset names
 
@@ -335,5 +335,5 @@ public class AssetFileManager : MonoBehaviour
 
 ## Useful Links
 
-- [Meta Quest Asset Files Documentation (Unity)](https://developer.oculus.com/documentation/unity/ps-assetfiles/)
-- [Meta Quest Developer Dashboard](https://developer.oculus.com/manage/)
+- [Meta VR Asset Files Documentation (Unity)](https://developers.meta.com/horizon/documentation/unity/ps-assets/)
+- [Meta Horizon Developer Dashboard](https://developers.meta.com/horizon/manage/)

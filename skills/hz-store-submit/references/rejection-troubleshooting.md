@@ -25,8 +25,8 @@ inside the main activity's intent filter.
 **Symptom:** Rejection citing "disallowed permissions."
 
 **Fix:** Remove permissions not relevant to VR apps. Commonly flagged:
-- `CALL_PHONE`, `SEND_SMS`, `READ_CONTACTS` -- telephony permissions not supported on Quest
-- `ACCESS_FINE_LOCATION` -- precise location not available on Quest
+- `CALL_PHONE`, `SEND_SMS`, `READ_CONTACTS` -- telephony permissions not supported on Meta VR
+- `ACCESS_FINE_LOCATION` -- precise location not available on Meta VR
 - `READ_EXTERNAL_STORAGE` without justification
 
 ## Performance Rejections
@@ -40,7 +40,7 @@ inside the main activity's intent filter.
 - **CPU bound:** Optimize game logic, reduce physics complexity, use async operations
 - **Both:** Consider lowering visual quality settings or implementing dynamic resolution
 
-Target: 72 Hz sustained on Quest 2, 90 Hz on Quest 3.
+Target: 72 Hz sustained on Quest 2, 90 Hz on Quest 3 and Meta VR Glasses.
 
 ### Load time exceeds limit
 
@@ -87,7 +87,7 @@ metavr adb logcat --tag AndroidRuntime --level E
 
 **Symptom:** Rejection citing "screenshots do not represent actual app experience."
 
-**Fix:** Capture screenshots from the actual app running on a Quest device, not from the editor or marketing mockups. Use:
+**Fix:** Capture screenshots from the actual app running on a Meta VR device, not from the editor or marketing mockups. Use:
 ```bash
 metavr capture screenshot -o screenshot.png
 ```

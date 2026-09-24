@@ -1,7 +1,7 @@
-# Web / IWSDK / WebXR Project Setup For Meta Quest
+# Web / IWSDK / WebXR Project Setup For Meta VR
 
 This guide walks through creating a new web-based XR project using the current
-Immersive Web SDK (IWSDK) toolchain for Meta Quest.
+Immersive Web SDK (IWSDK) toolchain for Meta VR.
 
 ## Requirements
 
@@ -347,14 +347,14 @@ The default IWSDK Vite setup typically serves on `https://localhost:8081`.
 ### Desktop Iteration
 
 `@iwsdk/vite-plugin-dev` provides the current built-in emulator/dev browser
-path. Use it for fast iteration, but do not treat it as a substitute for Quest
+path. Use it for fast iteration, but do not treat it as a substitute for Meta VR
 hardware validation.
 
 ### Quest Browser Via Network
 
-To test on an actual Quest device:
+To test on an actual Meta VR device:
 
-1. Ensure your Quest and development machine are on the same network.
+1. Ensure your Meta VR device and development machine are on the same network.
 2. Find your machine's local IP address, for example `192.168.1.100`.
 3. Open Quest Browser on the headset.
 4. Navigate to `https://192.168.1.100:8081`.

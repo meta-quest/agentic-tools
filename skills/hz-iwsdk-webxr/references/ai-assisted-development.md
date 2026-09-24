@@ -43,9 +43,9 @@ reachability first.
 
 ## Host Agent and Thin Client Split
 
-If you add a Quest-native shell app around an IWSDK workflow, keep the split clean:
+If you add a native Meta VR shell app around an IWSDK workflow, keep the split clean:
 
-- **Quest shell or browser surface**: preview, prompt input, transcript review,
+- **Meta VR shell or browser surface**: preview, prompt input, transcript review,
   status, diff approval
 - **Host-side coding agent**: repository access, patching, build/test commands,
   documentation lookup, metavr calls, and any runtime inspection bridge

@@ -1,17 +1,17 @@
 ---
 name: hz-immersive-designer
 license: Apache-2.0
-description: Guides design of comfortable, intuitive VR/MR experiences for Meta Quest and Horizon OS — comfort guidelines, interaction patterns, spatial layout, accessibility. Use during UX design review or when evaluating comfort and accessibility.
+description: "Guides design of comfortable, intuitive VR/MR experiences for Meta VR and Horizon OS — comfort guidelines, interaction patterns, spatial layout, accessibility. Use during UX design review or when evaluating comfort and accessibility. Build paths: Meta Spatial SDK, Unity, Unreal, native OpenXR, and WebXR; for 2D panel apps use hz-panel-designer if available. Use hz-quest-verify-first if the build path is unclear."
 ---
 
 # Immersive Designer
 
-A knowledge skill for designing comfortable, intuitive, and accessible VR and MR experiences on Meta Quest. This skill provides design principles, best practices, and review checklists for spatial computing UX.
+A knowledge skill for designing comfortable, intuitive, and accessible VR and MR experiences on Meta VR. This skill provides design principles, best practices, and review checklists for spatial computing UX.
 
 ## When to Use
 
-- Designing new VR or MR experiences for Meta Quest
-- Reviewing UX decisions in existing Quest applications
+- Designing new VR or MR experiences for Meta VR
+- Reviewing UX decisions in existing Meta VR applications
 - Evaluating comfort and usability of spatial interfaces
 - Planning interaction models for immersive content
 - Ensuring accessibility compliance in XR applications
@@ -56,7 +56,7 @@ See [Accessibility](references/accessibility.md) for detailed guidance.
 
 ## Quick Design Review Checklist
 
-Use this checklist when reviewing any VR or MR experience design. Each item includes specific pass/fail measurements where applicable.
+Use this checklist when reviewing any VR or MR experience design. Each item includes specific pass/fail measurements where applicable. Guidelines evolve — when an item feels stale, confirm it against current docs with `metavr docs search "<topic>"` before citing it.
 
 ### Comfort
 
@@ -114,7 +114,7 @@ Use this checklist when reviewing any VR or MR experience design. Each item incl
 
 These are common design mistakes that cause comfort issues or poor reviews.
 
-- **Text is too small** -- This is the single most common design failure in VR apps. Developers test on desktop monitors where everything is readable, then deploy to Quest where the effective resolution per degree is much lower. Always validate text readability on device, not in editor.
+- **Text is too small** -- This is the single most common design failure in VR apps. Developers test on desktop monitors where everything is readable, then deploy to a Meta VR headset where the effective resolution per degree is much lower. Always validate text readability on device, not in editor.
 - **UI placed at arm's length (0.3-0.5 m)** -- New VR developers instinctively place UI panels within arm's reach, like a tablet. This causes severe eye strain because it falls in the vergence-accommodation conflict zone. Push primary UI panels to 1.0-1.5 m distance.
 - **Smooth locomotion with no comfort options** -- Shipping smooth locomotion without a teleportation fallback or vignette will cause motion sickness for 30-40% of users. Always provide snap turn and teleportation as alternatives and make them the default.
 - **Ignoring seated users** -- If all interactive elements require standing and reaching above head height, seated users (including wheelchair users) cannot use the app. Design all core interactions within a 0.6 m radius at chest-to-head height.

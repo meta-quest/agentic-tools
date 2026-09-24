@@ -9,35 +9,33 @@ The Interaction SDK (ISDK) is a device-agnostic input handling layer that provid
 To enable ISDK, add the interaction feature to your activity:
 
 ```kotlin
-override fun getSpatialFeatures(): List<SpatialFeature> {
-  return listOf(
-    SpatialFeature.INTERACTION
-  )
+override fun registerFeatures(): List<SpatialFeature> {
+  return listOf(VRFeature(this))
 }
 ```
 
-And add the ISDK dependency to your Gradle build:
+Add the ISDK alias to the project's version catalog, using the same Spatial SDK
+version as the core modules and plugin:
+
+```toml
+# gradle/libs.versions.toml
+[libraries]
+meta-spatial-sdk-isdk = { module = "com.meta.spatial:meta-spatial-sdk-isdk", version.ref = "spatialsdk" }
+```
+
+Then add the alias to the app module:
 
 ```kotlin
 dependencies {
-  implementation("com.meta.spatial:meta-spatial-sdk-isdk:latest")
+  implementation(libs.meta.spatial.sdk.isdk)
 }
 ```
 
-## IsdkSupportingSystems
+Resolve the `spatialsdk` version from the latest stable release in the current
+official template.
 
-The easiest way to set up input handling is to register `IsdkSupportingSystems`, which automatically configures hand and controller interaction:
-
-```kotlin
-override fun registerSystems(): List<SystemBase> {
-  return listOf(
-    IsdkSupportingSystems(),
-    // Your other systems...
-  )
-}
-```
-
-`IsdkSupportingSystems` creates the necessary entities and components for ray pointers, near-field interaction zones, and pointer visualizations for both hands and controllers.
+`VRFeature` uses Interaction SDK by default. Only select the simple controller
+input system when the app intentionally opts out of Interaction SDK.
 
 ## Grabbables
 
@@ -46,7 +44,7 @@ Make any entity grabbable by adding the `Grabbable` component:
 ```kotlin
 val model = Entity.create(
   Mesh(Uri.parse("apk:///models/cube.glb")),
-  Transform(Pose(Vector3(0f, 1f, -1.5f))),
+  Transform(Pose(Vector3(0f, 1f, 1.5f))),
   Grabbable()
 )
 ```
@@ -58,13 +56,13 @@ Use `IsdkGrabConstraints` to control how an entity behaves when grabbed:
 ```kotlin
 val model = Entity.create(
   Mesh(Uri.parse("apk:///models/slider_handle.glb")),
-  Transform(Pose(Vector3(0f, 1f, -1.5f))),
+  Transform(Pose(Vector3(0f, 1f, 1.5f))),
   Grabbable(),
   IsdkGrabConstraints(
     constrainPosition = true,   // Lock position axes
     constrainRotation = true,   // Lock rotation axes
     positionAxisLock = Vector3(1f, 0f, 0f),  // Only allow movement on X axis
-    rotationAxisLock = Vector3.ZERO           // Lock all rotation
+    rotationAxisLock = Vector3(0f, 0f, 0f)    // Lock all rotation
   )
 )
 ```
@@ -76,7 +74,7 @@ Entities can be grabbed with both hands simultaneously for scaling and rotation:
 ```kotlin
 val resizable = Entity.create(
   Mesh(Uri.parse("apk:///models/photo_frame.glb")),
-  Transform(Pose(Vector3(0f, 1.2f, -2f))),
+  Transform(Pose(Vector3(0f, 1.2f, 2f))),
   Grabbable(
     twoHandGrab = true,
     allowScaling = true,
@@ -124,7 +122,7 @@ class ButtonInteractionSystem : SystemBase() {
 ```kotlin
 val button = Entity.create(
   Mesh(Uri.parse("apk:///models/button.glb")),
-  Transform(Pose(Vector3(0f, 1f, -1.5f))),
+  Transform(Pose(Vector3(0f, 1f, 1.5f))),
   Collider(ColliderShape.BOX),  // Required for raycasting
   InputListener()
 )
@@ -284,9 +282,10 @@ Panels automatically receive touch and pointer input from ISDK. Standard Android
 Make panels grabbable so users can reposition them:
 
 ```kotlin
-val panelEntity = Entity.createPanelEntity(
-  "movable_panel",
-  Transform(Pose(Vector3(0f, 1.2f, -2f)))
+val panelEntity = Entity.create(
+  Panel(panelRegistrationId = R.id.movable_panel),
+  Transform(Pose(Vector3(0f, 1.2f, 2f))),
+  Visible(true),
 )
 panelEntity.setComponent(Grabbable())
 ```
@@ -295,15 +294,10 @@ panelEntity.setComponent(Grabbable())
 
 Control which interactions a panel responds to:
 
-```kotlin
-PanelRegistration("display_panel") {
-  layoutParams = LayoutParams(400f, 300f, SpatialPanelLayoutParams.HORIZONTAL)
-  interactionMode = PanelInteractionMode.POINTER_ONLY  // No direct touch
-  panel {
-    ReadOnlyDisplay()
-  }
-}
-```
+Configure panel input through the `PanelInputOptions` passed by the typed
+registration's `UIPanelSettings`. Do not use the removed `layoutParams`,
+`SpatialPanelLayoutParams`, or `PanelInteractionMode` examples from older SDK
+releases.
 
 ## Best Practices
 

@@ -11,7 +11,7 @@
 
 ## Overview
 
-The Users API provides methods to access user information and perform identity verification on Meta Quest Android applications. Key capabilities include:
+The Users API provides methods to access user information and perform identity verification on Meta VR Android applications. Key capabilities include:
 
 1. **`get(userId)`** -- Retrieve a user by their app-scoped ID
 2. **`getLoggedInUser()`** -- Get the currently signed-in user (available offline)
@@ -368,7 +368,7 @@ class UserProfileViewModel : ViewModel() {
 
 4. **User proof nonces are single-use** -- the nonce returned by `getUserProof()` can only be validated once against the Graph API endpoint. After validation, it is invalidated. Request a new nonce for each verification attempt.
 
-5. **Data Use Checkup (DUC) required** -- you must complete a DUC in the Meta Developer Dashboard to access user platform features. Without DUC, API calls may fail with entitlement errors.
+5. **Data Use Checkup (DUC)** -- a missing grant fails in two ways, neither obvious. Without `user_id`/`user_profile`, the Graph-backed reads (`get`, `get_org_scoped_id`) **succeed and return wrong data**: IDs come back as the string `"0"` and profile fields are omitted, so a `"0"` user ID means a missing grant, not a bug. `get_logged_in_user` reads a device ContentProvider rather than the server and is not DUC-gated at all. Grants that do deny server-side reach the SDK as a generic `PROVIDER_ERROR` (10), indistinguishable from a transport failure -- there is no permission-specific status code to match on. Which grants gate what, provisional access during development, and what changes when you submit: [Complete data use checkup](https://developers.meta.com/horizon/resources/publish-data-use/).
 
 6. **Requires HzOS v78+** -- the Users API requires HzOS v78 or later. On older OS versions, methods return status code 1003 (`ProviderOperationNotSupported`). You can require a minimum OS version in `AndroidManifest.xml` (see [Minimum OS Versions](https://developers.meta.com/horizon/documentation/android-apps/min-os-versions/)) or handle error code 1003 at runtime.
 

@@ -1,7 +1,7 @@
 # Challenges API
 
 - **Unity Package**: com.meta.xr.sdk.platform
-- **Documentation**: https://developer.oculus.com/documentation/unity/ps-challenges/
+- **Documentation**: https://developers.meta.com/horizon/documentation/unity/ps-challenges/
 - **Namespace**: Oculus.Platform
 
 ## Overview
@@ -21,7 +21,7 @@
 Challenges require an existing **Leaderboard**. If you haven't set one up, see [leaderboards.md](leaderboards.md) first.
 
 1. **Create a leaderboard** in the Developer Dashboard. Note its **API Name** (case-sensitive).
-2. Any app that uses Leaderboards automatically gets Challenges. They appear in the Scoreboards UI on the Quest, and `Leaderboards.WriteEntry` returns affected challenge IDs in its response.
+2. Any app that uses Leaderboards automatically gets Challenges. They appear in the Scoreboards UI on the headset, and `Leaderboards.WriteEntry` returns affected challenge IDs in its response.
 
 ## API Usage
 

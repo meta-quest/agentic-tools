@@ -1,6 +1,6 @@
 # API Changelog Summary
 
-Summary of API changes across recent Meta Quest SDK versions. For full details, always consult the official Meta developer documentation.
+Summary of API changes across recent Meta VR SDK versions. For full details, always consult the official Meta developer documentation.
 
 ## Horizon OS Platform Releases
 

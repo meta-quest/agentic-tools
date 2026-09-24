@@ -358,37 +358,66 @@ Set `MRUK.SceneSettings.DataSource` to `DeviceWithPrefabFallback` and assign roo
 4. Ensure `OVRCameraRig` is in the scene
 5. Add an `MRUK` GameObject with the `MRUK` component to the scene
 6. Configure `SceneSettings.DataSource` (use `DeviceWithPrefabFallback` for development)
-7. For PassthroughCameraAccess: add `horizonos.permission.HEADSET_CAMERA` to AndroidManifest and regenerate via `OVRManifestPreprocessor.GenerateOrUpdateAndroidManifest()`
+7. For PassthroughCameraAccess: add `horizonos.permission.HEADSET_CAMERA` to AndroidManifest and regenerate via `OVRManifestPreprocessor.GenerateOrUpdateAndroidManifest(true)` — `silentMode: true` is required, or the generator opens a modal dialog that blocks the request. See **`hz-unity-meta-core-sdk`** for the full manifest workflow.
 
-## Calling SDK Methods via Unity MCP
+## Running MRUK code — drive a live Editor with `unity-cli`
 
-MRUK classes live in the `Meta.XR.MRUtilityKit` namespace in the `meta.xr.mrutilitykit` assembly, which is **not directly referenceable** from Unity MCP compiled scripts. Use runtime reflection:
+MRUK setup is Editor-only C#. Run it against an open Editor rather than hand-editing scene or
+settings files:
 
-```csharp
-// 1. Find the type
-System.Type t = null;
-foreach (var asm in System.AppDomain.CurrentDomain.GetAssemblies())
-{
-    try { t = asm.GetType("Meta.XR.MRUtilityKit.MRUK"); } catch { }
-    if (t != null) break;
-}
-
-// 2. Get method (no BindingFlags — parameterless overload only)
-var m = t.GetMethod("GetCurrentRoom");
-
-// 3. Get singleton instance
-var instanceProp = t.GetProperty("Instance");
-var instance = instanceProp.GetValue(null);
-
-// 4. Invoke
-var room = m.Invoke(instance, null);
+```bash
+unity status --format json          # look for state "ready"
+unity command run_script --file AgentScripts/SetupMRUK.cs --entry SetupMRUK.Run --format json
 ```
 
-**Rules**: Never add `using System.Reflection;` (causes MCP crashes). Never use `BindingFlags` overloads. Always catch `System.Reflection.TargetInvocationException` and log `InnerException`.
+Keep the `.cs` **outside `Assets/`** (path relative to the project root) so writing it triggers no
+import or domain reload, and add `--dry_run true` to compile-check before mutating anything.
+
+`run_script` references **every loaded assembly**, so the `Meta.XR.MRUtilityKit` namespace is directly
+referenceable — no reflection:
+
+```csharp
+// AgentScripts/SetupMRUK.cs
+using Meta.XR.MRUtilityKit;
+
+public static class SetupMRUK
+{
+    public static string Run()
+    {
+        var room = MRUK.Instance.GetCurrentRoom();
+        return room == null ? "no current room" : $"room: {room.name}";
+    }
+}
+```
+
+- **`using System.Reflection;` and `BindingFlags` overloads both work** here, so reflection is only for
+  genuinely non-public members.
+- **Anything async completes after the script returns** — verify in a separate follow-up `run_script`,
+  never `Task.Wait()` on the main thread.
+- Finish scene changes with `EditorSceneManager.MarkSceneDirty` + `SaveScene`, or
+  `unity command save_scene`, then read the value back.
+
+MRUK is a **runtime** system, so most of it only produces data in Play mode. Drive that from the CLI:
+
+```bash
+unity command clear_console --format json
+unity command editor_play --format json           # blocks until play mode is live
+unity command get_console_logs --severity error --format json
+unity command editor_stop --format json
+```
+
+**Give the scene time before stopping.** `editor_play` returns once play mode is live, not once MRUK
+has finished — `LoadSceneFromDevice` / `LoadSceneFromPrefab` return a `Task`, and `EffectMesh`,
+`SceneNavigation` and friends only run off `SceneLoadedEvent`. Stopping straight away truncates all
+of it. Poll `get_console_logs` (or a `run_script` reading `MRUK.Instance.IsInitialized`) until the
+scene has loaded, and only then read errors and stop.
+
+Connecting, `--project-path`, and Safe Mode recovery are in the **`unity-cli`** skill. The
+reflection-based MCP version is in [references/unity-mcp-fallback.md](references/unity-mcp-fallback.md).
 
 ## Using metavr Tools for Latest Docs
 
-If the `metavr` MCP server is available, use the `mcp__metavr__meta_docs_search` and `mcp__metavr__meta_docs_get_page` tools to verify current API details, as Meta SDK documentation updates frequently. Use `mcp__metavr__search_api_reference` with `engine='unity'` to look up exact method signatures for MRUK, MRUKRoom, MRUKAnchor, and other classes.
+If the `metavr` MCP server is available, use the `mcp__metavr__vr_docs_search` and `mcp__metavr__vr_docs_get_page` tools to verify current API details, as Meta SDK documentation updates frequently. Use `mcp__metavr__vr_api_search` with `engine='unity'` to look up exact method signatures for MRUK, MRUKRoom, MRUKAnchor, and other classes. The same backend is reachable from the CLI: `metavr docs search "<topic>"` and `metavr docs api-search "<Class.method>"`.
 
 ## Documentation Links
 

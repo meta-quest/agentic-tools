@@ -1,17 +1,17 @@
 ---
 name: hz-store-pwa
 license: Apache-2.0
-description: Guides shipping a web app to the Meta Quest and Horizon OS Store as a PWA/TWA — both 2D windowed panels and immersive WebXR/VR. Covers building the web app (IWSDK for WebXR, any responsive PWA for 2D), Vercel deploy, web app manifest + icons, the WebXR-only auto-enter-session step, choosing 2D vs immersive mode in @meta-quest/bubblewrap-cli, keystore/Digital-Asset-Links, and ovr-platform-util Store upload. Use before any IWSDK/WebXR build, PWA packaging, bubblewrap, or Horizon Store upload work.
-allowed-tools: Bash(npx:*) Bash(npm:*) Bash(curl:*) Bash(bubblewrap:*)
+description: Guides shipping a web app to the Meta VR and Horizon OS Store as a PWA/TWA — both 2D windowed panels and immersive WebXR/VR. Covers building the web app (IWSDK for WebXR, any responsive PWA for 2D), Vercel deploy, web app manifest + icons, the WebXR-only auto-enter-session step, choosing 2D vs immersive mode in @meta-quest/bubblewrap-cli, keystore/Digital-Asset-Links, and ovr-platform-util Store upload. Use before any IWSDK/WebXR build, PWA packaging, bubblewrap, or Horizon Store upload work.
+allowed-tools: Bash(npx:*), Bash(npm:*), Bash(curl:*), Bash(bubblewrap:*)
 ---
 
 # Store PWA/TWA Skill
 
-Guide the end-to-end process of wrapping a web app as a Meta Quest app and shipping
+Guide the end-to-end process of wrapping a web app as a Meta VR app and shipping
 it to the Meta Horizon Store. This skill covers both delivery modes — a **2D
 windowed panel** and an **immersive WebXR/VR** experience — through the same
 pipeline: build the web app, deploy to Vercel, add a PWA manifest + icons, package
-as a signed Quest APK with `@meta-quest/bubblewrap-cli`, and upload with
+as a signed Meta VR APK with `@meta-quest/bubblewrap-cli`, and upload with
 `ovr-platform-util`.
 
 Commands use `<…>` tokens (e.g. `<DOMAIN>`, `<HORIZON_APP_ID>`, `<team-slug>`,
@@ -25,7 +25,7 @@ Use this skill when you need to:
 - Decide whether an app should run as a 2D panel or an immersive WebXR session
 - Build a WebXR app with IWSDK and wire up auto-enter-session for the installed PWA
 - Deploy a PWA to Vercel and produce a valid, installable web app manifest + icons
-- Package a live PWA into a signed Quest APK with `@meta-quest/bubblewrap-cli`
+- Package a live PWA into a signed Meta VR APK with `@meta-quest/bubblewrap-cli`
 - Configure the signing keystore and Digital Asset Links so the TWA will launch
 - Upload a build to the Store with `ovr-platform-util`
 - Troubleshoot a 2D app stuck loading, an immersive app showing a URL bar, a TWA
@@ -171,7 +171,7 @@ corners). Vite copies `public/` into `dist/`.
 See [`references/manifest-and-icons.md`](references/manifest-and-icons.md) for the
 icon script and the full manifest reference.
 
-## Step 4: Package as a Quest APK (bubblewrap)
+## Step 4: Package as a Meta VR APK (bubblewrap)
 
 `bubblewrap` wraps the live PWA into a signed Android APK (a Trusted Web Activity).
 
@@ -234,7 +234,9 @@ verification, and asset-link details are in
 ## Step 5: Upload to the Meta Horizon Store
 
 `hzdb` / `metavr` are device-only and cannot upload. Use `ovr-platform-util` — the
-same command works for 2D and WebXR builds:
+same command works for 2D and WebXR builds. Before uploading, sanity-check the
+signed APK on a real headset (`metavr app install`, launch it, skim `metavr log`) —
+Store review is a slow place to discover a launch crash:
 
 ```bash
 ./ovr-platform-util upload-quest-build \
@@ -252,7 +254,7 @@ invent it.
 
 **Likely first-time blocker:** `must first agree to our Developer Distribution
 Agreement` — an org admin must sign it once at
-`https://developer.oculus.com/manage/organizations/<ORG_ID>/legal-documents/`. Pause,
+`https://developers.meta.com/horizon/manage/organizations/<ORG_ID>/legal-documents/`. Pause,
 ask the user, then retry the same command.
 
 See [`references/store-upload.md`](references/store-upload.md) for tool download, auth,

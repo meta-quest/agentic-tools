@@ -7,7 +7,7 @@
 
 ## Overview
 
-The Leaderboards API is part of the Horizon Platform SDK. It provides six operations for Meta Quest Android applications:
+The Leaderboards API is part of the Horizon Platform SDK. It provides six operations for Meta VR Android applications:
 
 1. **`get(leaderboardName)`** -- Retrieve detailed information about a single leaderboard by name
 2. **`getEntries(leaderboardName, limit, filter, startAt)`** -- Retrieve leaderboard entries with filtering (all, friends, or by user IDs) and starting position options

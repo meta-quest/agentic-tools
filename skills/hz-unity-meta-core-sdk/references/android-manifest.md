@@ -1,17 +1,34 @@
 # Android Manifest Generation Reference
 
-Every Meta Quest app requires an `AndroidManifest.xml` file for store submission and feature declaration.
+Every Meta VR app requires an `AndroidManifest.xml` file for store submission and feature declaration.
 
 ## CRITICAL: Never Directly Edit Managed Manifest Entries
 
 **NEVER directly edit AndroidManifest.xml for features managed by OVRProjectConfig.** The correct workflow is:
 
 1. **Configure project settings** (OVRManager, OVRProjectConfig, Project Setup Tool)
-2. **Regenerate the manifest** using the MCP reflection pattern from "Calling SDK Methods via Unity MCP" in SKILL.md:
-   - **Class**: `OVRManifestPreprocessor`
-   - **Method**: `GenerateOrUpdateAndroidManifest`
-   - **Args**: `new object[] { true }` (`silentMode: true` — required to avoid blocking dialog)
-   - **Fallback (if MCP unavailable)**: Open **Meta > Tools > Android Manifest Tool** and click **Update AndroidManifest.xml for Store Compatibility**.
+2. **Regenerate the manifest** against a live Editor (see "Running SDK code" in [SKILL.md](../SKILL.md)):
+
+   ```csharp
+   public static class UpdateManifest
+   {
+       public static string Run()
+       {
+           OVRManifestPreprocessor.GenerateOrUpdateAndroidManifest(true);   // silentMode: true
+           return "ok";
+       }
+   }
+   ```
+
+   ```bash
+   unity command run_script --project-path <proj> --file AgentScripts/UpdateManifest.cs \
+     --entry UpdateManifest.Run --format json
+   ```
+
+   `silentMode: true` is required — otherwise the generator opens a modal dialog that blocks the
+   request. On a Unity MCP server this call needs reflection: [unity-mcp-fallback.md](unity-mcp-fallback.md).
+   **Fallback (no Editor reachable)**: open **Meta > Tools > Android Manifest Tool** and click
+   **Update AndroidManifest.xml for Store Compatibility**.
 3. **Verify** the expected entries exist in `Assets/Plugins/Android/AndroidManifest.xml`
 4. **Only if an entry is missing** after step 3, add it manually — and document why the generator didn't cover it
 

@@ -1,6 +1,6 @@
 # Screenshots Capture
 
-This reference covers capturing screenshots from a Meta Quest device using the `metavr` CLI.
+This reference covers capturing screenshots from a Meta VR device using the `metavr` CLI.
 
 ## Taking Screenshots
 
@@ -81,7 +81,7 @@ metavr files pull /sdcard/Oculus/VideoShots/ ./videos/
 
 ### File Locations on Device
 
-Captured media is stored in these locations on the Quest device:
+Captured media is stored in these locations on the Meta VR device:
 
 | Content Type         | Device Path                        |
 | -------------------- | ---------------------------------- |

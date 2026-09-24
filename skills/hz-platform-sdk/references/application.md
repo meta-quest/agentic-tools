@@ -1,7 +1,7 @@
 # Application API
 
 - **Kotlin Package**: `horizon.platform.application`
-- **Documentation**: https://developers.meta.com/horizon/documentation/android-apps/ps-application
+- **Documentation**: https://developers.meta.com/horizon/documentation/android-apps/ps-platform-sdk-application
 - **Minimum OS**: HzOS v78 (core API); v85 for download/install APIs
 - **Maven Artifact**: `horizon-platform-sdk-application-kotlin`
 
@@ -9,7 +9,7 @@
 
 ## Overview
 
-The Application API is part of the Horizon Platform SDK. It provides operations for Meta Quest Android applications to manage and interact with applications on the platform:
+The Application API is part of the Horizon Platform SDK. It provides operations for Meta VR Android applications to manage and interact with applications on the platform:
 
 1. **`getVersion()`** -- Retrieve version information for the currently installed app and the latest available update
 2. **`launchOtherApp(appId, deeplinkOptions)`** -- Launch another application or navigate to its store page

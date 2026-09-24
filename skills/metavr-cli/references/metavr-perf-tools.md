@@ -1,7 +1,7 @@
 # metavr Performance Tools
 
 Performance commands let you capture, load, query, and analyze Perfetto traces from
-Meta Quest devices. These tools help identify frame drops, CPU/GPU bottlenecks, and
+Meta VR devices. These tools help identify frame drops, CPU/GPU bottlenecks, and
 threading issues.
 
 ## Commands Overview
@@ -24,7 +24,7 @@ threading issues.
 
 ## Performance Targets
 
-Meta Quest headsets run at different refresh rates. Your app must hit the frame
+Meta VR headsets run at different refresh rates. Your app must hit the frame
 budget for the configured refresh rate to avoid dropped frames and user discomfort.
 
 | Refresh Rate | Frame Budget |
@@ -39,7 +39,7 @@ the budget, the frame is "stale" and the runtime will reproject the previous fra
 
 ## Key Metrics
 
-When analyzing Quest performance, focus on these metrics:
+When analyzing Meta VR performance, focus on these metrics:
 
 - **Frame time** — total time to produce each frame (should stay under budget)
 - **Stale frames** — frames that missed the deadline and were reprojected

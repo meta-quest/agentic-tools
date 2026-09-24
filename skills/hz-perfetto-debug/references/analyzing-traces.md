@@ -2,7 +2,7 @@
 
 ## Overview
 
-This reference walks through a systematic approach to analyzing a Perfetto trace from a Meta Quest device. Follow these steps in order for a thorough investigation.
+This reference walks through a systematic approach to analyzing a Perfetto trace from a Meta VR device. Follow these steps in order for a thorough investigation.
 
 ## Loading a Trace
 

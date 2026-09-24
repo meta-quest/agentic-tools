@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|-------|
 | **Kotlin Package** | `horizon.platform.assetfile` |
-| **Documentation** | https://developers.meta.com/horizon/documentation/android-apps/ps-asset-file |
+| **Documentation** | https://developers.meta.com/horizon/documentation/android-apps/ps-sdk-sample-assetfile |
 | **Minimum OS** | HzOS v85 |
 | **Maven Artifact** | `horizon-platform-sdk-asset-file-kotlin` |
 
@@ -11,7 +11,7 @@
 
 ## Overview
 
-The Asset File API provides methods for managing downloadable asset files in Meta Quest Android applications:
+The Asset File API provides methods for managing downloadable asset files in Meta VR Android applications:
 
 1. **`getList()`** -- Retrieve a list of all asset files with their details and download status
 2. **`statusById(assetFileId)`** -- Get details for a single asset file by its ID

@@ -1,10 +1,10 @@
 # Performance Tips
 
-This reference covers performance optimization techniques for WebXR applications built with IWSDK running on Meta Quest hardware.
+This reference covers performance optimization techniques for WebXR applications built with IWSDK running on Meta VR hardware.
 
 ## Frame Rate Targets
 
-Meta Quest headsets require consistent frame delivery to maintain presence and comfort:
+Meta VR headsets require consistent frame delivery to maintain presence and comfort:
 
 | Headset       | Supported Refresh Rates     | Frame Budget    |
 | ------------- | --------------------------- | --------------- |
@@ -58,7 +58,7 @@ Caveats:
 
 ## Draw Call Optimization
 
-Draw calls are one of the biggest performance bottlenecks on Quest. Each unique material/geometry combination is a separate draw call.
+Draw calls are one of the biggest performance bottlenecks on Meta VR devices. Each unique material/geometry combination is a separate draw call.
 
 ### Batching Geometries
 
@@ -106,7 +106,7 @@ This renders 1000 cubes in a single draw call.
 
 ### Draw Call Budget
 
-Aim for fewer than 100 draw calls total on Quest. Monitor draw calls with:
+Aim for fewer than 100 draw calls total on Meta VR devices. Monitor draw calls with:
 
 ```typescript
 console.log('Draw calls:', world.renderer.info.render.calls);
@@ -117,7 +117,7 @@ console.log('Triangles:', world.renderer.info.render.triangles);
 
 - **Compress textures**: Use KTX2 with Basis Universal compression. Three.js supports this via `KTX2Loader`.
 - **Use mipmaps**: Always enable mipmaps for textures viewed at varying distances. Three.js generates them by default for power-of-two textures.
-- **Limit resolution**: Quest GPU has limited memory bandwidth. Avoid textures larger than 2048x2048. Use 1024x1024 or smaller where possible.
+- **Limit resolution**: Meta VR GPUs have limited memory bandwidth. Avoid textures larger than 2048x2048. Use 1024x1024 or smaller where possible.
 - **Atlas textures**: Combine multiple small textures into a single texture atlas to reduce material count and draw calls.
 
 ```typescript
@@ -342,7 +342,7 @@ Multiview effectively halves the draw call count for stereo rendering. It is sup
 
 ## Performance Checklist
 
-Use this checklist when optimizing a WebXR application for Quest:
+Use this checklist when optimizing a WebXR application for Meta VR:
 
 - [ ] Draw calls under 100
 - [ ] Triangle count under 750K per eye

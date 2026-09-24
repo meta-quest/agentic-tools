@@ -54,14 +54,14 @@ android {
     <!-- Target Meta Quest devices -->
     <meta-data
         android:name="com.oculus.supportedDevices"
-        android:value="quest3|quest2|questpro" />
+        android:value="quest2|questpro|quest3|quest3s" />
 
     <!-- Declare this is a 2D panel app -->
     <meta-data
         android:name="com.oculus.application_type"
         android:value="panel" />
 
-    <!-- Remove permissions carried over from your original 2D app that are prohibited on Quest. Full list: https://developers.meta.com/horizon/resources/permissions-prohibited/ -->
+    <!-- Remove permissions carried over from your original 2D app that are prohibited on Meta VR devices. Full list: https://developers.meta.com/horizon/resources/permissions-prohibited/ -->
 
     <!-- Required permissions (request only what you need) -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -115,11 +115,11 @@ The `com.oculus.supportedDevices` meta-data accepts these values:
 | `quest3s` | Meta Quest 3S |
 | `questpro` | Meta Quest Pro |
 
-Combine with pipe (`|`) to target multiple devices: `quest3|quest2|questpro`.
+Combine with pipe (`|`) to target multiple devices: `quest2|questpro|quest3|quest3s`.
 
 ### Debug-Only Local Networking
 
-If a Quest panel app needs to talk to a local development backend over `http://`
+If a Meta VR panel app needs to talk to a local development backend over `http://`
 or `ws://`, you may need explicit cleartext traffic or network security
 configuration in debug builds. Without that, the app can look broken even
 though the local service is running correctly.
@@ -218,7 +218,7 @@ dependencies {
 
 ## Build Variants
 
-If you are maintaining both a standard Android build and a Quest build, use product flavors:
+If you are maintaining both a standard Android build and a Meta VR build, use product flavors:
 
 ```kotlin
 // app/build.gradle.kts
@@ -321,7 +321,7 @@ Keep your keystore secure and backed up. Losing the keystore means you cannot up
 
 ## Building and Installing
 
-Build the release APK and install on a connected Quest device:
+Build the release APK and install on a connected Meta VR device:
 
 ```bash
 # Build the release APK
@@ -330,20 +330,22 @@ Build the release APK and install on a connected Quest device:
 # Or for the quest flavor specifically
 ./gradlew assembleQuestRelease
 
-# Install on connected device
-metavr app install app/build/outputs/apk/quest/release/app-quest-release.apk
+# Install on a connected device
+adb install -r app/build/outputs/apk/quest/release/app-quest-release.apk
 
 # Launch the app
-metavr app launch com.example.myquestapp
+adb shell am start -n com.example.myquestapp/.MainActivity
 ```
+
+The optional `metavr` CLI can also install and launch the APK.
 
 ## Common Build Issues
 
 | Issue | Cause | Fix |
 |---|---|---|
 | `minSdk 21 is too low` | Horizon OS requires API 29+ | Set `minSdk = 29` |
-| Missing `supportedDevices` | App runs in compatibility mode | Add `com.oculus.supportedDevices` meta-data |
-| Google Play Services dependency | GMS not available on Quest | Remove or make optional with `compileOnly` |
+| Missing `supportedDevices` | Meta VR device targeting is incomplete | Add `com.oculus.supportedDevices` meta-data |
+| Google Play Services dependency | GMS not available on Meta VR devices | Remove or make optional with `compileOnly` |
 | `INSTALL_FAILED_NO_MATCHING_ABIS` | APK missing ARM64 native libs | Ensure `ndk.abiFilters` includes `arm64-v8a` |
 | Large APK size | Unoptimized resources | Enable `shrinkResources`, use WebP images, strip unused ABIs |
 
@@ -353,7 +355,7 @@ For native libraries, ensure you build for ARM64:
 android {
     defaultConfig {
         ndk {
-            abiFilters += listOf("arm64-v8a") // Quest uses ARM64
+            abiFilters += listOf("arm64-v8a") // Meta VR devices use ARM64
         }
     }
 }

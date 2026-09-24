@@ -1,13 +1,13 @@
 # metavr Device Management
 
-Device commands let you interact with connected Meta Quest headsets: listing devices,
+Device commands let you interact with connected Meta VR headsets: listing devices,
 querying device info, capturing screenshots, streaming logs, and more.
 
 ## Commands Overview
 
 | Command | Description |
 |---|---|
-| `metavr device list` | List connected Quest devices |
+| `metavr device list` | List connected Meta VR devices |
 | `metavr device info <device_id>` | Show detailed device information |
 | `metavr device connect <address>` | Connect to a device over WiFi |
 | `metavr device disconnect [address]` | Disconnect from a device |
@@ -28,7 +28,7 @@ For screenshots, see the `metavr capture` commands. For logs, see `metavr log` a
 
 ## metavr device list
 
-List all connected Quest devices with serial numbers and status.
+List all connected Meta VR devices with serial numbers and status.
 
 ```bash
 metavr device list
@@ -61,7 +61,7 @@ To get the device_id, first run `metavr device list`.
 
 ## metavr device connect
 
-Establish a wireless ADB connection to a Quest device.
+Establish a wireless ADB connection to a Meta VR device.
 
 ```bash
 # Connect over Wi-Fi (device must be on same network)
@@ -216,9 +216,20 @@ metavr capture screenshot
 
 # Capture to a specific file
 metavr capture screenshot -o my_screenshot.png
+
+# Use Android screencap instead of the default Meta camera capture
+metavr capture screenshot --method screencap -o my_screenshot.png
 ```
 
-See `metavr capture --help` for all options.
+The default `metacam` method captures the headset view at 1024 x 1024. Its width
+and height can be overridden with `--width` and `--height`. Use `--method
+screencap` when Meta camera capture is unavailable or when you need the Android
+compositor output instead; `screencap` returns the compositor's native resolution
+and ignores the width and height options.
+
+Agents using the metavr MCP server should prefer the dedicated
+`device_screenshot` tool. Set its `method` input to `metacam` or `screencap`; its
+width and height inputs likewise apply only to `metacam`.
 
 ## Viewing Logs
 
@@ -288,5 +299,5 @@ metavr adb shell df -h
 metavr adb shell ls /data/data/com.mycompany.myapp/
 ```
 
-This provides direct access to the Android shell on the Quest device for advanced
+This provides direct access to the Android shell on the Meta VR device for advanced
 debugging and file system operations.

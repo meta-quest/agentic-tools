@@ -1,7 +1,7 @@
 # In-App Purchases (IAP) API
 
 - **Unity Package**: com.meta.xr.sdk.platform
-- **Documentation**: https://developer.oculus.com/documentation/unity/ps-iap/
+- **Documentation**: https://developers.meta.com/horizon/documentation/unity/ps-iap/
 - **Namespace**: Oculus.Platform
 
 ## Overview

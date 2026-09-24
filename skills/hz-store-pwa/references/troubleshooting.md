@@ -77,7 +77,7 @@ keystore.
 **Cause:** The org has not signed the DDA.
 
 **Fix:** An org admin signs it once at
-`https://developer.oculus.com/manage/organizations/<ORG_ID>/legal-documents/`, then
+`https://developers.meta.com/horizon/manage/organizations/<ORG_ID>/legal-documents/`, then
 retry the same `ovr-platform-util` command. This is the most common first-time
 blocker.
 

@@ -1,4 +1,4 @@
-# Unity Project Setup for Meta Quest — Manual Reference
+# Unity Project Setup for Meta VR — Manual Reference
 
 > **You probably don't need this file.** The primary [unity-project.md](unity-project.md)
 > reference uses `metavr_unity_setup` to do everything below in one call. This
@@ -13,14 +13,12 @@
 > `metavr_unity_setup(action="inject", project_path="<absolute>")` does all of
 > this in <30s and a single Unity reload.
 
-The following steps are equivalent to what `metavr_unity_setup` does
-automatically. Use them only if the MCP tool isn't available or if you need
-to debug a specific configuration step.
+Most steps below mirror what `metavr_unity_setup` does automatically. The Android API-level recommendations are explicit policy settings that the tool does not configure, so verify them separately. Use this workflow only if the MCP tool isn't available or if you need to debug a specific configuration step.
 
 ## Step 1: Create the Unity Project
 
 1. Open Unity Hub and click **New Project**.
-2. Select the **3D (URP)** template. The Universal Render Pipeline is recommended for Quest because it provides the best balance of visual quality and performance on mobile hardware.
+2. Select the **3D (URP)** template. The Universal Render Pipeline is recommended for Meta VR because it provides the best balance of visual quality and performance on mobile hardware.
 3. Name your project and choose a location.
 4. Click **Create project**.
 
@@ -73,11 +71,13 @@ Company Name:         Your company name
 Product Name:         Your app name
 Package Name:         com.yourcompany.yourapp
 
-Minimum API Level:    Android 10.0 (API level 29)
-Target API Level:     Automatic (highest installed)
+Minimum API Level:    Android 12L (API level 32)
+Target API Level:     Android 14.0 (API level 34)
 Scripting Backend:    IL2CPP
 Target Architectures: ARM64 (uncheck ARMv7)
 ```
+
+These are current recommended defaults for a new immersive project, not permanent store-acceptance floors. Check `hz-store-submit` for the minimum store requirement, `hz-api-upgrade` for the current target range, and apply any stricter result from the Meta XR Project Setup Tool. Verify current documentation with `metavr docs search "target API"`.
 
 ### Color Space
 
@@ -86,7 +86,7 @@ Edit > Project Settings > Player > Other Settings
 Color Space: Linear
 ```
 
-Linear color space is required for correct lighting and post-processing on Quest.
+Linear color space is required for correct lighting and post-processing on Meta VR.
 
 ### Graphics API
 
@@ -98,7 +98,7 @@ Graphics APIs:
   2. OpenGLES3
 ```
 
-Vulkan is the primary rendering API for Quest and delivers better performance. Keep OpenGLES3 as a fallback.
+Vulkan is the primary rendering API for Meta VR and delivers better performance. Keep OpenGLES3 as a fallback.
 
 ### Quality Settings
 
@@ -131,7 +131,7 @@ Additional Lights:      Per Vertex (or disabled for performance)
 2. Select the OVRCameraRig and configure the **OVR Manager** component:
 
 ```
-Target Devices:         Quest 2, Quest 3, Quest Pro (select as needed)
+Target Devices:         Quest 2, Quest 3, Quest 3S, Quest Pro, Meta VR Glasses (select as needed)
 Tracking Origin Type:   Floor Level
 Hand Tracking Support:  Controllers and Hands (if using hand tracking)
 Passthrough Support:    Supported or Required (if using MR)

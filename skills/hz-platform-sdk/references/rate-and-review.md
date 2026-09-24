@@ -1,13 +1,13 @@
 # Rate and Review API
 
 - **Kotlin Package**: `horizon.platform.rateandreview`
-- **Documentation**: https://developers.meta.com/horizon/documentation/android-apps/ps-rate-and-review
+- **Documentation**: https://developers.meta.com/horizon/documentation/android-apps/ps-sdk-sample-rateandreview
 - **Minimum OS**: HzOS v201
 - **Maven Artifact**: `horizon-platform-sdk-rate-and-review-kotlin`
 
 ## Overview
 
-The Rate and Review API is part of the Horizon Platform SDK. It provides two operations for Meta Quest Android applications:
+The Rate and Review API is part of the Horizon Platform SDK. It provides two operations for Meta VR Android applications:
 
 1. **`canLaunchRateAndReview()`** -- Check whether the current user is eligible to be shown the rating and review UI
 2. **`rateAndReviewLauncher()`** -- Launch the system UI for soliciting a rating and review from the user

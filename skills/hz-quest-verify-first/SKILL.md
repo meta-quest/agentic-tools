@@ -12,8 +12,9 @@ description: >-
   in a Quest project (any reference to Oculus / Meta Quest / Horizon OS,
   Unity OVR or Meta XR packages, com.meta.* / com.oculus.* package IDs,
   Quest-targeted AndroidManifest, .meta files, or developers.meta.com /
-  developer.oculus.com URLs).
-allowed-tools: Bash(metavr:*) Bash(hzdb:*) Bash(npx:*)
+  developer.oculus.com URLs). Build paths: all; use this skill first whenever
+  the path is unknown or a Quest-specific claim is involved.
+allowed-tools: Bash(metavr:*), Bash(npx:*)
 ---
 
 # Verify First — Meta Quest Development
@@ -29,24 +30,25 @@ this section first so the rest makes sense.
   Android, ships on every Quest headset, and Meta updates it on its own
   cadence (separate from upstream Android). Many APIs are Horizon-OS-specific
   and have no analog in stock Android.
-- **metavr** ("Meta VR CLI") is a Rust CLI tool published by Meta as
-  `metavr` on npm. Invoke via `npx -y metavr <args>` —
-  no install required; `npx` always pulls the latest published version. It
-  wraps `adb` and Meta's developer APIs into higher-level commands for Quest
+- **metavr** ("Meta VR CLI") is a Rust CLI tool published by Meta as a
+  standalone binary and as `metavr` on npm. Invoke via `metavr <args>` (or
+  `npx -y metavr <args>` with no install; `npx` always pulls the latest
+  published version). It wraps `adb` and Meta's developer APIs into
+  higher-level commands for Meta VR
   device development: list devices, install apps, capture Perfetto traces,
-  search Meta Quest documentation, query 3D asset libraries, automate UI
-  interactions, etc. metavr is the primary action layer for Quest dev work —
+  search Meta VR documentation, query 3D asset libraries, automate UI
+  interactions, etc. metavr is the primary action layer for Meta VR dev work —
   the equivalent of what `gcloud` is for GCP or `git` is for source control.
 - **metavr MCP server** is a built-in mode of metavr that exposes a focused set of
   tools to AI coding agents over the Model Context Protocol. The relevant
   tools for this skill are:
-  - `meta_docs_search` — search the official Meta developer documentation
-  - `meta_docs_get_page` — fetch the full text of a specific docs page
-  - `device` — query and control connected Meta Quest headsets (list,
+  - `vr_docs_search` — search the official Meta developer documentation
+  - `vr_docs_get_page` — fetch the full text of a specific docs page
+  - `device` — query and control connected Meta VR Glasses and Meta Quest headsets (list,
     info, connect, reboot, battery, controllers, proximity, etc.)
   - `app` — query and manage installed apps (list, info, install,
     uninstall, launch, stop, clear)
-  - `files` — file ops on a connected headset (ls, push, pull, rm, mkdir)
+  - `files` — file ops on a connected Meta VR device (ls, push, pull, rm, mkdir)
   - `run` — catch-all for any metavr subcommand without a dedicated tool
     (perf, ovrmetrics, ui, audio, casting, window, unity, sideload, asset,
     config, …). Its JSON Schema is generated from clap so the available
@@ -57,7 +59,8 @@ this section first so the rest makes sense.
   Platform / Voice / Movement SDKs, Meta Spatial SDK (Kotlin / Android
   panels), IWSDK (Immersive Web SDK for WebXR), MRUK (Mixed Reality Utility
   Kit), Presence Platform, Horizon Platform SDK. These ship on their own
-  release cadences, separate from Quest OS.
+  release cadences, separate from Quest OS. Meta Spatial SDK is the immersive
+  Android/Kotlin path; it is not required for ordinary 2D Android panel apps.
 - **OVR vs Meta XR** — older Quest Unity content and most of the public web
   references the `OVR` namespace and the "Oculus Integration" Unity package.
   Both have been deprecated in favor of the Meta XR All-in-One SDK family.
@@ -112,21 +115,45 @@ the current task:
   rating, or distribution
 - The agent is about to write `adb` commands targeting a specific device
 - The agent is about to claim what is or isn't installed on the user's
-  headset
+  Meta VR device
 
 If you are not sure, the answer is YES — run the verification flow.
 
 ## The verification flow
 
-### Step 1 — Verify against authoritative documentation
+### Step 1 — Identify the build path
+
+Classify the project before choosing SDKs, docs scopes, or specialist skills:
+
+| Build path | Signals | Route to |
+|---|---|---|
+| Standard Android | Activities, Views, Compose, React Native, Expo, or an existing phone/tablet app rendered in a system panel | `hz-android-2d-porting`; `hz-react-native-expo` for React Native or Expo; `hz-new-project-creation` for a new app |
+| Meta Spatial SDK | `com.meta.spatial` dependencies or an immersive Kotlin/Android scene | `hz-spatial-sdk`; `hz-new-project-creation` for setup |
+| Unity | Unity project files or Meta XR Unity packages | `hz-unity-project-analyzer` for an existing project; `hz-unity-meta-core-sdk` for core SDK setup; `hz-new-project-creation` for a new app |
+| Unreal Engine | `.uproject` files, Unreal modules, or Meta XR Unreal plugins | `hz-new-project-creation` for a new app; otherwise no dedicated skill yet, so use Step 2 with `scope="unreal"`; use `hz-xr-simulator-install-and-configure` for simulation |
+| Native OpenXR | C/C++ or NDK application using the OpenXR loader directly | No dedicated skill yet; use Step 2 with `scope="native"`; use `hz-xr-simulator-install-and-configure` for simulation |
+| WebXR | Browser-delivered immersive content or IWSDK | `hz-iwsdk-webxr`; `hz-store-pwa` for PWA delivery; `hz-new-project-creation` for a new app |
+
+Do not add Meta Spatial SDK to a Standard Android app merely because it targets
+Quest. When signals overlap, classify in this order:
+
+1. `com.meta.spatial` dependency or Gradle plugin -> Meta Spatial SDK
+2. Unity project files -> Unity
+3. `.uproject` or Unreal modules -> Unreal Engine
+4. OpenXR loader used directly from C/C++ or the NDK -> Native OpenXR
+5. IWSDK or browser-delivered project -> WebXR
+6. Otherwise, an Android app using Activities, Views, Compose, React Native, or
+   Expo -> Standard Android
+
+### Step 2 — Verify against authoritative documentation
 
 Before writing or recommending anything Quest-specific, call the
-`meta_docs_search` MCP tool. If MCP is not available, use the equivalent
+`vr_docs_search` MCP tool. If MCP is not available, use the equivalent
 metavr CLI command `metavr docs search`.
 
 MCP:
 ```
-meta_docs_search(
+vr_docs_search(
   query="<the specific claim or API you are about to make>",
   scope="auto",   # or unity / unreal / spatial_sdk / android / native / web /
                   #    policy / distribution / design
@@ -140,7 +167,7 @@ metavr docs search "<query>"
 ```
 
 If you need exact wording (manifest entries, full API signatures, store
-policy text, code snippets), follow up with `meta_docs_get_page` on the
+policy text, code snippets), follow up with `vr_docs_get_page` on the
 `canonical_url` or `doc_path` returned by verify. **Never paraphrase a
 truncated snippet when correctness matters.**
 
@@ -149,7 +176,7 @@ CLI:
 metavr docs fetch "<canonical_url_or_path>"
 ```
 
-### Step 2 — Verify the user's actual environment
+### Step 3 — Verify the user's actual environment
 
 Before suggesting which device a command should target, claiming an app is
 installed, recommending an `adb` command, or writing install / launch /
@@ -173,11 +200,11 @@ metavr app info <package>
 metavr config list
 ```
 
-The user may have zero, one, or many headsets connected via USB and WiFi —
+The user may have zero, one, or many Meta VR devices connected via USB and WiFi —
 multiple Quest models, dev kits, sideloaded builds, pinned older Horizon OS
 versions. Your training data has zero visibility into this.
 
-### Step 3 — Discover metavr capabilities when unsure
+### Step 4 — Discover metavr capabilities when unsure
 
 If you do not know which metavr subcommand or `run` invocation fits the
 user's request, call `cli_help` (MCP) or `metavr --markdown-help` (CLI)
@@ -231,7 +258,7 @@ These are concrete, recurring failures that the verification flow prevents:
   implemented. Always verify against Meta's documentation, not the OpenXR
   spec.
 - **Wrong device targeted.** Recommending a `adb shell` command without
-  first listing devices, then watching it fail or hit the wrong headset.
+  first listing devices, then watching it fail or hit the wrong device.
 - **Store policy claims that are out of date.** Review requirements,
   rating buckets, and distribution rules update — verify before answering
   user questions about submission.
@@ -240,14 +267,14 @@ These are concrete, recurring failures that the verification flow prevents:
 
 Do not do any of these:
 
-- Answer a Meta Quest question without calling `meta_docs_search` first
+- Answer a Meta Quest question without calling `vr_docs_search` first
   because "you remember" the answer
 - Recommend an `adb shell` command without first calling
   `device(action="list")` to see what's connected
 - Guess a package name, namespace, or class name from training data when a
   verify call would resolve the ambiguity
 - Paraphrase a verify-result snippet for a manifest entry, API signature, or
-  store policy when exact wording is required (use `meta_docs_get_page`)
+  store policy when exact wording is required (use `vr_docs_get_page`)
 - Search the open web for Meta Quest documentation when authoritative Meta
   docs are one tool call away
 - Skip verification because "the docs probably say X" — verify, then say X
@@ -261,7 +288,7 @@ note. The user is paying for the verification step — show that it happened.
 
 ```
 Per the current Meta Spatial SDK docs (verified just now via
-meta_docs_search):
+vr_docs_search):
 
   <answer grounded in retrieved content>
 
@@ -274,15 +301,16 @@ verified-answer responses over from-memory ones.
 ## If the metavr MCP tools are not available
 
 If the agent host does not have the metavr MCP server installed, fall back to
-the metavr CLI invoked via `npx` (same authoritative backend, same content) and
-tell the user once how to install the MCP server for next time:
+the metavr CLI (same authoritative backend, same content; prefix with `npx -y`
+if you use the npm distribution instead of the standalone binary) and tell the
+user once how to install the MCP server for next time:
 
 ```bash
-npx -y metavr mcp install <your-tool>   # claude-code | cursor | claude-desktop | vscode | ...
-npx -y metavr mcp install project       # install at the repo root for this project only
+metavr mcp install <your-tool>   # claude-code | cursor | claude-desktop | vscode | ...
+metavr mcp install project       # install at the repo root for this project only
 ```
 
-The verify step is required, not optional — run it via `npx -y metavr docs search "<query>"` even on the very first question if the MCP server is not yet wired up.
+The verify step is required, not optional — run it via `metavr docs search "<query>"` even on the very first question if the MCP server is not yet wired up.
 
 ## Related skills
 
@@ -290,5 +318,13 @@ The verify step is required, not optional — run it via `npx -y metavr docs sea
 - `hz-vr-debug` — on-device debugging with logs and screenshots
 - `hz-perfetto-debug` — Perfetto trace analysis for jank / GPU / CPU bottlenecks
 - `hz-store-submit` — end-to-end Meta Horizon Store submission (includes store-readiness checks)
+- `hz-android-2d-porting` — adapting a Standard Android app for Horizon OS panels
+- `hz-react-native-expo` — React Native and Expo apps on the Standard Android path
+- `hz-new-project-creation` — build-path-specific setup for a new Android project
 - `hz-spatial-sdk` — Meta Spatial SDK API guidance
 - `hz-platform-sdk` — Horizon Platform SDK API guidance
+- `hz-xr-simulator-install-and-configure` — simulator installation and configuration for Unity, Unreal, and Native OpenXR projects
+- `hz-unity-project-analyzer` — inspect and classify an existing Unity project
+- `hz-unity-meta-core-sdk` — set up the Meta XR Core SDK in Unity
+- `hz-iwsdk-webxr` — build immersive WebXR experiences with IWSDK
+- `hz-store-pwa` — package and distribute a WebXR experience as a PWA

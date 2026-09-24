@@ -6,14 +6,14 @@
 
 ## Overview
 
-The Application API is part of the Horizon Platform SDK Unity package. It provides operations for Meta Quest Unity applications to query app versions, perform in-app self-updates, and launch other Quest apps:
+The Application API is part of the Horizon Platform SDK Unity package. It provides operations for Meta VR Unity applications to query app versions, perform in-app self-updates, and launch other Meta VR apps:
 
 1. **`Application.GetVersion()`** -- Get installed and latest available version info
 2. **`Application.StartAppDownload()`** -- Start downloading the latest update
 3. **`Application.CheckAppDownloadProgress()`** -- Poll download progress
 4. **`Application.CancelAppDownload()`** -- Cancel an in-progress download
 5. **`Application.InstallAppUpdateAndRelaunch(opts)`** -- Install update; exits and relaunches the app
-6. **`Application.LaunchOtherApp(appId, opts)`** -- Launch another Quest app with optional deeplink
+6. **`Application.LaunchOtherApp(appId, opts)`** -- Launch another Meta VR app with optional deeplink
 
 > For setup, initialization, and common patterns, see [common-setup.md](common-setup.md).
 
@@ -156,7 +156,7 @@ If the user doesn't have the target app installed, the platform **automatically 
 | `Application.CheckAppDownloadProgress()` | `Request<AppDownloadProgressResult>` | Poll download progress |
 | `Application.CancelAppDownload()` | `Request<AppDownloadResult>` | Cancel an in-progress download |
 | `Application.InstallAppUpdateAndRelaunch(opts)` | `Request<AppDownloadResult>` | Install update; exits and relaunches |
-| `Application.LaunchOtherApp(appId, opts)` | `Request<string>` | Launch another Quest app, with optional deeplink |
+| `Application.LaunchOtherApp(appId, opts)` | `Request<string>` | Launch another Meta VR app, with optional deeplink |
 
 ### `ApplicationVersion` Model
 
@@ -276,6 +276,6 @@ public class ApplicationHelper : MonoBehaviour
 
 ## Useful Links
 
-- [Meta Quest Application Documentation (Unity)](https://developer.oculus.com/documentation/unity/ps-application/)
-- [App-to-App Travel](https://developer.oculus.com/documentation/unity/ps-app-to-app-travel/)
-- [Meta Quest Developer Dashboard](https://developer.oculus.com/manage/)
+- [Meta VR Application Documentation (Unity)](https://developer.oculus.com/documentation/unity/ps-application/)
+- [App-to-App Travel](https://developers.meta.com/horizon/documentation/unity/ps-app-to-app-travel/)
+- [Meta Horizon Developer Dashboard](https://developers.meta.com/horizon/manage/)

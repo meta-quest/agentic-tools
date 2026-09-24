@@ -1,4 +1,4 @@
-# Unity Project Setup for Meta Quest
+# Unity Project Setup for Meta VR
 
 > **REQUIRED**: Use the `metavr_unity_setup` MCP tool to create the project.
 > **DO NOT** run Unity CLI (`Unity -createProject`) yourself.
@@ -12,7 +12,7 @@
 > cases where the MCP tool is genuinely unavailable (e.g. running outside an MCP-enabled agent).
 > If `metavr_unity_setup` is in your tool list, use it.
 
-This guide walks through creating a new Unity project configured for Meta Quest development using the `metavr_unity_setup` MCP tool.
+This guide walks through creating a new Unity project configured for Meta VR development using the `metavr_unity_setup` MCP tool.
 
 ## Requirements
 
@@ -24,7 +24,7 @@ This guide walks through creating a new Unity project configured for Meta Quest 
 ## Setup with metavr (single MCP call)
 
 `metavr` ships an MCP tool, `metavr_unity_setup`, that bootstraps a fresh Unity
-project and configures it end-to-end for Meta Quest. It detects the latest
+project and configures it end-to-end for Meta VR. It detects the latest
 installed Unity, fetches the URP-blank template manifest from
 `packages.unity.com` (no package versions hardcoded — Unity's UPM registry is
 the source of truth), writes the project skeleton, and queues the Simplified
@@ -86,17 +86,17 @@ After `SETUP COMPLETE`, finalize the build configuration:
 3. Set **Texture Compression** to **ASTC**.
 4. Click **Player Settings** to verify your company / product / package name.
 
-ASTC is the required texture compression format for Quest. Using ETC2 will
+ASTC is the required texture compression format for Meta VR. Using ETC2 will
 result in larger builds and worse visual quality.
 
 ## Step 7: Build and Deploy
 
 ### Using Unity Build and Run
 
-1. Connect your Quest via USB.
+1. Connect your Meta VR device via USB.
 2. In Build Settings, click **Build and Run**.
 3. Choose a filename for the APK.
-4. Unity will build, install, and launch the app on your Quest.
+4. Unity will build, install, and launch the app on your Meta VR device.
 
 ### Using metavr CLI
 
@@ -139,7 +139,7 @@ Assets/
 
 ## Scene Setup Checklist
 
-A minimal Quest-ready scene should contain:
+A minimal Meta VR-ready scene should contain:
 
 1. **OVRCameraRig** -- Replaces the default Main Camera. Provides head tracking, eye anchors, and controller/hand anchors.
 2. **OVRManager** -- Attached to the OVRCameraRig. Manages XR lifecycle, features, and tracking.

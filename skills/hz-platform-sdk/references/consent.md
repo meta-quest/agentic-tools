@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|-------|
 | **Kotlin Package** | `horizon.platform.consent` |
-| **Documentation** | https://developers.meta.com/horizon/documentation/android-apps/ps-consent |
+| **Documentation** | https://developers.meta.com/horizon/documentation/android-apps/ps-platform-sdk-consent |
 | **Minimum OS** | HzOS v83 |
 | **Maven Artifact** | `horizon-platform-sdk-consent-kotlin` |
 
@@ -11,7 +11,7 @@
 
 ## Overview
 
-The Consent API provides two operations for Meta Quest Android applications:
+The Consent API provides two operations for Meta VR Android applications:
 
 1. **`getConsentStatus()`** -- Check the current status of a specific consent for the user
 2. **`launchConsentIfRequired()`** -- Launch a consent flow UI if the user has not yet completed it

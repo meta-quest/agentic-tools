@@ -7,7 +7,7 @@
 
 ## Overview
 
-The IAP API is part of the Horizon Platform SDK. It provides five operations for Meta Quest Android applications:
+The IAP API is part of the Horizon Platform SDK. It provides five operations for Meta VR Android applications:
 
 1. **`getProductsBySku(skus)`** -- Retrieve detailed product information for a list of SKUs
 2. **`getViewerPurchases()`** -- Retrieve all purchases (consumable and non-consumable) made by the logged-in user
@@ -59,12 +59,29 @@ try {
 ```kotlin
 import horizon.platform.iap.Iap
 import horizon.platform.iap.IapException
+import horizon.core.android.common.pagination.PageFetchException
+import horizon.core.android.common.pagination.ext.initialPage
+import horizon.core.android.common.pagination.ext.nextPage
 import horizon.platform.iap.models.Purchase
+import kotlinx.coroutines.CoroutineScope
 
 val iap = Iap()
 
-try {
-    val purchases: List<Purchase> = iap.getViewerPurchases()
+suspend fun getAllViewerPurchases(iap: Iap, scope: CoroutineScope): List<Purchase> {
+    val results = iap.getViewerPurchases(scope)
+    results.initialPage()
+    val purchases = mutableListOf<Purchase>()
+    while (true) {
+        purchases += results.getFetchedPages().flatMap { it.contents }
+        if (!results.hasNextPage()) break
+        results.nextPage()
+    }
+    return purchases
+}
+
+suspend fun logViewerPurchases(scope: CoroutineScope) {
+  try {
+    val purchases = getAllViewerPurchases(iap, scope)
 
     for (purchase in purchases) {
         val sku = purchase.sku                       // SKU of the purchased product
@@ -74,12 +91,13 @@ try {
         val type = purchase.type                      // Optional: DURABLE, CONSUMABLE, or SUBSCRIPTION
     }
 
-} catch (e: IapException) {
+  } catch (e: PageFetchException) {
     // Handle error -- see Error Handling section
+  }
 }
 ```
 
-**Return type**: `List<Purchase>` -- All purchases (consumable and non-consumable) made by the logged-in user.
+**Return type**: `PagedResults<Purchase>` -- Fetch each page to retrieve all consumable and non-consumable purchases made by the logged-in user.
 
 #### Get Durable Purchases from Cache
 
@@ -356,14 +374,16 @@ Manage the full lifecycle of a consumable item: check ownership, consume, and al
 import horizon.platform.iap.Iap
 import horizon.platform.iap.IapException
 import horizon.platform.iap.enums.ProductType
+import horizon.core.android.common.pagination.PageFetchException
+import kotlinx.coroutines.CoroutineScope
 
-suspend fun useConsumableItem(sku: String): Boolean {
+suspend fun useConsumableItem(sku: String, scope: CoroutineScope): Boolean {
     val iap = Iap()
 
     // Step 1: Check if the user owns this consumable
     val purchases = try {
-        iap.getViewerPurchases()
-    } catch (e: IapException) {
+        getAllViewerPurchases(iap, scope)
+    } catch (e: PageFetchException) {
         return false
     }
 
@@ -392,14 +412,16 @@ Retrieve purchases with automatic fallback to the durable cache on failure.
 import horizon.platform.iap.Iap
 import horizon.platform.iap.IapException
 import horizon.platform.iap.models.Purchase
+import horizon.core.android.common.pagination.PageFetchException
+import kotlinx.coroutines.CoroutineScope
 
-suspend fun getOwnedPurchases(): List<Purchase> {
+suspend fun getOwnedPurchases(scope: CoroutineScope): List<Purchase> {
     val iap = Iap()
 
     // Try the primary API first (returns all purchases, always up-to-date)
     return try {
-        iap.getViewerPurchases()
-    } catch (e: IapException) {
+        getAllViewerPurchases(iap, scope)
+    } catch (e: PageFetchException) {
         // Fallback to durable cache (only non-consumable items, may be stale)
         try {
             iap.getViewerPurchasesDurableCache()
@@ -415,6 +437,7 @@ suspend fun getOwnedPurchases(): List<Purchase> {
 ```kotlin
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import horizon.core.android.common.pagination.PageFetchException
 import horizon.platform.iap.Iap
 import horizon.platform.iap.IapException
 import horizon.platform.iap.models.Product
@@ -458,12 +481,12 @@ class IapViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
-                val purchases = iap.getViewerPurchases()
+                val purchases = getAllViewerPurchases(iap, viewModelScope)
                 _uiState.value = _uiState.value.copy(
                     purchases = purchases,
                     isLoading = false,
                 )
-            } catch (e: IapException) {
+            } catch (e: PageFetchException) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = e.message ?: "Failed to load purchases",

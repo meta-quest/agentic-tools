@@ -1,19 +1,19 @@
 ---
 name: hz-store-submit
 license: Apache-2.0
-description: Guides end-to-end Meta Quest and Horizon OS app submission to the Meta Horizon Store — build validation, store-readiness checks, asset preparation, upload, and submission tracking. Use when preparing a Quest app for store publishing.
-allowed-tools: Bash(metavr:*) Bash(hzdb:*)
+description: "Guides end-to-end Meta VR and Horizon OS app submission to the Meta Horizon Store — build validation, store-readiness checks, asset preparation, upload, and submission tracking. Use when preparing a Meta VR app for store publishing. Build paths: all Meta VR app stacks; use hz-quest-verify-first if the build path is unclear."
+allowed-tools: Bash(metavr:*), Bash(hzdb:*)
 ---
 
 # Store Submission Skill
 
-Guide the end-to-end process of submitting a Meta Quest application to the Meta Horizon Store. This skill covers build validation, store-readiness checks, store asset preparation, upload, and submission tracking.
+Guide the end-to-end process of submitting a Meta VR application to the Meta Horizon Store. This skill covers build validation, store-readiness checks, store asset preparation, upload, and submission tracking.
 
 ## When to Use This Skill
 
 Use this skill when you need to:
 
-- Prepare a Quest app build for store submission
+- Prepare a Meta VR app build for store submission
 - Validate that an APK meets the Horizon Store's publishing requirements before uploading
 - Prepare and validate store listing assets (icons, screenshots, videos, descriptions)
 - Walk through the submission workflow on the developer dashboard
@@ -74,7 +74,7 @@ Required manifest elements:
 
 ### Performance Baseline
 
-Run the app on a Quest device and verify:
+Run the app on a Meta VR device and verify:
 
 - Maintains 72 Hz minimum frame rate (90 Hz recommended for Quest 3)
 - No thermal throttling warnings within the first 5 minutes of normal use
@@ -97,7 +97,7 @@ Run through the VRC checklist below for a detailed walkthrough. Key VRC categori
 
 - **Packaging** — Release-signed APK (APK Signature Scheme v2; v1-only is rejected), `targetSdkVersion >= 32` (2D panel apps: 34+), `minSdkVersion >= 29`, ARM64-only, a version code strictly higher than any previously uploaded build, and the `com.oculus.intent.category.VR` intent category declared in the launch activity.
 - **Functional** — No crashes or ANRs in any core flow (first-run setup, permission dialogs, rapid scene transitions, low-battery/thermal). Keep long network, IO, and asset work off the main thread.
-- **Performance** — Sustained 72 Hz on Quest 2 / 90 Hz on Quest 3, no thermal throttling within 5 minutes, interactive within 15 seconds of launch, and no memory leaks over an extended session.
+- **Performance** — Sustained 72 Hz on Quest 2 / 90 Hz on Quest 3 and Meta VR Glasses, no thermal throttling within 5 minutes, interactive within 15 seconds of launch, and no memory leaks over an extended session.
 - **Security / Permissions** — Declare only permissions the app actually uses; disallowed permissions cause automatic rejection *before* manual review. Remove telephony/SMS/contacts (`CALL_PHONE`, `SEND_SMS`, `READ_CONTACTS`), precise location (`ACCESS_FINE_LOCATION`), and unjustified `READ_EXTERNAL_STORAGE`; guard optional hardware with `hasSystemFeature()` and drop the matching `<uses-permission>` when unused. Audit the *merged* manifest (including third-party libraries) with `aapt dump permissions <app>.apk`. Paid apps must verify entitlement within 10 seconds of launch (no internet required) or they are auto-rejected. See the prohibited and review-required permission lists at `developers.meta.com/horizon/resources/permissions-prohibited/` and `.../permissions-review-required/`.
 - **Asset** — Store images meet the dimension and content specs in [Step 3](#step-3-asset-preparation), screenshots are real on-device captures (not editor views or mockups), text stays inside the inner 80% safe area of hero art, and the comfort rating matches the actual locomotion (Comfortable = stationary/teleport, Moderate = slow smooth locomotion with comfort options, Intense = fast movement).
 
@@ -153,18 +153,34 @@ The Meta Horizon Store requires specific assets for the store listing.
 
 ## Step 5: Upload
 
-Upload the signed release APK through the developer dashboard or via CLI:
+Upload the signed release APK through the Developer Dashboard or with the
+`metavr` CLI. The CLI handles build distribution to a release channel; it does
+**not** create the app, complete the store listing, answer policy questionnaires,
+or submit the app for review.
 
 ```bash
-# The dashboard upload is preferred for first submissions.
-# For subsequent builds, you can use the ovr-platform-util CLI:
-ovr-platform-util upload-quest-build --app-id <APP_ID> \
-  --app-secret <APP_SECRET> \
+# Find the app and inspect its release channels.
+metavr store dist apps --org <ORGANIZATION_ID>
+metavr store dist channels --app-id <APP_ID>
+
+# Uploads are drafts unless --publish is supplied.
+metavr store dist upload \
+  --app-id <APP_ID> \
+  --channel ALPHA \
   --apk path/to/release.apk \
-  --channel STORE
+  --notes "What changed in this build"
 ```
 
-After upload, verify the build appears in the dashboard with the correct version code and architecture.
+Use `ALPHA`, `BETA`, or `RC` while validating a build. `LIVE` maps to the store
+release channel, but uploading there still does not submit the listing for
+review. Use `--publish` only when you intend to publish the uploaded build to
+the selected channel immediately.
+
+The organization ID and app ID come from the Developer Dashboard. If any
+`metavr store dist` command exits non-zero or reports a server or GraphQL error,
+including an opaque `Invalid parameter` error, do not keep retrying IDs. Upload
+through the Dashboard instead. After upload, verify the build appears with the
+correct version code, signature, and architecture.
 
 ## Step 6: Submit for Review
 
@@ -172,6 +188,9 @@ After upload, verify the build appears in the dashboard with the correct version
 2. Verify all sections show green checkmarks
 3. Address any errors or warnings displayed at the top of the page
 4. Click **Submit for Review**
+
+This step is Dashboard-only. Do not tell the developer that a successful CLI
+upload completes store submission.
 
 Plan for a review period of approximately **1-2 weeks**. Submit at least 2 weeks before your target launch date.
 

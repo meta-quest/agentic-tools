@@ -1,12 +1,14 @@
 ---
 name: hz-unity-fbx-import
 license: Apache-2.0
-description: Ensures complete FBX URLs or absolute paths are used when importing external 3D models into Unity projects targeting Meta Quest and Horizon OS. Use when adding FBX files, 3D models, or external assets.
+description: Ensures complete FBX URLs or absolute paths are used when importing external 3D models into Unity projects targeting Meta VR and Horizon OS. Use when adding FBX files, 3D models, or external assets.
 ---
 
 # Unity FBX Import with Full URLs
 
-This skill ensures that when importing external 3D models (FBX files) into Unity using the Unity MCP `Unity_ImportExternalModel` tool, full and complete URLs are always provided, preventing import failures due to incomplete paths.
+Importing an external 3D model fails most often for one reason: an incomplete source path. This skill
+ensures every FBX source is a **complete, fully-qualified URL or absolute filesystem path**, and walks
+the import through `unity-cli`.
 
 ## When to use this skill
 
@@ -15,13 +17,16 @@ Use this skill automatically whenever:
 - Adding 3D models to the Unity project
 - Loading assets from URLs or file paths
 - User mentions: "import model", "add FBX", "load 3D asset", "bring in model"
-- Using the `Unity_ImportExternalModel` tool from Unity MCP
 
 ## Core principle
 
-**ALWAYS use complete, fully-qualified URLs for FBX files.**
+**ALWAYS use complete, fully-qualified URLs or absolute paths for FBX files.**
 
-Never use relative paths, partial URLs, or assume path completion. The `FbxUrl` parameter must be a complete URL or absolute file path.
+Never use relative paths, partial URLs, or assume path completion.
+
+**`unity command import_asset` takes an absolute *filesystem* path — it does not download.** Verified:
+passing a URL fails with *"Source file 'https://…' does not exist."* So a remote model is always two
+steps: download to disk, then import the local file.
 
 ## Instructions
 
@@ -46,12 +51,10 @@ When a user requests to import a model, determine the source:
 
 3. **ZIP archive**:
    - Can be URL or local path
-   - Must contain an FBX file inside
+   - Must contain an FBX file inside — extract before importing
    - Example: `https://example.com/assets.zip`
 
-### Step 2: Validate the URL format
-
-Before calling `Unity_ImportExternalModel`, verify the URL:
+### Step 2: Validate the source format
 
 **CRITICAL**: For URLs with query parameters (like `?token=...&auth=...`), you MUST include the ENTIRE URL including all parameters. Query parameters often contain authentication tokens required for download.
 
@@ -60,7 +63,6 @@ Valid examples:
 - `https://cdn.example.com/models/chair.fbx?token=abc123&auth=xyz789` (with query params)
 - `https://scontent.fbcdn.net/model.fbx?_nc_gid=xxx&_nc_oc=yyy&oh=zzz` (Meta CDN with auth)
 - `http://localhost:8000/models/character.fbx`
-- `file:///C:/Users/name/Downloads/robot.fbx`
 - `C:/Projects/Models/tree.fbx` (Windows absolute)
 - `/home/user/assets/car.fbx` (Unix absolute)
 - `https://github.com/user/repo/releases/download/v1.0/model.zip`
@@ -72,77 +74,86 @@ Invalid examples (never use these):
 - `../assets/model.fbx` (relative path)
 - `model.fbx` (no path at all)
 
-### Step 3: Get required parameters
+### Step 3: Download remote sources to disk
 
-The `Unity_ImportExternalModel` tool requires:
+Skip this step for a local file. **Quote the URL** so the shell doesn't split on `&` in query
+parameters — the single most common cause of a truncated, failing download.
 
-1. **Name** (required):
-   - Simple identifier (single word, no spaces)
-   - Use alphanumeric characters and underscores/hyphens
-   - Example: `office_chair`, `character_01`, `tree_oak`
+```bash
+# macOS / Linux
+curl -fSL "https://example.com/models/office_chair.fbx" -o /tmp/office_chair.fbx
 
-2. **FbxUrl** (required):
-   - **MUST be a complete, full URL or absolute path**
-   - No relative paths allowed
-   - Include protocol for remote URLs (`http://`, `https://`)
-
-3. **Height** (required):
-   - Desired height in Unity units (meters)
-   - Reasonable values: 0.1 to 10.0 for most objects
-   - Example: 1.8 for human-sized character, 2.0 for chair
-
-4. **AlbedoTextureUrl** (optional):
-   - Full URL to texture file (same rules as FbxUrl)
-   - Can be local file or remote URL
-   - Common formats: `.png`, `.jpg`, `.jpeg`
-
-### Step 4: Call Unity_ImportExternalModel with full URL
-
-Use the Unity MCP tool with complete parameters:
-
-```json
-{
-  "Name": "office_chair",
-  "FbxUrl": "https://example.com/models/office_chair.fbx",
-  "Height": 1.0,
-  "AlbedoTextureUrl": "https://example.com/textures/chair_diffuse.png"
-}
+# Windows (PowerShell)
+Invoke-WebRequest -Uri "https://example.com/models/office_chair.fbx" -OutFile "$env:TEMP\office_chair.fbx"
 ```
 
-**Never omit the protocol or use partial paths.**
+Confirm the file exists and is non-empty before importing. A truncated or HTML error page saved as
+`.fbx` imports as a broken asset rather than failing loudly.
 
-### Step 5: Handle the import result
+For a `.zip`, extract it first and locate the `.fbx` inside; import that.
 
-After calling `Unity_ImportExternalModel`:
+### Step 4: Import the file
 
-1. **Check for success**:
-   - Tool returns `success: true` if import succeeded
-   - Result includes GameObject and Prefab information
-   - Note the bounds (size and center) for placement
+```bash
+unity status --format json          # look for state "ready"
 
-2. **Extract important data**:
-   - GameObject instance ID and name
-   - Prefab path for reuse
-   - World size and center (for placement operations)
+# Validate first — reports what would be imported, writes nothing
+unity command import_asset --source "C:/Users/name/Downloads/office_chair.fbx" \
+  --path "Assets/Models/office_chair.fbx" --dry_run true --format json
 
-3. **Report to user**:
-   - Confirm successful import
-   - Show the GameObject name and prefab path
-   - Mention the size and position
-   - Suggest next steps (placement, scaling, etc.)
-
-### Step 6: Use with unity-placement skill
-
-After importing, use the bounds information with the `unity-placement` skill for proper positioning:
-
+# Then import for real
+unity command import_asset --source "C:/Users/name/Downloads/office_chair.fbx" \
+  --path "Assets/Models/office_chair.fbx" --format json
 ```
-The imported model has:
-- Size: [width, height, depth]
-- Center: [x, y, z]
-- Prefab: Assets/Prefabs/name.prefab
 
-Consider the size when placing relative to other objects.
+- `--source` is an **absolute filesystem path** to the external file.
+- `--path` is the destination **relative to the authoring root** (usually `Assets/`), including the
+  extension. The `Assets/` prefix is optional.
+- `--confirm true` is required only when overwriting an existing asset at the destination.
+- `--dry_run true` validates and reports without writing — use it whenever the source came from a user.
+
+Connecting, `--project-path`, and Safe Mode recovery are in the **`unity-cli`** skill.
+
+### Step 5: Set scale and rig type
+
+`import_asset` copies and imports the file at its authored scale. Unlike a one-shot "import at height
+H" tool, normalizing size is a separate step:
+
+```bash
+unity command set_import_settings --asset "Assets/Models/office_chair.fbx" \
+  --settings '{"globalScale": 0.46, "useFileScale": false}' --format json
 ```
+
+Compute `globalScale` as `targetHeight / currentHeight`. For a humanoid rig also set
+`animationType` to Humanoid. See **`hz-unity-meta-movement-sdk-retargeting`** for why an oversized rig
+causes skewing, and for the `ModelImporter` fields involved.
+
+### Step 6: Instantiate, then get real bounds
+
+```bash
+unity command instantiate_prefab --prefab "Assets/Models/office_chair.fbx" --name office_chair --format json
+unity command save_scene --format json
+```
+
+Then read the actual bounds — **never assume the model's size**. `bounds` is a computed property, so
+`get_component_properties` will not give it to you (a `MeshRenderer` read returns `m_Materials`,
+`m_CastShadows` and friends, no bounds). An imported FBX also puts its renderers on **children** of
+the instantiated root, so use `GetBounds.cs` from the **`unity-placement`** skill, which unions the
+child renderers' bounds:
+
+```bash
+unity command run_script --file AgentScripts/GetBounds.cs --entry GetBounds.Run \
+  --args '[["office_chair"]]' --format json
+```
+
+Report the size and center to the user, and use them for any subsequent positioning.
+
+### Step 7: Report to user
+
+- Confirm successful import
+- Show the asset path and the instantiated GameObject name
+- Show the measured size and center
+- Suggest next steps (placement, scaling, material assignment)
 
 ## Handling user-provided paths
 
@@ -185,85 +196,69 @@ What is the full path?"
 
 ## Best practices
 
-1. **Always verify URL format** before calling `Unity_ImportExternalModel`
+1. **Always verify the source format** before downloading or importing
 2. **Never assume paths** - always use what's explicitly provided or ask for clarification
 3. **Prefer absolute paths** over any form of relative path
 4. **Include protocol** for all remote URLs (http://, https://)
-5. **Validate file extension** - must be .fbx or .zip
-6. **Use simple names** - alphanumeric with underscores/hyphens only
-7. **Set reasonable heights** - 0.1 to 10.0 for most objects
-8. **Check import results** - verify success and extract bounds data
-9. **Coordinate with unity-placement** - use bounds for subsequent positioning
+5. **Quote URLs in the shell** so `&` in query parameters isn't treated as a job separator
+6. **Validate file extension** - must be .fbx or .zip
+7. **Use `--dry_run true` first** for any user-supplied source
+8. **Verify the download** is non-empty before importing
+9. **Measure bounds after instantiation** - never guess model size
+10. **Coordinate with unity-placement** - use measured bounds for positioning
+11. **Spot-check on device** - after a clean import, deploy and pull `metavr capture screenshot` to confirm the model looks right in-headset, not just in the Editor
 
 ## Error prevention checklist
 
-Before calling `Unity_ImportExternalModel`, verify:
+Before importing, verify:
 
-- [ ] `FbxUrl` is a complete URL or absolute path
+- [ ] Source is a complete URL or absolute path
 - [ ] URL includes protocol if remote (http:// or https://)
 - [ ] **ALL query parameters are included** (everything after ? in the URL)
+- [ ] URL is quoted in the shell command
 - [ ] Path is absolute if local (starts with C:/ or /)
 - [ ] No relative path components (no ../ or ./)
 - [ ] No tilde expansion (no ~/)
 - [ ] Filename ends with .fbx or .zip (query params can follow)
-- [ ] `Name` parameter is a simple identifier (no spaces)
-- [ ] `Height` is a reasonable positive number
-- [ ] `AlbedoTextureUrl` (if provided) is also a full URL/path with all params
+- [ ] Remote sources downloaded to disk first, and the file is non-empty
+- [ ] `--path` destination includes the extension
+- [ ] `--confirm true` supplied if overwriting an existing asset
+- [ ] Scale normalized via `set_import_settings` if the model isn't authored at real-world size
 
-## Fallback: When Unity_ImportExternalModel is unavailable
+## Alternative: the MCP one-shot importer
 
-If `Unity_ImportExternalModel` is not available but other Unity MCP tools (like `Unity_RunCommand`) are working, there are two options.
-
-### Option A: Enable the tool in Unity
-
-Tell the user:
-
-"The `Unity_ImportExternalModel` tool is not currently enabled. To enable it:
-1. In Unity, go to **Project Settings -> AI -> Unity MCP Server**
-2. Under the **Core** section, toggle on `Unity_ImportExternalModel`
-3. The tool will become available immediately — no restart needed."
-
-### Option B: Manual import via Unity_RunCommand
-
-If the user cannot or does not want to enable the tool, read `FALLBACK_MANUAL_IMPORT.md` (next to this file) for a step-by-step guide to replicate the import pipeline using `Unity_RunCommand`, based on the reference implementation in the `com.unity.ai.assistant` package.
+A Unity MCP server with the Meta Unity extension exposes `Unity_ImportExternalModel`, which downloads,
+imports, normalizes height, assigns a texture, and creates a prefab in a single call. There is no
+command-catalog equivalent, so it is only reachable over MCP — see
+[references/unity-mcp-fallback.md](references/unity-mcp-fallback.md) for its parameters, the setting
+that enables it, and a manual `Unity_RunCommand` reimplementation.
 
 ## Quick reference
 
-### Required format for FbxUrl
+### Required format for the source
 
-| Source Type | Format | Example |
-|------------|--------|---------|
-| Remote HTTPS | `https://domain/path/file.fbx` | `https://cdn.example.com/models/chair.fbx` |
-| Remote HTTP | `http://domain/path/file.fbx` | `http://localhost:8000/model.fbx` |
-| Local Windows | `C:/path/to/file.fbx` | `C:/Users/name/Downloads/robot.fbx` |
-| Local Mac/Linux | `/path/to/file.fbx` | `/home/user/models/tree.fbx` |
-| ZIP archive | Same as above with `.zip` | `https://example.com/pack.zip` |
+| Source Type | Format | Example | Needs download first? |
+|------------|--------|---------|---|
+| Remote HTTPS | `https://domain/path/file.fbx` | `https://cdn.example.com/models/chair.fbx` | Yes |
+| Remote HTTP | `http://domain/path/file.fbx` | `http://localhost:8000/model.fbx` | Yes |
+| Local Windows | `C:/path/to/file.fbx` | `C:/Users/name/Downloads/robot.fbx` | No |
+| Local Mac/Linux | `/path/to/file.fbx` | `/home/user/models/tree.fbx` | No |
+| ZIP archive | Same as above with `.zip` | `https://example.com/pack.zip` | Yes, plus extract |
 
 ## Integration with other skills
 
-### With unity-placement
-
-After importing, use the returned bounds with `unity-placement`:
-
-```
-Imported model "robot_character":
-- Size: [0.6, 1.8, 0.4]
-- Center: [0, 0.9, 0]
-- Prefab: Assets/Prefabs/robot_character.prefab
-
-To place this robot on the platform:
-[Use unity-placement skill with the size data]
-```
+- **unity-placement**: use the measured bounds for positioning after import.
+- **hz-unity-meta-movement-sdk-retargeting**: import scale and Humanoid rig type for character models.
+- **unity-cli**: connecting to an Editor, `--project-path`, Safe Mode recovery.
 
 ## Remember
 
-The Unity MCP `Unity_ImportExternalModel` tool requires **complete, absolute URLs or paths**. When in doubt:
+Import failures are almost always a path problem. When in doubt:
 
 1. Ask the user for the complete path
-2. Verify the URL format before calling the tool
-3. Include the protocol for remote URLs
-4. Use absolute paths for local files
-5. Never guess or auto-complete partial paths
-6. Never use relative paths or tilde expansion
-
-**Goal**: Prevent import failures by ensuring every `FbxUrl` parameter is a valid, complete, fully-qualified URL or absolute file path.
+2. Verify the format before downloading
+3. Include the protocol for remote URLs, and quote the whole URL
+4. Download remote files to disk before `import_asset` — it does not fetch URLs
+5. Use absolute paths for `--source`
+6. Never guess or auto-complete partial paths
+7. Never use relative paths or tilde expansion

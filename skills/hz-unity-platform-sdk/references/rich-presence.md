@@ -180,5 +180,5 @@ public class PresenceManager : MonoBehaviour
 ## Useful Links
 
 - [Group Presence Documentation (recommended replacement)](https://developers.meta.com/horizon/documentation/unity/ps-group-presence-overview/)
-- [Meta Quest Developer Dashboard](https://developer.oculus.com/manage/)
-- [Platform SDK Overview](https://developer.oculus.com/documentation/unity/ps-platform-intro/)
+- [Meta Horizon Developer Dashboard](https://developers.meta.com/horizon/manage/)
+- [Platform SDK Overview](https://developers.meta.com/horizon/documentation/unity/ps-platform-intro/)

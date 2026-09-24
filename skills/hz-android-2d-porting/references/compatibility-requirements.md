@@ -8,7 +8,7 @@ Horizon OS is based on Android (AOSP) and supports:
 - **Target SDK**: API 34 or higher for all new 2D panel apps
 - **Maximum SDK**: Current AOSP level supported by the latest Horizon OS release
 
-Apps targeting API levels below 29 will not install on Quest devices.
+Apps targeting API levels below 29 will not install on Meta VR devices.
 
 ```kotlin
 // build.gradle.kts
@@ -26,18 +26,18 @@ All 2D apps submitted to the Horizon Store must meet these requirements:
 
 ### Visual Requirements
 
-- App must render correctly in a floating panel over passthrough or virtual environments
-- UI elements must be legible at Quest panel DPI (~density 2.0)
+- App must render correctly in a floating panel; panel backgrounds are opaque
+- UI elements must be legible at Meta VR panel DPI (~density 2.0)
 - Avoid pure black backgrounds when possible -- they make the panel boundary hard to perceive against dark environments
 - Minimum text size: 14sp for body text, 12sp for captions
 - Sufficient contrast ratios (WCAG AA minimum: 4.5:1 for body text)
 
 ### Functional Requirements
 
-- App must launch without crashing on supported Quest devices
+- App must launch without crashing on supported Meta VR devices
 - App must be usable with controller pointer input (no touch-only interactions)
 - App must handle panel resizing gracefully (no hard-coded dimensions)
-- App must not request permissions for hardware that does not exist on Quest (or must gracefully degrade)
+- App must not request permissions for hardware that does not exist on target Meta VR devices (or must gracefully degrade)
 - Back button / system gesture must work correctly to navigate or exit
 
 ### Performance Requirements
@@ -84,17 +84,14 @@ fun MyScreen() {
 - **Web**: WebView (Chromium-based), Custom Tabs
 - **Background**: WorkManager, Foreground Services, AlarmManager
 - **Image**: Glide, Coil, Picasso
+- **Cross-platform**: React Native and other frameworks that produce a standard Android app
 
 ### Restricted or Unavailable
 
-These APIs are not available or have limited functionality on Quest:
+These APIs are not available or have limited functionality on Meta VR devices:
 
 ```kotlin
 // Check for feature availability before using restricted APIs
-fun isCameraAvailable(context: Context): Boolean {
-    return context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
-}
-
 fun isTelephonyAvailable(context: Context): Boolean {
     return context.packageManager.hasSystemFeature(PackageManager.FEATURE_TELEPHONY)
 }
@@ -102,7 +99,6 @@ fun isTelephonyAvailable(context: Context): Boolean {
 
 | API / Feature | Status | Alternative |
 |---|---|---|
-| CameraX / Camera2 | Not available in 2D mode | Use passthrough APIs via Spatial SDK |
 | TelephonyManager | Not available | Not applicable |
 | SmsManager | Not available | Not applicable |
 | NfcManager | Not available | Not applicable |
@@ -113,32 +109,19 @@ fun isTelephonyAvailable(context: Context): Boolean {
 | Firebase Cloud Messaging | Not available | Meta push notifications or polling |
 | ARCore | Not available | Meta Spatial SDK |
 
-### Graceful Degradation Pattern
+### Horizon OS and Feature Checks
 
-Always check for feature availability rather than assuming it exists:
+Use the Horizon OS system feature when behavior must differ by platform. Check individual Android hardware features separately when an optional feature actually needs them:
 
 ```kotlin
-class FeatureChecker(private val context: Context) {
+private const val HORIZON_OS_FEATURE = "horizonos.software.horizon_os"
 
-    fun checkRequiredFeatures(): List<String> {
-        val missingFeatures = mutableListOf<String>()
-
-        if (!context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
-            missingFeatures.add("Camera")
-        }
-        if (!context.packageManager.hasSystemFeature(PackageManager.FEATURE_TELEPHONY)) {
-            missingFeatures.add("Telephony")
-        }
-
-        return missingFeatures
-    }
-
-    fun isRunningOnQuest(): Boolean {
-        return Build.MANUFACTURER.equals("Meta", ignoreCase = true) ||
-               Build.MANUFACTURER.equals("Oculus", ignoreCase = true)
-    }
+fun isRunningOnHorizonOs(context: Context): Boolean {
+    return context.packageManager.hasSystemFeature(HORIZON_OS_FEATURE)
 }
 ```
+
+Do not infer the platform from `Build.MANUFACTURER`; that is not the supported Horizon OS detection mechanism.
 
 ## Required Manifest Entries
 
@@ -150,7 +133,7 @@ At minimum, a Horizon OS-targeted app must include:
     <!-- Target Meta Quest devices -->
     <meta-data
         android:name="com.oculus.supportedDevices"
-        android:value="quest3|quest2|questpro" />
+        android:value="quest2|questpro|quest3|quest3s" />
 
     <!-- Indicate this is a 2D panel app (not immersive VR) -->
     <meta-data
@@ -185,7 +168,7 @@ Ported 2D apps often carry permissions inherited from their original Android bui
 1. Audit your `AndroidManifest.xml`, including merged manifests from all libraries and build plugins
 2. Check the prohibited permissions list: https://developers.meta.com/horizon/resources/permissions-prohibited/
 3. Check the review-required permissions list: https://developers.meta.com/horizon/resources/permissions-review-required/
-4. Guard any optional hardware features with `hasSystemFeature()` checks (see the Graceful Degradation Pattern above) and remove the corresponding `<uses-permission>` entries if the feature is not needed on Quest
+4. Guard optional hardware features with their Android `hasSystemFeature()` constants and remove the corresponding `<uses-permission>` entries if the feature is not needed on Meta VR devices
 
 > **Warning — Third-party libraries and SDKs**: Android library dependencies frequently add permissions to the merged manifest without any declaration in your own AndroidManifest.xml. Always inspect the final merged manifest before submission.
 
@@ -194,17 +177,6 @@ To see every permission in your release APK:
 ```bash
 aapt dump permissions your-app.apk
 ```
-
-## Compatibility Mode
-
-Apps that do not include Horizon OS-specific manifest entries run in **compatibility mode**:
-
-- The app is rendered in a fixed-size panel that simulates a phone screen
-- Panel resizing is restricted
-- Input is translated from controller pointer to basic touch events
-- The app icon appears in the "Unknown Sources" section (sideloaded apps) or in a compatibility wrapper
-
-To exit compatibility mode and gain full panel features, add the `com.oculus.supportedDevices` and `com.oculus.application_type` manifest entries described above.
 
 ## Entitlement Check
 
@@ -226,7 +198,7 @@ import horizon.platform.entitlements.Entitlements
 import horizon.platform.entitlements.EntitlementsException
 
 class MainActivity : AppCompatActivity() {
-    private val APPLICATION_ID = "<your-app-id>" // from Meta Quest Developer Dashboard
+    private val APPLICATION_ID = "<your-app-id>" // from Meta Horizon Developer Dashboard
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -242,7 +214,7 @@ class MainActivity : AppCompatActivity() {
                 // Must inform the user why the app is closing before calling finish()
                 Toast.makeText(
                     this@MainActivity,
-                    "This app must be purchased from the Meta Quest Store.",
+                    "This app must be purchased from the Horizon Store.",
                     Toast.LENGTH_LONG
                 ).show()
                 finish()
@@ -279,4 +251,4 @@ Before submitting to the Horizon Store:
 6. **Performance**: Must meet frame rate and memory benchmarks on the lowest supported device
 7. **Accessibility**: Recommended to support TalkBack and sufficient contrast ratios
 
-Submit via the [Meta Quest Developer Dashboard](https://developer.meta.com/horizon/) after completing all requirements.
+Submit via the [Meta Horizon Developer Dashboard](https://developer.meta.com/horizon/) after completing all requirements.

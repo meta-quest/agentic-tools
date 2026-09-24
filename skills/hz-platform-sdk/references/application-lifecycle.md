@@ -1,7 +1,7 @@
 # Application Lifecycle API
 
 - **Kotlin Package**: `horizon.platform.applicationlifecycle`
-- **Documentation**: https://developers.meta.com/horizon/documentation/android-apps/ps-application-lifecycle
+- **Documentation**: https://developers.meta.com/horizon/documentation/android-apps/ps-platform-sdk-application-lifecycle
 - **Minimum OS**: HzOS v78
 - **Maven Artifact**: `horizon-platform-sdk-application-lifecycle-kotlin`
 
@@ -9,7 +9,7 @@
 
 ## Overview
 
-The Application Lifecycle API is part of the Horizon Platform SDK. It provides three operations for Meta Quest Android applications:
+The Application Lifecycle API is part of the Horizon Platform SDK. It provides three operations for Meta VR Android applications:
 
 1. **`launchIntentChanged()`** -- Subscribe to an event that fires when a launch intent is received (cold or warm start)
 2. **`getLaunchDetails()`** -- Retrieve details about how the application was started, including launch type, deeplink message, destination, and session IDs

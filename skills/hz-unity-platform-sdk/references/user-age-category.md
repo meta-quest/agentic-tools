@@ -1,7 +1,7 @@
 # User Age Category API
 
 - **Unity Package**: `com.meta.xr.sdk.platform`
-- **Documentation**: https://developer.oculus.com/documentation/unity/ps-get-age-category-api/
+- **Documentation**: https://developers.meta.com/horizon/documentation/unity/ps-get-age-category-api/
 - **Namespace**: `Oculus.Platform`
 
 ## Overview
@@ -208,6 +208,6 @@ public class AgeGateManager : MonoBehaviour
 
 ## Useful Links
 
-- [Meta Quest User Age Category Documentation (Unity)](https://developer.oculus.com/documentation/unity/ps-get-age-category-api/)
-- [Meta Quest Developer Dashboard](https://developer.oculus.com/manage/)
-- [Platform SDK Overview](https://developer.oculus.com/documentation/unity/ps-platform-intro/)
+- [Meta VR User Age Category Documentation (Unity)](https://developers.meta.com/horizon/documentation/unity/ps-get-age-category-api/)
+- [Meta Horizon Developer Dashboard](https://developers.meta.com/horizon/manage/)
+- [Platform SDK Overview](https://developers.meta.com/horizon/documentation/unity/ps-platform-intro/)

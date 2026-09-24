@@ -1,463 +1,137 @@
-# Android / Spatial SDK Project Setup for Meta Quest
+# Standard Android Project Setup for Meta VR
 
-This guide walks through creating a new Android project using Meta Spatial SDK for Quest, from installation through first deployment.
+Use this path for a new 2D Android app that should run in a normal resizable
+Horizon OS panel. It uses the standard Android application model; Meta Spatial
+SDK is not required.
 
-## Requirements
+## Create the project
 
-- **Android Studio**: Hedgehog (2023.1.1) or newer
-- **Meta Horizon Android Studio Plugin**: For templates and tooling
-- **JDK 17**: Required for Gradle builds
-- **Kotlin**: 1.8+ (Spatial SDK uses Kotlin as primary language)
-- **Meta Spatial SDK**: Added via Maven dependencies
-- **metavr CLI**: For deploying and testing on device
+The fastest supported route is the Meta Horizon Android Studio Plugin:
 
-## Step 1: Install Android Studio and the Meta Plugin
+1. Install Android Studio and the
+   [Meta Horizon Android Studio Plugin](https://plugins.jetbrains.com/plugin/26861-meta-horizon).
+2. In Android Studio, choose **File > New > New Horizon OS Project**.
+3. Choose Kotlin and Jetpack Compose unless the project has a reason to use
+   classic Views.
+4. Set a stable application ID before the first install.
 
-1. Download and install [Android Studio](https://developer.android.com/studio) Hedgehog or newer.
-2. Open **Settings > Plugins > Marketplace**.
-3. Search for **Meta Horizon** and install the **Meta Horizon OS Developer Hub** or **Meta Spatial Editor** plugin.
-4. Restart Android Studio.
+If you start from Android Studio's normal Empty Activity template instead, keep
+the standard Gradle layout and add only the Horizon OS manifest configuration
+your app needs.
 
-### Install Android SDK Components
+## Gradle setup
 
-In **Settings > Languages & Frameworks > Android SDK**:
-
-```
-SDK Platforms:
-  Android 14 (API 34)    -- Target SDK
-  Android 10 (API 29)    -- Minimum SDK
-
-SDK Tools:
-  Android SDK Build-Tools (latest)
-  Android SDK Command-line Tools
-  Android SDK Platform-Tools
-  NDK (if using native code)
-```
-
-## Step 2: Create the Project
-
-### Option A: From Spatial SDK Template (Recommended)
-
-If the Meta Horizon plugin is installed:
-
-1. Open **File > New > New Project**.
-2. Select the **Meta Spatial SDK** template from the list.
-3. Configure the project:
-   - **Name**: Your app name
-   - **Package name**: `com.yourcompany.yourapp`
-   - **Minimum SDK**: API 29
-   - **Language**: Kotlin
-4. Click **Finish**.
-
-### Option B: Add Spatial SDK to an Existing Project
-
-If starting from a standard Android project, add Spatial SDK manually.
-
-## Step 3: Gradle Configuration
-
-### Project-Level `build.gradle.kts`
-
-```kotlin
-// build.gradle.kts (Project)
-plugins {
-    id("com.android.application") version "8.2.0" apply false
-    id("org.jetbrains.kotlin.android") version "1.9.22" apply false
-    // Meta Spatial SDK Gradle plugin
-    id("com.meta.spatial.plugin") version "0.5.0" apply false
-}
-```
-
-### App-Level `build.gradle.kts`
-
-```kotlin
-// app/build.gradle.kts
-plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("com.meta.spatial.plugin")
-}
-
-android {
-    namespace = "com.yourcompany.yourapp"
-    compileSdk = 34
-
-    defaultConfig {
-        applicationId = "com.yourcompany.yourapp"
-        minSdk = 29
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
-    }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-}
-
-dependencies {
-    // Meta Spatial SDK core
-    implementation("com.meta.spatial:spatial-sdk-core:0.5.0")
-
-    // Meta Spatial SDK panels (for 2D UI panels)
-    implementation("com.meta.spatial:spatial-sdk-panel:0.5.0")
-
-    // Meta Spatial SDK interaction (hand/controller interaction)
-    implementation("com.meta.spatial:spatial-sdk-interaction:0.5.0")
-
-    // Meta Spatial SDK audio (spatial audio)
-    implementation("com.meta.spatial:spatial-sdk-audio:0.5.0")
-
-    // Kotlin coroutines for async operations
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-}
-```
-
-### `settings.gradle.kts`
+Use the normal Android repositories.
 
 ```kotlin
 // settings.gradle.kts
 pluginManagement {
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-        // Meta Spatial SDK Maven repository
-        maven("https://npm.pkg.github.com/nickalcala/meta-spatial-sdk")
-    }
+  repositories {
+    google()
+    mavenCentral()
+    gradlePluginPortal()
+  }
 }
 
-dependencyResolution {
-    repositories {
-        google()
-        mavenCentral()
-        maven("https://npm.pkg.github.com/nickalcala/meta-spatial-sdk")
-    }
+dependencyResolutionManagement {
+  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+  repositories {
+    google()
+    mavenCentral()
+  }
 }
 
 rootProject.name = "MyQuestApp"
 include(":app")
 ```
 
-## Step 4: Project Structure
+Keep the Android Gradle Plugin, Kotlin, compile SDK, target SDK, and Java version
+from a current Android Studio template unless current Meta documentation requires
+something different. Verify version requirements before pinning them in a new
+project.
 
-A Spatial SDK project follows this structure:
+## Manifest setup
 
-```
-app/
-  src/
-    main/
-      java/com/yourcompany/yourapp/
-        MainActivity.kt              # SpatialActivity subclass (entry point)
-        ui/
-          HomePanel.kt               # Compose or View-backed panel content
-          SettingsPanel.kt
-        components/
-          SpinComponent.kt            # Custom ECS components
-          HealthComponent.kt
-        systems/
-          SpinSystem.kt               # Custom ECS systems
-          PhysicsSystem.kt
-      res/
-        layout/
-          activity_home_panel.xml     # Panel layouts (standard Android XML)
-        values/
-          strings.xml
-          themes.xml
-      assets/
-        scenes/
-          main.scene                  # Spatial Editor scene files
-        models/
-          my_model.glb                # 3D models
-        audio/
-          ambient.ogg                 # Audio files
-      AndroidManifest.xml
-  build.gradle.kts
-```
-
-## Debug-Only Local Networking
-
-If your Quest app connects to a host machine or another LAN service during
-development over `http://` or `ws://`, add that as a debug-only allowance.
-Quest-native Android apps often need explicit cleartext traffic or network
-security configuration before local sockets and HTTP endpoints work reliably.
-
-Prefer keeping this in debug builds only. Ship release builds with `https://`
-and `wss://` endpoints instead of leaving cleartext enabled globally.
+Declare the launcher activity as resizable and give the panel a useful initial
+and minimum size:
 
 ```xml
-<application
-    android:usesCleartextTraffic="true"
-    android:networkSecurityConfig="@xml/network_security_config" />
+<application ...>
+  <activity
+      android:name=".MainActivity"
+      android:exported="true"
+      android:resizeableActivity="true">
+    <layout
+        android:defaultWidth="1024dp"
+        android:defaultHeight="640dp"
+        android:minWidth="360dp"
+        android:minHeight="225dp" />
+
+    <intent-filter>
+      <action android:name="android.intent.action.MAIN" />
+      <category android:name="android.intent.category.LAUNCHER" />
+    </intent-filter>
+  </activity>
+</application>
 ```
 
-## Step 5: Main Activity
+Treat these dimensions as a starting point, not a fixed canvas. Build responsive
+layouts and test across the full supported resize range.
 
-The entry point for a Spatial SDK app is a `SpatialActivity`:
+## UI and input
 
-Keep one spatial root activity for the app. Additional panels or UI states
-should usually hang off that activity rather than turning the Quest app into a
-standard multi-activity Android navigation stack.
+- Prefer Jetpack Compose and adaptive layouts for new projects.
+- Use at least 48 dp interaction targets.
+- Standard Android click, hover, keyboard, gamepad, and accessibility semantics
+  continue to apply. Controllers and hands are translated into Android input
+  events by the platform.
+- The Meta Horizon OS UI Set can help a new app match Horizon OS visual and
+  interaction conventions, but it does not change the build path.
 
-```kotlin
-// MainActivity.kt
-package com.yourcompany.yourapp
+## Platform compatibility
 
-import com.yourcompany.yourapp.ui.HomePanel
-import com.meta.spatial.core.SpatialActivity
-import com.meta.spatial.core.Entity
-import com.meta.spatial.core.Scene
-import com.meta.spatial.core.Vector3
-import com.meta.spatial.toolkit.PanelRegistration
-import com.meta.spatial.toolkit.LayoutParams
-import com.meta.spatial.toolkit.SpatialPanelLayoutParams
+Horizon OS does not include Google Mobile Services. Before adding a dependency,
+confirm it does not require Play Services at runtime, or provide a non-GMS path.
+Use the Horizon Platform SDK for supported Meta platform features such as
+entitlements, users, achievements, leaderboards, and in-app purchases.
 
-class MainActivity : SpatialActivity() {
+Request only supported permissions and mark unavailable hardware features as
+optional. Review the current unsupported-permissions documentation before
+shipping.
 
-    override fun registerPanels(): List<PanelRegistration> {
-        return listOf(
-            PanelRegistration("home_panel") {
-                layoutParams = LayoutParams(600f, 400f, SpatialPanelLayoutParams.HORIZONTAL)
-                panel {
-                    HomePanel()
-                }
-            }
-        )
-    }
+## Build and verify
 
-    override fun onSceneReady(scene: Scene) {
-        super.onSceneReady(scene)
-
-        scene.setViewerPosition(Vector3(0f, 0f, 0f))
-        Entity.createPanelEntity("home_panel")
-    }
-
-    override fun registerComponents(): List<Any> {
-        return listOf(
-            SpinComponent.Companion
-        )
-    }
-
-    override fun registerSystems(): List<Any> {
-        return listOf(
-            SpinSystem()
-        )
-    }
-}
-```
-
-### Panel UI
-
-Panels are usually UI surfaces owned by the root spatial activity rather than
-separate Android activities:
-
-```kotlin
-// ui/HomePanel.kt
-package com.yourcompany.yourapp.ui
-
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-
-@Composable
-fun HomePanel() {
-    Text("Hello Quest")
-}
-```
-
-### Custom Component
-
-```kotlin
-// components/SpinComponent.kt
-package com.yourcompany.yourapp.components
-
-import com.meta.spatial.core.Component
-import com.meta.spatial.core.FloatAttribute
-
-class SpinComponent : Component() {
-    var speed: Float by FloatAttribute("speed", 1.0f)
-
-    companion object {
-        // Required for component registration
-    }
-}
-```
-
-### Custom System
-
-```kotlin
-// systems/SpinSystem.kt
-package com.yourcompany.yourapp.systems
-
-import com.meta.spatial.core.Query
-import com.meta.spatial.core.System
-import com.meta.spatial.toolkit.Transform
-
-class SpinSystem : System() {
-
-    override fun execute() {
-        val query = Query.where { has(SpinComponent::class) }
-        for (entity in query.eval()) {
-            val spin = entity.getComponent<SpinComponent>()
-            val transform = entity.getComponent<Transform>()
-            transform.rotateY(spin.speed * deltaTime)
-            entity.setComponent(transform)
-        }
-    }
-}
-```
-
-## Step 6: AndroidManifest.xml
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.yourcompany.yourapp">
-
-    <!-- Required permissions -->
-    <uses-permission android:name="android.permission.INTERNET" />
-
-    <!-- Optional permissions based on features -->
-    <!-- Include these when the app should launch and remain usable with hands,
-         not just paired controllers. -->
-    <uses-permission android:name="com.oculus.permission.HAND_TRACKING" />
-    <!-- <uses-permission android:name="com.oculus.permission.PASSTHROUGH" /> -->
-    <!-- <uses-permission android:name="android.permission.RECORD_AUDIO" /> -->
-
-    <!-- Quest device support -->
-    <uses-feature android:name="android.hardware.vr.headtracking"
-        android:required="true"
-        android:version="1" />
-
-    <uses-feature
-        android:name="oculus.software.handtracking"
-        android:required="false" />
-
-    <application
-        android:allowBackup="false"
-        android:label="@string/app_name"
-        android:theme="@style/Theme.AppCompat.NoActionBar">
-
-        <!-- Declare supported Quest devices -->
-        <meta-data
-            android:name="com.oculus.supportedDevices"
-            android:value="quest2|questpro|quest3" />
-
-        <!-- Spatial SDK app type: panel, immersive, or hybrid -->
-        <meta-data
-            android:name="com.oculus.ossplash"
-            android:value="true" />
-
-        <activity
-            android:name=".MainActivity"
-            android:configChanges="density|keyboard|keyboardHidden|navigation|orientation|screenLayout|screenSize|uiMode"
-            android:excludeFromRecents="false"
-            android:exported="true"
-            android:launchMode="singleTask"
-            android:screenOrientation="landscape"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
-
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-                <!-- Required for Horizon OS VR apps -->
-                <category android:name="com.oculus.intent.category.VR" />
-            </intent-filter>
-        </activity>
-    </application>
-</manifest>
-```
-
-## Step 7: Build and Deploy
-
-### Build from Android Studio
-
-1. Connect your Quest via USB.
-2. Select the device from the device dropdown.
-3. Click **Run** (green play button) to build and install.
-
-### Build from Command Line
+Build with the project's normal Gradle tasks:
 
 ```bash
-# Build debug APK
-cd /path/to/your/project
 ./gradlew assembleDebug
-
-# Install using metavr
-metavr app install app/build/outputs/apk/debug/app-debug.apk
-
-# Launch the application
-metavr app launch com.yourcompany.yourapp
-
-# Monitor logs
-metavr log --tag yourcompany
 ```
 
-### Build release APK
+Use the `metavr` CLI to start Meta Spatial Simulator, install the app, launch it,
+and capture the result:
 
 ```bash
-# Build release APK (requires signing config in build.gradle)
-./gradlew assembleRelease
-
-# Install release build
-metavr app install app/build/outputs/apk/release/app-release.apk
+metavr ssim download
+metavr ssim start
+metavr app install app/build/outputs/apk/debug/app-debug.apk
+metavr app launch com.yourcompany.yourapp
+metavr capture screenshot -o first-run.png
 ```
 
-## Step 8: Meta Spatial Editor (Optional)
+Meta Spatial Simulator is also available in the Meta Horizon Android Studio
+Plugin. Verify on a physical Meta VR device before release.
 
-Meta Spatial Editor provides a visual scene authoring tool for Spatial SDK projects:
+Use `metavr --markdown-help` or `metavr ssim --help` before relying on exact CLI
+flags, because the simulator commands evolve independently of this skill.
 
-1. Download **Meta Spatial Editor** from [developer.meta.com](https://developer.meta.com/horizon/downloads).
-2. Create a new project linked to your Android Studio project.
-3. Author scenes visually: place objects, configure lighting, set up spatial anchors.
-4. Export scenes to your project's `assets/scenes/` directory.
-5. Load scenes in your `SpatialActivity` using the scene API.
+## Continue with focused skills
 
-Spatial Editor is particularly useful for:
+- Existing mobile app being ported: `hz-android-2d-porting`
+- React Native or Expo: `hz-react-native-expo`
+- Horizon Platform SDK features: `hz-psdk-integration` and `hz-platform-sdk`
+- Debugging: `hz-vr-debug`
+- Store release: `hz-store-submit`
 
-- Placing panels and 3D objects in spatial layouts
-- Previewing the user's view of your application
-- Setting up environment meshes and lighting
-
-## App Types
-
-### Panel App (2D)
-
-A panel app displays traditional Android UI in floating panels. Use when:
-- Porting an existing Android app to Quest
-- Building productivity or media consumption apps
-- Creating utility or settings interfaces
-
-### Immersive App (3D)
-
-A fully immersive app takes over the user's entire view. Use when:
-- Building VR games or experiences
-- Creating training simulations
-- Building 3D visualization tools
-
-### Hybrid App (2D + 3D)
-
-A hybrid app combines panels with 3D spatial content. Use when:
-- Building apps that mix 2D UI with 3D visualization
-- Creating shopping or design apps with 3D product views
-- Building educational apps with interactive 3D models
-
-## Next Steps
-
-- Add **hand tracking** by requesting `com.oculus.permission.HAND_TRACKING` and using the Interaction SDK components.
-- Implement **passthrough** for mixed reality by requesting `com.oculus.permission.PASSTHROUGH` and configuring the passthrough layer.
-- Set up **multiplayer** using Meta Platform SDK for matchmaking and data channels.
-- Explore **scene understanding** for room-aware applications using the Scene API.
+If the app needs an immersive scene, 3D entities, or direct environment control,
+return to `SKILL.md` and choose the Meta Spatial SDK path before adding those
+capabilities.

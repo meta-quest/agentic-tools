@@ -1,7 +1,7 @@
 # metavr App Management
 
 App commands let you install, launch, manage, and debug applications on connected
-Meta Quest devices.
+Meta VR devices.
 
 ## Commands Overview
 
@@ -216,7 +216,7 @@ metavr log --level E
 Look for stack traces, `FATAL EXCEPTION` entries, or `AndroidRuntime` errors in
 the output.
 
-### Common Log Tags for Quest Apps
+### Common Log Tags for Meta VR Apps
 
 | Tag | Source |
 |---|---|

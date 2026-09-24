@@ -8,7 +8,7 @@ VR frame timing is fundamentally different from desktop rendering. Every frame m
 
 ### OpenXR (Standard API)
 
-All Quest VR applications ultimately go through OpenXR (or the legacy Oculus Mobile SDK). These markers appear in traces regardless of the game engine:
+All Meta VR applications ultimately go through OpenXR (or the legacy Oculus Mobile SDK). These markers appear in traces regardless of the game engine:
 
 | Marker | Purpose | Thread |
 |--------|---------|--------|

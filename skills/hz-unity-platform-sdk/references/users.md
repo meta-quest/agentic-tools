@@ -1,7 +1,7 @@
 # Users API
 
 - **Unity Package**: com.meta.xr.sdk.platform
-- **Documentation**: https://developer.oculus.com/documentation/unity/ps-presence/#user-and-friends
+- **Documentation**: https://developers.meta.com/horizon/documentation/unity/ps-presence/#user-and-friends
 - **Namespace**: Oculus.Platform
 
 ## Overview
@@ -18,7 +18,7 @@
 
 ## Prerequisites
 
-1. **Complete Data Use Checkup (DUC)** -- required to access user platform features (friends, presence, etc.). See [DUC documentation](https://developer.oculus.com/resources/publish-data-use/).
+1. **Complete Data Use Checkup (DUC)** for the user data your app reads. A missing grant fails in two ways, neither obvious. Without `user_id`/`user_profile`, calls **succeed and return wrong data**: IDs come back as the string `"0"` and profile fields are omitted, so a `"0"` user ID means a missing grant, not a bug. Grants that do deny server-side reach the SDK as a generic provider error, indistinguishable from a transport failure -- there is no permission-specific status code to match on. Eligibility rules are app-level and identical for Unity apps. Which grants gate what, provisional access during development, and what changes when you submit: [Complete data use checkup](https://developers.meta.com/horizon/resources/publish-data-use/).
 
 > **Important**: User IDs are **app-scoped**. The same physical user has a different `User.ID` in different apps. To identify a user across apps within the same org, use `Users.GetOrgScopedID(userID)`.
 
@@ -202,7 +202,7 @@ var blockedMsg = await Users.GetBlockedUsers();
 | Calling `GetLoggedInUser` and expecting presence data | Use `Users.Get(loggedInUser.ID)` after `GetLoggedInUser` to get presence fields. |
 | Persisting access tokens to disk | Treat tokens as session credentials. Fetch fresh each time you need to call REST. |
 | Re-using a `UserProof` nonce | Nonces are single-use. Each backend verification needs a fresh `GetUserProof` call. |
-| Skipping DUC | Many user APIs require Data Use Checkup approval. Without it you'll get permission errors. |
+| Skipping DUC | Most user reads then *succeed* with a zeroed ID and absent profile fields rather than erroring; friends and blocked users are the ones that actually fail. Grant every feature you read. |
 | Treating one-way followers as friends | `GetLoggedInUserFriends` returns bidirectional followers only. |
 | Parsing `Presence` strings | `Presence` is locale-dependent and may change at any time. Display as-is. |
 | Forgetting nullability of `DisplayName`, `ManagedInfoOptional` | Both are nullable. Fall back to `OculusID` for display name. |
@@ -307,4 +307,4 @@ public async Task<bool> AuthenticateWithBackend(string backendUrl)
 - **Use the system Block/Unblock/FriendRequest flows** -- never silently mutate relationships.
 - **Treat access tokens and user proofs as ephemeral credentials**: Never log them.
 - **Sample tester**: `samples/unity/Baremetal/Assets/SamplesInternal/users/UsersTester.cs`
-- [Data Use Checkup (DUC)](https://developer.oculus.com/resources/publish-data-use/)
+- [Data Use Checkup (DUC)](https://developers.meta.com/horizon/resources/publish-data-use/)

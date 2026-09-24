@@ -148,7 +148,7 @@ Useful current `UIKitDocument` helpers:
 - Use **world-space** panels for diegetic UI and in-scene interactions
 - Keep panel count modest because each panel adds rendering cost
 
-`ScreenSpace` is convenient, but Quest comfort still matters. Avoid giant HUDs
+`ScreenSpace` is convenient, but comfort on Meta VR devices still matters. Avoid giant HUDs
 glued to the face.
 
 ## Best Practices
@@ -160,6 +160,6 @@ glued to the face.
 - **Pair panels with pointer interactables.** `RayInteractable` and
   `PokeInteractable` are what make panel entities feel clickable on-device.
 - **Validate text size and contrast on-device.** Spatial UI that looks fine on a
-  laptop often ships too small or too low-contrast for Quest optics.
+  laptop often ships too small or too low-contrast for Meta VR optics.
 - **Prefer one coherent panel over many small floating widgets.** That is
   easier to scan, cheaper to render, and simpler to debug.

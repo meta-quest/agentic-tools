@@ -1,7 +1,7 @@
 ---
 name: hz-unity-placement
 license: Apache-2.0
-description: Ensures accurate object placement in Unity projects targeting Meta Quest and Horizon OS by using Renderer and Collider bounds when objects are added, moved, or positioned relative to other objects.
+description: Ensures accurate object placement in Unity projects targeting Meta VR and Horizon OS by using Renderer and Collider bounds when objects are added, moved, or positioned relative to other objects.
 ---
 
 # Unity Object Placement with Bounding Boxes
@@ -76,7 +76,19 @@ Use this skill automatically whenever:
 
 **ALWAYS get bounding box information before calculating positions.**
 
-Never assume object sizes - always retrieve actual bounds from Renderer or Collider components using whatever Unity MCP tools are available.
+Never assume object sizes - always retrieve actual bounds from Renderer or Collider components on the live Editor.
+
+## Driving the Editor
+
+Read and write the scene through `unity-cli` rather than editing `.unity` YAML — raw-file edits are
+invisible to the running Editor and easily hit the wrong scene.
+
+```bash
+unity status --format json          # look for state "ready"
+```
+
+See the **`unity-cli`** skill for connecting, `--project-path`, and Safe Mode recovery. On a Unity MCP
+server instead, the same steps apply — use whatever scene-inspection and transform tools it exposes.
 
 ## Instructions
 
@@ -89,11 +101,80 @@ When the user requests object placement:
 
 ### Step 2: Get bounding box information
 
-For BOTH objects, retrieve bounds using available Unity MCP tools:
+For BOTH objects, locate them and read their bounds:
 
-1. Find each object in the scene by name or path
-2. Query the object's components to extract bounds information
-3. Look for `MeshRenderer` or `Collider` components and their `bounds` property
+```bash
+unity command find_gameobjects --name Cube --format json
+```
+
+`bounds` is a **computed** property, not a serialized field, so `get_component_properties` does not
+return it — a `MeshRenderer` read gives you `m_Materials`, `m_CastShadows` and friends, and no bounds
+at all. Reading bounds always means a script:
+
+```csharp
+// AgentScripts/GetBounds.cs
+using System.Text;
+using UnityEngine;
+
+public static class GetBounds
+{
+    public static string Run(string[] names)
+    {
+        var sb = new StringBuilder();
+        foreach (var name in names)
+        {
+            var go = GameObject.Find(name);
+            if (go == null) { sb.AppendLine($"{name}: NOT FOUND"); continue; }
+
+            if (!TryGetBounds(go, out var b, out var src))
+            {
+                sb.AppendLine($"{name}: NO Renderer or Collider - bounds unknown");
+                continue;
+            }
+
+            sb.AppendLine($"{name} [{src}] center={b.center} size={b.size} extents={b.extents} min={b.min} max={b.max}");
+        }
+        return sb.ToString();
+    }
+
+    // Root renderer/collider first; otherwise the union of the children's, which is what an
+    // imported model needs since its renderers sit on child GameObjects.
+    private static bool TryGetBounds(GameObject go, out Bounds bounds, out string source)
+    {
+        bounds = default;
+        source = null;
+
+        var r = go.GetComponent<Renderer>();
+        if (r != null) { bounds = r.bounds; source = "Renderer"; return true; }
+
+        var col = go.GetComponent<Collider>();
+        if (col != null) { bounds = col.bounds; source = "Collider"; return true; }
+
+        foreach (var cr in go.GetComponentsInChildren<Renderer>())
+        {
+            if (source == null) { bounds = cr.bounds; source = "child Renderers"; }
+            else bounds.Encapsulate(cr.bounds);
+        }
+        if (source != null) return true;
+
+        foreach (var cc in go.GetComponentsInChildren<Collider>())
+        {
+            if (source == null) { bounds = cc.bounds; source = "child Colliders"; }
+            else bounds.Encapsulate(cc.bounds);
+        }
+        return source != null;
+    }
+}
+```
+
+```bash
+unity command run_script --file AgentScripts/GetBounds.cs --entry GetBounds.Run \
+  --args '[["Cube","Table"]]' --format json
+```
+
+**`--args` spreads the JSON array as positional parameters**, so a single `string[]` parameter needs a
+**nested** array. `'["Cube","Table"]'` is read as two arguments and fails with *"expects 1 argument(s)
+but 2 were provided"*.
 
 **Understanding bounds types in Unity:**
 
@@ -200,7 +281,53 @@ targetZ = B.worldMin.z - 1.0 - A.extents.z
 
 ### Step 5: Apply the position
 
-Use available Unity MCP tools to set the target object's position to the calculated coordinates.
+**`set_transform` writes `localPosition`, not world position.** Verified: on a child of a parent at
+world x=10, `--position "[1,0,0]"` yields `localPosition (1,0,0)` / `position (11,0,0)`. Every formula
+above produces a **world** position, so:
+
+- **Unparented object** — local and world are the same, apply the computed value directly:
+
+  ```bash
+  unity command set_transform --target Cube --position "[0,1.05,2]" --format json
+  unity command save_scene --format json
+  ```
+
+  Array parameters take a **JSON array in one argument**. `--position 0 1.05 2` is rejected with
+  `INVALID_COMMAND_ARGS`.
+
+- **Parented object** — convert first, or set `transform.position` in a script, which is world-space
+  by definition:
+
+  ```csharp
+  // AgentScripts/SetWorldPosition.cs
+  using UnityEditor;
+  using UnityEditor.SceneManagement;
+  using UnityEngine;
+
+  public static class SetWorldPosition
+  {
+      public static string Run(string name, float x, float y, float z)
+      {
+          var go = GameObject.Find(name);
+          if (go == null) return $"ERROR: '{name}' not found.";
+
+          Undo.RecordObject(go.transform, "Place object");
+          go.transform.position = new Vector3(x, y, z);
+          EditorSceneManager.MarkSceneDirty(go.scene);
+          return $"{name}: world={go.transform.position} local={go.transform.localPosition}";
+      }
+  }
+  ```
+
+  ```bash
+  unity command run_script --file AgentScripts/SetWorldPosition.cs \
+    --entry SetWorldPosition.Run --args '["Cube", 0, 1.05, 2]' --format json
+  unity command save_scene --format json
+  ```
+
+The script returns both spaces, which is the only way to confirm what landed —
+`get_component_properties --type Transform` exposes only `m_LocalPosition`, so it cannot tell world
+from local.
 
 ### Step 6: Verify placement
 
@@ -208,7 +335,7 @@ After placement, inform the user:
 - The calculated position
 - The bounds that were used
 - Any adjustments made
-- Suggest they check the Scene view
+- Suggest they check the Scene view — or `metavr capture screenshot` once it's running on a headset
 
 ## Common placement patterns
 
@@ -239,7 +366,7 @@ After placement, inform the user:
 3. **Account for rotation**: World-space bounds (`Renderer.bounds`) are axis-aligned bounding boxes (AABB) that expand to enclose the rotated mesh. A 1x0.1x1 plane rotated 45 degrees on Z will have a taller AABB than when flat. This is correct behavior — the AABB reflects the actual space the object occupies. Always use world-space bounds for placement so rotation is automatically handled
 4. **Handle missing renderers**: If no Renderer, check for Colliders; if neither, warn the user
 5. **Explain calculations**: Show your work - tell the user what bounds were found and how position was calculated
-6. **Local vs world positions**: MCP tools may accept local or world positions - calculate accordingly and be aware of parent transforms. When an object has a parent, its position is in parent-local space
+6. **Local vs world positions**: `set_transform` writes **local** position. For an unparented object that equals world position; for a parented one it does not, so either convert with `parent.InverseTransformPoint(worldPos)` or assign `transform.position` from a `run_script` and report both values back
 7. **Handle prefabs**: When instantiating prefabs, get their bounds after instantiation
 
 ## Handling edge cases
@@ -333,9 +460,10 @@ User: "Place the Cube on top of the Sphere"
 ## Remember
 
 The goal is to make object placement intuitive and accurate. Always:
-1. Get actual bounds from components using available Unity MCP tools
+1. Get actual bounds from components on the live Editor with `run_script` and the bounds reader — `get_component_properties` does not expose `bounds`
 2. Calculate world-space positions
 3. Account for object extents (half-sizes)
-4. Explain your calculations to the user
-5. Never guess object sizes
-6. Never place objects at arbitrary positions without bounds
+4. Apply them with an eye on local-vs-world: `set_transform` is local
+5. Explain your calculations to the user
+6. Never guess object sizes
+7. Never place objects at arbitrary positions without bounds

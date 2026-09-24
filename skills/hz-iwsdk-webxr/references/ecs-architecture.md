@@ -254,6 +254,6 @@ world.exitXR();
 - **Use query subscriptions for side effects.** They are the cleanest way to
   respond when entities enter or leave a query.
 - **Avoid allocations in `update(...)`.** Reuse vectors and temp objects to
-  reduce GC pressure on Quest hardware.
+  reduce GC pressure on Meta VR hardware.
 - **Destroy entities explicitly.** Call `entity.destroy()` or `entity.dispose()`
   when content is no longer needed.

@@ -1,4 +1,4 @@
-# Packaging a Quest APK with @meta-quest/bubblewrap-cli
+# Packaging a Meta VR APK with @meta-quest/bubblewrap-cli
 
 `bubblewrap` wraps the live PWA into a signed Android APK (a Trusted Web Activity)
 that Horizon can install. There are two ways to run it — an interactive wizard and

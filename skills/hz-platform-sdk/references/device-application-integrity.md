@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|-------|
 | **Kotlin Package** | `horizon.platform.deviceapplicationintegrity` |
-| **Documentation** | https://developers.meta.com/horizon/documentation/android-apps/ps-device-application-integrity |
+| **Documentation** | https://developers.meta.com/horizon/documentation/android-apps/ps-sdk-sample-deviceintegrity |
 | **Minimum OS** | HzOS v85 |
 | **Maven Artifact** | `horizon-platform-sdk-device-application-integrity-kotlin` |
 
@@ -11,7 +11,7 @@
 
 ## Overview
 
-The Device Application Integrity API provides a single operation for Meta Quest Android applications:
+The Device Application Integrity API provides a single operation for Meta VR Android applications:
 
 1. **`getIntegrityToken(challengeNonce)`** -- Obtain a signed JSON Web Token (JWT) that attests to the integrity of both the device and the application
 

@@ -1,10 +1,10 @@
 # Deprecated APIs and Replacement Guide
 
-This reference covers commonly encountered deprecated APIs across the Meta Quest SDK ecosystem and provides guidance on migrating to their replacements.
+This reference covers commonly encountered deprecated APIs across the Meta VR SDK ecosystem and provides guidance on migrating to their replacements.
 
 ## VrApi to OpenXR Migration
 
-VrApi is deprecated and no longer receives new features. All native Quest applications should migrate to OpenXR.
+VrApi is deprecated and no longer receives new features. All native Meta VR applications should migrate to OpenXR.
 
 ### Key API Replacements
 
@@ -144,7 +144,7 @@ Newer Horizon OS versions require updated manifest entries:
 
 ```xml
 <!-- Required for Horizon OS v69+ -->
-<meta-data android:name="com.oculus.supportedDevices" android:value="quest3|questpro" />
+<meta-data android:name="com.oculus.supportedDevices" android:value="quest2|questpro|quest3|quest3s" />
 
 <!-- Required for hand tracking -->
 <uses-permission android:name="com.oculus.permission.HAND_TRACKING" />

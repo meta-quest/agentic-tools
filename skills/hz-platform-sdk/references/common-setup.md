@@ -7,7 +7,7 @@ This document covers setup steps, initialization code, and common status codes s
 If the developer has not yet integrated the Horizon Platform SDK, direct them to the setup guide:
 - **Setup documentation**: https://developers.meta.com/horizon/documentation/android-apps/ps-setup-kotlin
 
-This covers adding Meta's Maven repository, configuring the Android project, and obtaining an app ID from the Meta Quest Developer Dashboard.
+This covers adding Meta's Maven repository, configuring the Android project, and obtaining an app ID from the Meta Horizon Developer Dashboard.
 
 ## Step 2: Add the SDK Dependency
 

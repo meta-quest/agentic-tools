@@ -1,10 +1,10 @@
-# Unreal Engine Project Setup for Meta Quest
+# Unreal Engine Project Setup for Meta VR
 
-This guide walks through creating a new Unreal Engine project configured for Meta Quest development, from installation through first deployment.
+This guide walks through creating a new Unreal Engine project configured for Meta VR development, from installation through first deployment.
 
 ## Requirements
 
-- **Unreal Engine**: 5.3 or newer (5.4+ recommended for latest Quest features)
+- **Unreal Engine**: 5.3 or newer (5.4+ recommended for latest Meta VR features)
 - **Meta XR Plugin**: From the Unreal Marketplace or Meta's GitHub fork of UE
 - **Android SDK/NDK**: Installed and configured (CodeWorks for Android or standalone)
 - **JDK 17**: Required for Android builds
@@ -21,9 +21,9 @@ This guide walks through creating a new Unreal Engine project configured for Met
 
 ### Option B: Meta's Unreal Engine Fork
 
-Meta maintains a custom fork of Unreal Engine with tighter Quest integration:
+Meta maintains a custom fork of Unreal Engine with tighter Meta VR integration:
 
-1. Clone Meta's fork from the [Meta Quest developer documentation](https://developers.meta.com/horizon/documentation/unreal/unreal-engine-setup).
+1. Clone Meta's fork from the [Meta VR developer documentation](https://developers.meta.com/horizon/documentation/unreal/unreal-building-ue4-from-source).
 2. Build the engine from source following Meta's instructions.
 3. The Meta XR Plugin is pre-integrated in this fork.
 
@@ -48,20 +48,24 @@ Open **Edit > Project Settings** and apply these settings:
 ### Platforms -- Android
 
 ```
-Minimum SDK Version:    29
+Minimum SDK Version:    32
 Target SDK Version:     34
 Package Name:           com.yourcompany.yourapp
 Orientation:            Landscape
 Enable FullScreen Immersive: ON
 ```
 
+These are current recommended defaults, not permanent store-acceptance floors. Check `hz-store-submit` for the minimum store requirement and `hz-api-upgrade` for the current target range, then apply any stricter result from the Meta XR Project Setup Tool. Verify current documentation with `metavr docs search "target API"`.
+
 ### Android SDK Configuration
 
 ```
 Edit > Project Settings > Platforms > Android SDK
 SDK API Level:          Latest
-NDK API Level:          android-29
+NDK API Level:          android-32
 ```
+
+Keep the NDK API level aligned with the recommended Minimum SDK Version. If that recommendation changes, update both fields together.
 
 Ensure the paths to your Android SDK, NDK, and JDK are set correctly. Click **Accept SDK License** if prompted.
 
@@ -99,7 +103,7 @@ Build for ES3.1:        OFF
 Build for Vulkan:       ON (primary)
 ```
 
-Vulkan is the recommended rendering API for Quest. It provides better performance and access to modern GPU features.
+Vulkan is the recommended rendering API for Meta VR. It provides better performance and access to modern GPU features.
 
 ## Step 4: Configure Meta XR Plugin
 
@@ -110,7 +114,7 @@ After enabling the Meta XR Plugin:
 ```
 Edit > Project Settings > Plugins > Meta XR
 
-Supported Devices:      Quest 2, Quest 3, Quest Pro
+Supported Devices:      Quest 2, Quest 3, Quest 3S, Quest Pro, Meta VR Glasses
 Hand Tracking:          Enabled (if needed)
 Body Tracking:          Disabled (enable as needed)
 Eye Tracking:           Disabled (enable as needed)
@@ -194,11 +198,11 @@ public:
 | Iteration speed | Faster, visual scripting | Slower compile times |
 | Performance | Adequate for most logic | Better for heavy computation |
 | Collaboration | Harder to diff/merge | Standard version control |
-| Quest suitability | Good for game logic, UI | Preferred for core systems |
+| Meta VR suitability | Good for game logic, UI | Preferred for core systems |
 
 **Recommendation**: Use C++ for core systems (locomotion, interaction, networking) and Blueprints for game-specific logic, UI, and rapid prototyping.
 
-## Step 7: Package for Quest
+## Step 7: Package for Meta VR
 
 ### Configure Packaging
 

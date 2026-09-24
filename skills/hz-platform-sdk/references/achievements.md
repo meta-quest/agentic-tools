@@ -249,7 +249,17 @@ pagedResults.collect { progressList ->
 
 All methods throw `AchievementsException` (extends `HzPlatformSdkException`) on failure. Always wrap calls in try/catch.
 
-This package does not define package-specific status codes beyond the common ones. See [common-setup.md](common-setup.md) for the full common status codes table.
+This package **does** define its own status codes, in addition to the common ones. `AchievementsStatusCode` is `@Public` and covers 2001-2005:
+
+| Code | Name | Raised when |
+|---|---|---|
+| 2001 | `INVALID_REQUEST` | A required parameter is missing, such as `api_name`. |
+| 2002 | `PERMISSIONS_ERROR` | The user lacks permission for the requested operation. |
+| 2003 | `INVALID_FIELD_FOR_ACHIEVEMENT_TYPE` | A field is invalid for the achievement's type — for example setting `bitfield_progress` on a COUNT achievement. |
+| 2004 | `BITFIELD_LENGTH_MISMATCH` | The supplied bitfield length does not match the achievement definition's expected length. |
+| 2005 | `ACHIEVEMENT_NOT_CONFIGURED` | The requested achievement is not configured for this app. |
+
+Handle these alongside the common codes; see [common-setup.md](common-setup.md) for the common table. On the OVR-forwarded path these are normalised to OVR codes, but a native Platform SDK consumer sees the values above.
 
 ## Examples
 
@@ -545,7 +555,7 @@ class AchievementsViewModel(
 
 1. **`getAllDefinitions()`, `getAllProgress()`, `getDefinitionsByName()`, and `getProgressByName()` return `PagedResults`** -- these are not suspend functions. They take a `CoroutineScope` parameter and return a `PagedResults<T>` object. Use `.collect { }` to iterate through pages. Pagination is handled automatically.
 
-2. **Three achievement types** -- achievements must be configured in the Meta Quest Developer Dashboard before they can be used. Each type has a different unlock mechanism: `Simple` uses `unlock()`, `Count` uses `addCount()`, and `Bitfield` uses `addFields()`. You can also use `unlock()` directly on COUNT and BITFIELD achievements to immediately unlock them regardless of progress.
+2. **Three achievement types** -- achievements must be configured in the Meta Horizon Developer Dashboard before they can be used. Each type has a different unlock mechanism: `Simple` uses `unlock()`, `Count` uses `addCount()`, and `Bitfield` uses `addFields()`. You can also use `unlock()` directly on COUNT and BITFIELD achievements to immediately unlock them regardless of progress.
 
 3. **`addCount()` clamps to signed 64-bit max** -- the `count` parameter is `ULong`, but the largest supported value is the max of a signed 64-bit integer. Values larger than that are clamped before being sent to the server.
 
@@ -555,4 +565,4 @@ class AchievementsViewModel(
 
 6. **Requires HzOS v85+ (public) or v83+ (partner)** -- on older OS versions, API calls return status code 1003 (`ProviderOperationNotSupported`). You can require a minimum OS version in `AndroidManifest.xml` (see [Minimum OS Versions](https://developers.meta.com/horizon/documentation/android-apps/min-os-versions/)) or handle error code 1003 at runtime.
 
-7. **No package-specific status codes** -- the Achievements API uses only common status codes (0-6, 190, 1001-1005). There are no achievement-specific error codes in the 2001+ range.
+7. **Achievements DOES define package-specific status codes** -- `AchievementsStatusCode` is `@Public` and declares 2001-2005 (`INVALID_REQUEST`, `PERMISSIONS_ERROR`, `INVALID_FIELD_FOR_ACHIEVEMENT_TYPE`, `BITFIELD_LENGTH_MISMATCH`, `ACHIEVEMENT_NOT_CONFIGURED`) on top of the common codes (0-6, 190, 1001-1005). See [Error Handling](#error-handling) above. Do not write error handling that assumes only common codes.

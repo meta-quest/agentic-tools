@@ -1,7 +1,7 @@
 # Leaderboards API
 
 - **Unity Package**: com.meta.xr.sdk.platform
-- **Documentation**: https://developer.oculus.com/documentation/unity/ps-leaderboards/
+- **Documentation**: https://developers.meta.com/horizon/documentation/unity/ps-leaderboards/
 - **Namespace**: Oculus.Platform
 
 ## Overview
@@ -390,4 +390,4 @@ public async Task SubmitAndShowFriends(string leaderboardName, long score, long 
 - **Default to `CenteredOnViewerOrTop`** for "around me" views -- it gracefully handles unranked users.
 - **Use `LeaderboardFilterType.Friends`** for social leaderboards (bidirectional followers only).
 - **Sample tester**: `samples/unity/Baremetal/Assets/SamplesInternal/leaderboards/LeaderboardsTester.cs`
-- [Server-to-Server Leaderboard API](https://developer.oculus.com/documentation/unity/ps-leaderboards-s2s/)
+- [Server-to-Server Leaderboard API](https://developers.meta.com/horizon/documentation/unity/ps-leaderboards-s2s/)

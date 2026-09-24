@@ -7,7 +7,7 @@
 
 ## Overview
 
-The Notifications API is part of the Horizon Platform SDK. It provides an operation for Meta Quest Android applications to manage and display notifications:
+The Notifications API is part of the Horizon Platform SDK. It provides an operation for Meta VR Android applications to manage and display notifications:
 
 1. **`deviceNotification(config)`** -- Send a device notification that displays a toast and/or feeds into the notification feed. Configure the notification with a title, message, optional media attachment, action buttons, and icons.
 

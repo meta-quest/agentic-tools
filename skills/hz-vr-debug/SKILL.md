@@ -1,43 +1,46 @@
 ---
 name: hz-vr-debug
 license: Apache-2.0
-description: Debugs Meta Quest and Horizon OS VR/MR applications using the metavr CLI — view logs, capture screenshots, diagnose common issues. Use when troubleshooting crashes, errors, or unexpected behavior on Quest devices.
-allowed-tools: Bash(metavr:*) Bash(hzdb:*) Bash(npx:*)
+description: "Debugs Meta VR and Horizon OS VR, MR, and Android applications using the metavr CLI — view logs, capture screenshots, and diagnose common issues. Use when troubleshooting crashes, errors, or unexpected behavior on Meta VR devices. Build paths: All; use hz-quest-verify-first if the path is unclear."
+allowed-tools: Bash(metavr:*), Bash(hzdb:*), Bash(npx:*)
 ---
 
 # VR Debug Skill
 
-Debug Meta Quest VR and MR applications using the `metavr` command-line interface. This skill covers viewing application logs, capturing device state, diagnosing crashes, and resolving common issues encountered during Quest development.
+Debug Meta VR, MR, and Android applications using the `metavr` command-line
+interface. This skill covers viewing application logs, capturing device state,
+diagnosing crashes, and resolving common issues encountered during Meta VR
+development.
 
 ## When to Use This Skill
 
 Use this skill when you need to:
 
-- Debug an application running on a connected Meta Quest device
+- Debug an application running on a connected Meta VR device
 - View real-time or historical application logs (logcat)
 - Capture screenshots of the VR/MR view
 - Diagnose application crashes, rendering glitches, or performance problems
 - Investigate tracking, controller, audio, or permission issues
 - Pull diagnostic files from the device for offline analysis
 
-This skill is relevant for any Meta Quest headset (Quest 2, Quest 3, Quest 3S, Quest Pro) running Horizon OS.
+This skill is relevant for Meta VR Glasses and Meta Quest headsets (Quest 2, Quest 3, Quest 3S, Quest Pro) running Horizon OS.
 
 ## Prerequisites
 
 Before using this skill, ensure the following are in place:
 
-1. **metavr CLI ready via `npx`** -- The `metavr` CLI is invoked on demand; no global install required:
+1. **metavr CLI installed** -- Install the standalone `metavr` CLI binary on your PATH (see the `metavr-cli` skill), or invoke it on demand via `npx` with no install:
    ```bash
-   npx -y metavr --version
+   metavr --version
    ```
-   metavr wraps ADB and adds Quest-specific device management, log viewing, screenshot capture, and file management. Examples below use the bare `metavr` command. If `metavr` is not on PATH, invoke the same CLI via `npx -y metavr <args>` (published as the npm package `@meta-quest/metavr`).
-2. **Meta Quest device connected via USB** -- Use a USB-C cable that supports data transfer (not charge-only).
+   metavr wraps ADB and adds Meta VR-specific device management, log viewing, screenshot capture, and file management. Examples below use the bare `metavr` command. If `metavr` is not on PATH, invoke the same CLI via `npx -y metavr <args>` (published as the npm package `metavr`).
+2. **Meta VR device connected via USB** -- Use a USB-C cable that supports data transfer (not charge-only).
 3. **Developer mode enabled** -- Developer mode must be turned on in the Meta Horizon app on your phone, under your headset's settings.
 4. **ADB authorization accepted** -- The first time you connect, you must put on the headset and accept the "Allow USB debugging" prompt.
 
 ## Quick Start Workflow
 
-The fastest way to begin debugging a Quest application:
+The fastest way to begin debugging a Meta VR application:
 
 ```bash
 # 1. Verify the device is connected and recognized
@@ -61,7 +64,7 @@ If `metavr device list` returns no devices, check the USB cable, developer mode,
 
 | Command                    | Description                                      |
 | -------------------------- | ------------------------------------------------ |
-| `metavr device list`         | List all connected Quest devices                 |
+| `metavr device list`         | List all connected Meta VR devices             |
 | `metavr device info <id>`    | Show device model, OS version, and more          |
 | `metavr device battery`      | Show battery level and charging status           |
 | `metavr device wake`         | Wake the device from sleep                       |
@@ -167,6 +170,12 @@ metavr log --tag Unity --level W
 ## Symptom-to-Diagnosis Decision Trees
 
 When a developer reports a problem, use these decision trees to systematically diagnose the root cause. Start with the reported symptom and follow the branches.
+
+The general Android crash, ANR, memory, and logcat branches apply to every build
+path. Use branches involving VrApi, OpenXR sessions, immersive frame rates,
+tracking, controllers, or spatial audio only for an immersive VR or MR app. For
+a Standard Android panel app, stay with the Android application, rendering,
+layout, and input branches.
 
 ### App Crashes on Launch
 
@@ -303,9 +312,9 @@ No audio or wrong audio output
 
 ## Gotchas
 
-These are common debugging pitfalls specific to Quest development.
+These are common debugging pitfalls specific to Meta VR development.
 
-- **Logcat buffer overflow** -- On Quest, the logcat ring buffer fills quickly because the OS and other apps generate constant output. If you do not start logging before reproducing the issue, the crash logs may already be evicted. Start `metavr adb logcat --follow` before reproducing.
+- **Logcat buffer overflow** -- On Meta VR devices, the logcat ring buffer fills quickly because the OS and other apps generate constant output. If you do not start logging before reproducing the issue, the crash logs may already be evicted. Start `metavr adb logcat --follow` before reproducing.
 - **USB cable quality matters** -- Many USB-C cables are charge-only and do not carry data. If `metavr device list` shows nothing, try a different cable before troubleshooting software. The cable that came with the Quest works for data.
 - **WiFi debugging disconnects** -- WiFi ADB connections (`metavr device connect <ip>`) drop after the device sleeps. You must reconnect after waking the device. USB is more reliable for sustained debugging sessions.
 - **Release builds strip logs** -- If your app uses `android:debuggable="false"` (release builds), some log output is suppressed. Debug with a debug build when investigating issues. Do not ship debuggable builds to the store.
@@ -390,4 +399,4 @@ See [common-issues.md](references/common-issues.md) for a catalog of known issue
 
 - [Logcat Filtering Guide](references/logcat-filtering.md) -- Detailed guide to filtering and interpreting device logs
 - [Screenshots and Video Capture](references/screenshots-video.md) -- Capturing visual state from the device
-- [Common Issues and Diagnostics](references/common-issues.md) -- Catalog of common Quest development issues and solutions
+- [Common Issues and Diagnostics](references/common-issues.md) -- Catalog of common Meta VR development issues and solutions

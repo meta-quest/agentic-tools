@@ -60,7 +60,7 @@ Wire every wandering/chasing NavMeshAgent into the `Agents` list.
 
 ## MRUKAnchor.SceneLabels Bitmask
 
-For setting `NavigableSurfaces` / `SceneObstacles` via int (Unity MCP, YAML inspection):
+For setting `NavigableSurfaces` / `SceneObstacles` via int (`set_serialized_field`, YAML inspection):
 
 | Label | Bit | Int |
 |---|---|---|
@@ -175,16 +175,25 @@ public class WanderAgent : MonoBehaviour
 }
 ```
 
-## Building SceneNavigation via Unity MCP
+## Building SceneNavigation with `unity-cli`
 
-Order matters — an asset delete that triggers a confirmation dialog rolls back the entire `RunCommand`.
+Order matters - an asset delete that triggers a confirmation dialog rolls back the entire script.
 
 1. Verify `MRUK` is in the scene with `SceneSettings.LoadSceneOnStartup = true` and a room prefab/json wired.
-2. Create the `SceneNavigation` GameObject. Add only the `SceneNavigation` component. Fetch the type via reflection if the MRUK assembly isn't directly referenced by `CommandScript`:
+2. Create the `SceneNavigation` GameObject. Add only the `SceneNavigation` component. `run_script` references every loaded assembly, so use the type directly:
+
+   ```csharp
+   using Meta.XR.MRUtilityKit;
+   var nav = go.AddComponent<SceneNavigation>();
+   ```
+
+   Under a Unity MCP server the MRUK assembly is not referenced, so fetch the type by name instead:
+
    ```csharp
    var t = System.Type.GetType("Meta.XR.MRUtilityKit.SceneNavigation, Meta.XR.MRUtilityKit");
    go.AddComponent(t);
    ```
+
 3. Set `NavigableSurfaces` and `SceneObstacles` via `SerializedObject`:
    ```csharp
    var so = new UnityEditor.SerializedObject(sn);
@@ -200,17 +209,17 @@ Order matters — an asset delete that triggers a confirmation dialog rolls back
    agents.GetArrayElementAtIndex(agents.arraySize - 1).objectReferenceValue = navMeshAgent;
    so.ApplyModifiedPropertiesWithoutUndo();
    ```
-6. `EditorSceneManager.MarkSceneDirty(scene)` + `EditorSceneManager.SaveScene(scene)`. **Run scene saves in a separate `RunCommand` call from any `AssetDatabase.DeleteAsset`** — the delete triggers a confirmation dialog that the MCP harness can't dismiss and rolls back the whole transaction. Use PowerShell `Remove-Item` for asset deletes, then call `AssetDatabase.Refresh()`.
+6. `EditorSceneManager.MarkSceneDirty(scene)` + `EditorSceneManager.SaveScene(scene)`, or `unity command save_scene`. **Run scene saves in a separate call from any `AssetDatabase.DeleteAsset`** — the delete triggers a confirmation dialog that blocks the request and rolls back the whole transaction. Use `unity command delete_asset --asset <path> --confirm true` (its `confirm` flag replaces the interactive dialog) followed by `AssetDatabase.Refresh()` instead.
 
 ## Verification
 
-1. `Unity_GetConsoleLogs` with `logTypes: "Error"` → zero errors.
+1. `unity command get_console_logs --severity error --format json` → zero errors.
 2. Enter Play mode. After `MRUK.SceneLoadedEvent` fires, `SceneNavigation.OnNavMeshInitialized` fires. The agent should immediately Warp and start moving.
 3. If the agent freezes or never moves, check in order:
    - `NavigableSurfaces != 0` — an empty navmesh has no triangles.
    - The agent is in the `Agents` list — `agentTypeID` mismatch silently breaks `SetDestination`.
    - `NavMesh.CalculateTriangulation().indices.Length > 0`.
-4. Optional visual check: `Unity_SceneView_CaptureMultiAngleSceneView` after a few seconds shows the agent moved from its spawn point.
+4. Optional visual check: `unity command capture_scene_view --format json` after a few seconds shows the agent moved from its spawn point.
 
 ## Common Failure Modes
 
@@ -220,7 +229,7 @@ Order matters — an asset delete that triggers a confirmation dialog rolls back
 | Agent walks through walls | `SceneObstacles` is 0 or missing wall labels |
 | `NavMesh.CalculateTriangulation()` returns empty | `NavigableSurfaces` is 0 (default) |
 | First-frame `NavMeshAgent` errors | Agent wasn't disabled in `Awake` while waiting for `OnNavMeshInitialized` |
-| `AssetDatabase.DeleteAsset` rolls back the whole `RunCommand` | Confirmation dialog blocks MCP. Use PowerShell `Remove-Item` + `AssetDatabase.Refresh()` instead |
+| `AssetDatabase.DeleteAsset` rolls back the whole script | Confirmation dialog blocks the request. Use `unity command delete_asset --asset <path> --confirm true` + `AssetDatabase.Refresh()` instead |
 | Saved scene has different values than in-memory editor | User edited Inspector without saving. Call `EditorSceneManager.SaveScene` before re-reading the `.unity` YAML |
 
 ## Doc Reference

@@ -1,7 +1,7 @@
 {
   "name": "meta-vr",
-  "description": "Agent skills for Meta Quest and Horizon OS development. Helps Claude assist with Quest app debugging, performance analysis, project setup, Unity and WebXR workflows, Spatial SDK and Platform SDK integration, store submission checks, and metavr device workflows.",
-  "version": "1.2.3",
+  "description": "Agent skills for Meta VR and Horizon OS development. Helps your coding agent with Meta VR app debugging, performance analysis, project setup, Unity and WebXR workflows, Spatial SDK and Platform SDK integration, store submission checks, and metavr device workflows.",
+  "version": "2.0.0",
   "author": {
     "name": "Meta Platforms, Inc."
   },
@@ -12,16 +12,16 @@
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
   "interface": {
-    "displayName": "Meta Quest Agentic Tools",
-    "shortDescription": "Build and debug Meta Quest & Horizon OS apps from your agent.",
-    "longDescription": "Official Meta skills and the metavr MCP server for Meta Quest and Horizon OS development — debug apps, analyze performance, scaffold projects, build Unity, WebXR, Spatial SDK and Platform SDK integrations, validate store submissions, and drive Quest devices.",
+    "displayName": "Meta VR Agentic Tools",
+    "shortDescription": "Build and debug Meta VR & Horizon OS apps from your agent.",
+    "longDescription": "Official Meta skills and the metavr MCP server for Meta VR and Horizon OS development — debug apps, analyze performance, scaffold projects, build Unity, WebXR, Spatial SDK and Platform SDK integrations, validate store submissions, and drive Meta VR devices.",
     "developerName": "Meta Platforms, Inc.",
     "category": "Developer Tools",
     "capabilities": ["Skills", "MCP"],
     "websiteURL": "https://developers.meta.com/horizon/discover/ai-tools/",
     "defaultPrompt": [
-      "Set up a new Meta Quest project.",
-      "Debug why my Quest app is dropping frames.",
+      "Set up a new Meta VR project.",
+      "Debug why my Meta VR app is dropping frames.",
       "Check my app against the Meta Horizon Store requirements."
     ]
   }

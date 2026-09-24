@@ -22,7 +22,7 @@ The PTRL material renders in the **Transparent queue**. URP only samples the mai
 - YAML: `m_ShadowTransparentReceive: 1`
 - Default is `true`, but custom pipeline configs frequently turn it off for perf — always re-verify on a clean project.
 
-**Set this on every renderer asset that ships**, especially the **Mobile** renderer (that is what runs on Quest). Setting it on PC only fixes the in-editor preview.
+**Set this on every renderer asset that ships**, especially the **Mobile** renderer (that is what runs on Meta VR devices). Setting it on PC only fixes the in-editor preview.
 
 ### 2. URP Asset → Additional Lights = Per Pixel + per-object limit ≥ N
 
@@ -107,28 +107,31 @@ Useful at runtime via `material.SetFloat(...)`:
 
 The Meta PTRL sample's `DebugPanel.cs` shows how to wire these to wrist-UI sliders.
 
-## Setup recipe via Unity MCP (Unity_RunCommand)
+## Setup recipe with `unity-cli`
 
-When automating PTRL setup, do it in this order:
+Automate PTRL setup with a `run_script` file kept outside `Assets/`, in this order:
 
 1. Locate every `UniversalRendererData` (`*_Renderer.asset`) and set `m_ShadowTransparentReceive = true` via `SerializedObject`. `SaveAssetIfDirty` each one.
 2. Locate every `UniversalRenderPipelineAsset` (`*_RPAsset.asset`) and set `m_AdditionalLightsRenderingMode = 1`, `m_AdditionalLightsPerObjectLimit ≥ 4`, `m_ShadowType = 2`, `m_MainLightShadowsSupported = true`, `m_AdditionalLightShadowsSupported = true`. `SaveAssetIfDirty`.
-3. Create `EffectMesh` GameObject. Resolve `Meta.XR.MRUtilityKit.EffectMesh` via assembly reflection (`AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetType(...))`) since `CommandScript` doesn't reference the MRUK assembly directly.
+3. Create the `EffectMesh` GameObject. `run_script` references every loaded assembly, so use `Meta.XR.MRUtilityKit.EffectMesh` directly — no assembly reflection needed.
 4. Set its serialized properties via `SerializedObject.FindProperty(...).intValue / objectReferenceValue / boolValue` then `ApplyModifiedPropertiesWithoutUndo`.
 5. Load `TransparentSceneAnchor.mat` from `Packages/com.meta.xr.mrutilitykit/Core/Materials/`. Assign to `MeshMaterial`.
 6. Configure the Directional Light (`shadows = Soft`, tilt). Add child Point Light on the moving NPC for highlights.
-7. `MarkSceneDirty` + `SaveScene` in a separate `RunCommand` call.
+7. `MarkSceneDirty` + `SaveScene` — or just `unity command save_scene` — in a **separate** call from any asset deletion.
+
+Under a Unity MCP server, step 3 does need reflection: see
+[unity-mcp-fallback.md](unity-mcp-fallback.md).
 
 ## Verification
 
-PTRL can be verified **in the editor** by switching MRUK to its prefab-room fallback — you do not need to push to device just to confirm setup. The prefab room generates the same EffectMesh anchors the PTRL shader needs, so shadows and highlights render in the Game view exactly as they will on Quest.
+PTRL can be verified **in the editor** by switching MRUK to its prefab-room fallback — you do not need to push to device just to confirm setup. The prefab room generates the same EffectMesh anchors the PTRL shader needs, so shadows and highlights render in the Game view exactly as they will on Meta VR devices.
 
 Editor verification (prefab room fallback):
 
 1. Select the `MRUK` GameObject and set `SceneSettings.DataSource = Prefab` (or `DeviceWithPrefabFallback`) and assign one of the bundled rooms from `Packages/com.meta.xr.mrutilitykit/Core/SceneData/Prefabs/` to `RoomPrefabs` (e.g. `RoomPrefab_BedRoom`). Keep `LoadSceneOnStartup = true`.
 2. Enter Play mode. MRUK fires `SceneLoadedEvent`, `EffectMesh` spawns, and `SceneNavigation` bakes the navmesh — same code path as on device.
-3. Position a virtual object (e.g. the NPC) above the prefab floor. In Game view you should see a soft shadow under it and a highlight halo around any nearby point light. Use `Unity_Camera_Capture` or `Unity_SceneView_Capture2DScene` to grab proof.
-4. `Unity_GetConsoleLogs` `logTypes: "Error"` → only the harmless `MRUKEditor.OnInspectorGUI` NRE (it tries to call `GetCurrentRoom()` while no room loaded) should appear. Anything else means something is broken.
+3. Position a virtual object (e.g. the NPC) above the prefab floor. In Game view you should see a soft shadow under it and a highlight halo around any nearby point light. Grab proof with `unity command capture_game_view --format json` (or `capture_scene_view` / `screenshot`).
+4. `unity command get_console_logs --severity error --format json` — only the harmless `MRUKEditor.OnInspectorGUI` NRE (it tries to call `GetCurrentRoom()` while no room loaded) should appear. Anything else means something is broken.
 
 Pre-flight checks (asset state, before entering Play mode):
 
@@ -146,7 +149,7 @@ On-device check (final): stand in a scanned room, look at the floor — a virtua
 | Shadows visible, no highlights | URP Asset `m_AdditionalLightsRenderingMode != PerPixel`, or per-object limit too low |
 | Neither shadows nor highlights, only opaque virtual content | EffectMesh missing, or `Labels = 0`, or material not set, or `MeshMaterial` is on a different shader |
 | Passthrough hidden by black | `OVRPassthroughLayer.overlayType = Overlay` (should be Underlay), or camera background alpha ≠ 0 |
-| Everything works in editor but not on Quest | Configured the **PC** renderer/URP asset but not the **Mobile** one |
+| Everything works in editor but not on Meta VR devices | Configured the **PC** renderer/URP asset but not the **Mobile** one |
 | Shadow flickers / acne | Directional light `shadowBias`/`shadowNormalBias` too low for the scene scale |
 | `MRUKEditor.OnInspectorGUI` NRE in console | Harmless — fires only when MRUK is selected in Inspector with no current room. Ignore. |
 

@@ -1,31 +1,19 @@
 # Project Setup Tool (OVRProjectSetup) Reference
 
-The Unity Project Setup Tool (UPST) helps configure projects for Meta Quest development using a registry of **Configuration Tasks** that are checked and fixed automatically.
+The Unity Project Setup Tool (UPST) helps configure projects for Meta VR development using a registry of **Configuration Tasks** that are checked and fixed automatically.
 
 ## CRITICAL: AndroidManifest Updates
 
 **NEVER directly edit AndroidManifest.xml for features managed by OVRProjectConfig.** See [android-manifest.md](android-manifest.md) for the full workflow.
 
-## Programmatic Access via Unity MCP
+## Programmatic Access
 
-**Prefer this approach over the UI when available.** The UPST can be queried and controlled programmatically via Unity MCP RunCommand scripts. For general MCP reflection rules and the base template (type finding, method invocation, error handling), see **"Calling SDK Methods via Unity MCP"** in [SKILL.md](../SKILL.md).
+**Prefer this over the UI.** Drive UPST against a live Editor with `unity-cli` — see "Running SDK code" in [SKILL.md](../SKILL.md) for the `run_script` invocation, and
+[unity-mcp-fallback.md](unity-mcp-fallback.md) if you are stuck on a Unity MCP server instead.
 
-This section covers UPST-specific patterns beyond the base template.
-
-### Additional MCP Constraint: Private/Internal Field Access
-
-The base template only covers **public** methods. UPST requires access to **private/internal** fields. Since `BindingFlags` overloads crash MCP, use `GetRuntimeFields()` instead:
-
-```csharp
-var getRuntimeFields = typeof(System.Reflection.RuntimeReflectionExtensions)
-    .GetMethod("GetRuntimeFields");
-
-// Returns ALL fields (private, internal, public, static, instance) without BindingFlags
-var allFields = getRuntimeFields.Invoke(null, new object[] { someType })
-    as System.Collections.IEnumerable;
-```
-
-Also note: `typeof(OVRProjectSetup)` does not compile in MCP — use the `FindType()` pattern from the base template.
+Under `run_script`, `OVRProjectSetup` and `OVRManifestPreprocessor` compile directly and full
+`System.Reflection` / `BindingFlags` work. Reflection is still needed for the pieces that are
+genuinely non-public: `_principalRegistry`, `_tasks`, and `GetTasks(BuildTargetGroup)`.
 
 ### Architecture
 
@@ -40,26 +28,24 @@ OVRProjectSetup (public static, type name: "OVRProjectSetup")
 
 ### Accessing the Task Registry
 
-```csharp
-// Get _principalRegistry from OVRProjectSetup (use FindType from base template)
-System.Reflection.FieldInfo registryField = null;
-foreach (var f in (System.Collections.IEnumerable)getRuntimeFields
-    .Invoke(null, new object[] { setupType }))
-{
-    var fi = f as System.Reflection.FieldInfo;
-    if (fi.Name == "_principalRegistry") { registryField = fi; break; }
-}
-var registry = registryField.GetValue(null);
+`GetTasks(BuildTargetGroup)` is internal but returns the valid tasks for a platform — the shortest
+route, and enough for listing and fixing:
 
-// Get _tasks from registry
-System.Reflection.FieldInfo tasksField = null;
-foreach (var f in (System.Collections.IEnumerable)getRuntimeFields
-    .Invoke(null, new object[] { registry.GetType() }))
-{
-    var fi = f as System.Reflection.FieldInfo;
-    if (fi.Name == "_tasks") { tasksField = fi; break; }
-}
-var tasksList = tasksField.GetValue(registry) as System.Collections.IList;
+```csharp
+var getTasks = typeof(OVRProjectSetup).GetMethod(
+    "GetTasks", BindingFlags.NonPublic | BindingFlags.Static);
+var tasks = (System.Collections.IEnumerable)getTasks.Invoke(null, new object[] { group });
+```
+
+To reach the registry itself (e.g. to enumerate tasks for *all* platforms):
+
+```csharp
+var registry = typeof(OVRProjectSetup)
+    .GetField("_principalRegistry", BindingFlags.NonPublic | BindingFlags.Static)
+    .GetValue(null);
+var tasksList = registry.GetType()
+    .GetField("_tasks", BindingFlags.NonPublic | BindingFlags.Instance)
+    .GetValue(registry) as System.Collections.IList;
 ```
 
 ### OVRConfigurationTask Properties
@@ -81,20 +67,22 @@ All **public** — accessible via normal `taskType.GetProperty("Name")`:
 
 ### Reading Property Values
 
+`OVRConfigurationTask` is internal, so you hold each task as `object` — but its properties are
+public, so plain `GetProperty(name)` works.
+
 **OptionalLambdaType** properties (`Message`, `Level`, `Valid`, `FixMessage`, `ManualSetup`) require calling `.GetValue(targetGroup)`:
 
 ```csharp
-var msgObj = messageProp.GetValue(task);
-string message = msgObj.GetType().GetMethod("GetValue")
+var msgObj = task.GetType().GetProperty("Message").GetValue(task);
+string message = msgObj?.GetType().GetMethod("GetValue")
     .Invoke(msgObj, new object[] { targetGroup })?.ToString();
 ```
 
-**Func delegate** properties (`IsDone`) require calling `.Invoke(targetGroup)`:
+**`IsDone`** is a `Func<BuildTargetGroup, bool>` — both type arguments are public, so cast and call it directly:
 
 ```csharp
-var isDoneFunc = isDoneProp.GetValue(task);
-bool isDone = (bool)isDoneFunc.GetType().GetMethod("Invoke")
-    .Invoke(isDoneFunc, new object[] { targetGroup });
+var isDone = task.GetType().GetProperty("IsDone").GetValue(task) as Func<BuildTargetGroup, bool>;
+bool done = isDone != null && isDone(targetGroup);
 ```
 
 ### Determining Fix Category
@@ -109,7 +97,53 @@ bool isDone = (bool)isDoneFunc.GetType().GetMethod("Invoke")
 
 When no platform is specified, default to `EditorUserBuildSettings.selectedBuildTargetGroup`, falling back to `BuildTargetGroup.Android`.
 
-Filter each task by:
+`GetTasks` already filters by platform and validity, so only `IsDone` remains. Complete script:
+
+```csharp
+using System;
+using System.Collections;
+using System.Reflection;
+using System.Text;
+using UnityEditor;
+
+public static class ListUpstIssues
+{
+    public static string Run()
+    {
+        var group = BuildTargetGroup.Android;
+
+        var getTasks = typeof(OVRProjectSetup).GetMethod(
+            "GetTasks", BindingFlags.NonPublic | BindingFlags.Static);
+        var tasks = (IEnumerable)getTasks.Invoke(null, new object[] { group });
+
+        var sb = new StringBuilder();
+        foreach (var task in tasks)
+        {
+            var t = task.GetType();
+
+            var isDone = t.GetProperty("IsDone").GetValue(task) as Func<BuildTargetGroup, bool>;
+            if (isDone != null && isDone(group)) continue;
+
+            var msgObj = t.GetProperty("Message").GetValue(task);
+            string msg = msgObj?.GetType().GetMethod("GetValue")
+                .Invoke(msgObj, new object[] { group })?.ToString();
+
+            var lvlObj = t.GetProperty("Level").GetValue(task);
+            string level = lvlObj?.GetType().GetMethod("GetValue")
+                .Invoke(lvlObj, new object[] { group })?.ToString();
+
+            bool auto = t.GetProperty("FixAction").GetValue(task) != null
+                     || t.GetProperty("AsyncFixAction").GetValue(task) != null;
+
+            sb.AppendLine($"[{level}] {(auto ? "auto" : "manual")} — {msg}");
+        }
+        return sb.ToString();
+    }
+}
+```
+
+If you enumerate `_tasks` directly instead of calling `GetTasks`, you must filter yourself:
+
 1. **Platform**: skip if `task.Platform != Unknown` and doesn't match target
 2. **Validity**: skip if `task.Valid.GetValue(targetGroup)` is false
 3. **isDone**: report tasks where `task.IsDone.Invoke(targetGroup)` is false
@@ -118,31 +152,28 @@ Filter each task by:
 
 #### Option 1: FixAllAsync (Preferred)
 
-`FixAllAsync` is the only **public** fix method on `OVRProjectSetup`. Use the base template to invoke it:
+`FixAllAsync` is the only **public** fix method on `OVRProjectSetup`, so call it directly:
 
 ```csharp
-var fixAllMethod = setupType.GetMethod("FixAllAsync");
-fixAllMethod.Invoke(null, new object[] { targetGroup });
+OVRProjectSetup.FixAllAsync(BuildTargetGroup.Android);
 ```
 
-**CRITICAL:** `FixAllAsync` processes asynchronously via `EditorApplication.update`. Fixes apply **after** the MCP command returns control to Unity. Verify results in a **separate** follow-up MCP command. Do NOT call `Task.Wait()` in the same command — it deadlocks the main thread.
+**CRITICAL:** `FixAllAsync` processes asynchronously via `EditorApplication.update`. Fixes apply **after** the script returns control to Unity. Verify results in a **separate** follow-up `run_script`. Do NOT call `Task.Wait()` in the same script — it deadlocks the main thread.
 
 #### Option 2: Direct FixAction Invocation
 
 For individual tasks, invoke the `FixAction` delegate directly:
 
 ```csharp
-var fixAction = fixActionProp.GetValue(task);
-if (fixAction != null)
-    fixAction.GetType().GetMethod("Invoke")
-        .Invoke(fixAction, new object[] { targetGroup });
+var fix = task.GetType().GetProperty("FixAction").GetValue(task) as Action<BuildTargetGroup>;
+fix?.Invoke(targetGroup);
 ```
 
 Executes synchronously — can verify in the same command, but bypasses the `ProcessorQueue`.
 
 ### Supported Platforms
 
-- `BuildTargetGroup.Android` — Quest headsets
+- `BuildTargetGroup.Android` — Meta VR devices
 - `BuildTargetGroup.Standalone` — PC VR (Link/Air Link)
 
 ## Editor UI Reference
@@ -203,7 +234,7 @@ To understand how any feature setting works programmatically:
 1. **Find the source file**: Search for `OVRProjectSetup` in the package source
 2. **Locate AddTask calls**: Each call defines one configuration task with its isDone check and fix action
 3. **Understand the fix delegate**: This shows exactly what Unity settings or manifest entries are changed
-4. **Replicate programmatically**: Use the same APIs the fix delegate uses. When calling these via Unity MCP, follow the reflection pattern in "Calling SDK Methods via Unity MCP" in SKILL.md
+4. **Replicate programmatically**: Use the same APIs the fix delegate uses, run through `unity command run_script` (see "Running SDK code" in [SKILL.md](../SKILL.md))
 
 ## Doc Reference
 

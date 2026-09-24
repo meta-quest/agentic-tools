@@ -15,7 +15,7 @@ which supports casting from the user's POV (including the UI) and should be used
 if your purpose is to represent what the user is seeing. Use the Passthrough
 Camera API to add application-specific computer-vision capabilities that extend
 the understanding of the user's environment and actions beyond what is provided
-by the Quest Scene API.
+by the Scene API.
 
 ## Use Cases
 
@@ -47,10 +47,10 @@ can be integrated with ML/CV pipelines. Common use cases:
 
 ## Passthrough Camera Using Android Camera2
 
-Camera Access on Quest is implemented on top of
+Camera Access on Meta VR devices is implemented on top of
 [Android's Camera2 API](https://developer.android.com/reference/android/hardware/camera2/package-summary)
 within Horizon OS. Starting from Horizon OS v74, Camera2 and its Unity
-extension are available on Quest headsets (Horizon OS v83 added an Unreal
+extension are available on Meta VR headsets (Horizon OS v83 added an Unreal
 extension). On Quest 3 and Quest 3S developers have access to the left and right
 cameras on the face of the HMD.
 
@@ -82,6 +82,11 @@ The Android Camera2 API provides:
 2. **Avoid costly processing on device.** On-device processing of camera images
    can enable compelling use cases, but keep experiences comfortable by
    maintaining a high framerate.
+3. **Validate the feed on device.** After deploying, stream
+   `metavr adb logcat --follow --tag Unity` while the pipeline runs to confirm
+   frames flow, and check PCA API changes
+   with `metavr docs search "passthrough camera access Unity"` before
+   integrating — this surface moves fast.
 
 ## References
 

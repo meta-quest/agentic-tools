@@ -16,7 +16,7 @@ Combined with Passthrough and Spatial Anchors, Scene enables mixed reality exper
 
 ### Scene Model
 
-A scene graph for the physical world, managed and persisted by Meta Quest OS. Main use cases:
+A scene graph for the physical world, managed and persisted by Meta Horizon OS. Main use cases:
 - **Physics**: Collide virtual objects with real walls/furniture
 - **Static occlusion**: Virtual objects hidden behind real furniture
 - **Navigation**: Virtual characters navigate real floors
@@ -59,7 +59,7 @@ Apps can check if a scene model exists and invoke Space Setup if needed. See the
 
 | Aspect | Spatial Anchors | Scene Anchors |
 |---|---|---|
-| Created by | Application | Meta Quest OS (Space Setup) |
+| Created by | Application | Meta Horizon OS (Space Setup) |
 | Owned by | Application (private) | System (shared across apps) |
 | Contains | Position/orientation | Position, geometry, semantics |
 | Modifiable | Yes (create, save, erase) | Read-only (query only) |

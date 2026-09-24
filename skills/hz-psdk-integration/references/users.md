@@ -9,16 +9,22 @@
 
 > For setup, initialization, and client instantiation, see [common-setup.md](common-setup.md).
 
+## Contents
+- [Overview](#overview)
+- [API Usage](#api-usage)
+- [Data Types](#data-types)
+- [Error Handling](#error-handling)
+- [Examples](#examples)
+- [Important Notes](#important-notes)
+
 ## Overview
 
-The Users API provides methods to access user information and perform identity verification on Meta Quest Android applications. Key capabilities include:
-
-1. **`get(userId)`** -- Retrieve a user by their app-scoped ID
-2. **`getLoggedInUser()`** -- Get the currently signed-in user (available offline)
-3. **`getLoggedInUserFriends()`** -- Get the logged-in user's bidirectional followers
-4. **`getAccessToken()`** -- Get an access token for REST API calls
-5. **`getUserProof()`** -- Get a nonce for server-side user identity verification
-6. **`getOrgScopedId(userId)`** -- Get an org-scoped ID for cross-app user identification
+- **`get(userId)`** -- Retrieve a user by their app-scoped ID
+- **`getLoggedInUser()`** -- Get the currently signed-in user (available offline)
+- **`getLoggedInUserFriends()`** -- Get the logged-in user's bidirectional followers
+- **`getAccessToken()`** -- Get an access token for REST API calls
+- **`getUserProof()`** -- Get a nonce for server-side user identity verification
+- **`getOrgScopedId(userId)`** -- Get an org-scoped ID for cross-app user identification
 
 ## API Usage
 
@@ -32,37 +38,23 @@ val users = Users()
 
 try {
     val user = users.getLoggedInUser()
-
-    val userId = user.id                // App-scoped user ID
-    val oculusId = user.oculusId        // Oculus ID (alias)
-    val displayName = user.displayName  // Display name (may be null)
-    val imageUrl = user.imageUrl        // Profile picture URL (may be null)
-
+    // user.id (app-scoped), user.oculusId (alias), user.displayName, user.imageUrl
 } catch (e: UsersException) {
     // Handle error -- see Error Handling section
 }
 ```
 
-**Return type**: `User` -- an immutable object containing user profile information.
-
-**Note**: `getLoggedInUser()` only returns alias (Oculus ID), ID (app-scoped ID), and profile URL. It does not return presence information. For presence details, use the returned ID with `get(userId)`.
+**Return type**: `User` -- immutable. `getLoggedInUser()` returns only alias (Oculus ID), app-scoped ID, and profile URL -- no presence. For presence, use the returned ID with `get(userId)`.
 
 ### Get a User by ID
 
 ```kotlin
-import horizon.platform.users.Users
-import horizon.platform.users.UsersException
-
 val users = Users()
 
 try {
     val user = users.get(userId)
-
-    val displayName = user.displayName
-    val presenceStatus = user.presenceStatus   // ONLINE, OFFLINE, or UNKNOWN
-    val presence = user.presence               // Human-readable presence string
-    val destinationApiName = user.presenceDestinationApiName
-
+    // user.presenceStatus (ONLINE/OFFLINE/UNKNOWN), user.presence (human-readable),
+    // user.presenceDestinationApiName, user.displayName
 } catch (e: UsersException) {
     // Handle error -- user may not exist or may be blocked
 }
@@ -71,9 +63,6 @@ try {
 ### Get the Logged-In User's Friends
 
 ```kotlin
-import horizon.platform.users.Users
-import horizon.platform.users.UsersException
-
 val users = Users()
 
 try {
@@ -89,60 +78,19 @@ try {
 }
 ```
 
-### Get an Access Token
+### Access Token, User Proof, Org-Scoped ID
+
+All wrap in `try { ... } catch (e: UsersException) { ... }` as above.
 
 ```kotlin
-import horizon.platform.users.Users
-import horizon.platform.users.UsersException
-
 val users = Users()
-
-try {
-    val accessToken: String = users.getAccessToken()
-    // Use accessToken for REST calls to graph.oculus.com
-
-} catch (e: UsersException) {
-    // Handle error
-}
-```
-
-### Verify User Identity (User Proof)
-
-```kotlin
-import horizon.platform.users.Users
-import horizon.platform.users.UsersException
-
-val users = Users()
-
-try {
-    val proof = users.getUserProof()
-    val nonce = proof.nonce
-
-    // Send nonce + user ID to your backend for verification via:
-    // https://graph.oculus.com/user_nonce_validate?nonce=NONCE&user_id=USER_ID&access_token=ACCESS_TOKEN
-
-} catch (e: UsersException) {
-    // Handle error
-}
-```
-
-**Note**: The nonce is single-use. Once validated, it is invalidated.
-
-### Get Org-Scoped ID
-
-```kotlin
-import horizon.platform.users.Users
-import horizon.platform.users.UsersException
-
-val users = Users()
-
-try {
-    val orgScoped = users.getOrgScopedId(userId)
-    val orgScopedId = orgScoped.id  // Unique per organization, shared across apps
-
-} catch (e: UsersException) {
-    // Handle error
-}
+// Access token for REST calls to graph.oculus.com
+val accessToken: String = users.getAccessToken()
+// Single-use nonce for server-side verification (invalidated once validated). Verify via:
+// https://graph.oculus.com/user_nonce_validate?nonce=NONCE&user_id=USER_ID&access_token=ACCESS_TOKEN
+val nonce: String = users.getUserProof().nonce
+// Org-scoped ID: unique per Developer Center organization, shared across that org's apps
+val orgScopedId: String = users.getOrgScopedId(userId).id
 ```
 
 ## Data Types
@@ -175,9 +123,7 @@ try {
 |----------|------|---------|-------------|
 | `id` | `String` | `""` | User ID unique per Developer Center organization |
 
-### Enums
-
-#### `UserPresenceStatus`
+### `UserPresenceStatus` Enum
 
 | Value | Code | Description |
 |-------|------|-------------|
@@ -204,172 +150,31 @@ For common status codes (0-6, 190, 1001-1005), see [common-setup.md](common-setu
 
 ## Examples
 
-### Example 1: Basic User Profile Retrieval
-
-Retrieve the logged-in user and display their profile information.
-
-```kotlin
-import horizon.platform.users.Users
-import horizon.platform.users.UsersException
-
-suspend fun getLoggedInUserProfile(): Map<String, String> {
-    val users = Users()
-    return try {
-        val user = users.getLoggedInUser()
-        mapOf(
-            "id" to user.id,
-            "name" to (user.displayName ?: user.oculusId ?: "Unknown"),
-            "imageUrl" to (user.imageUrl ?: ""),
-        )
-    } catch (e: UsersException) {
-        mapOf("error" to (e.message ?: "Failed to get user"))
-    }
-}
-```
-
-### Example 2: Friends List with Presence
-
-Retrieve the user's friends and show who is currently online.
+### Example: Online Friends
 
 ```kotlin
 import horizon.platform.users.Users
 import horizon.platform.users.UsersException
 import horizon.platform.users.enums.UserPresenceStatus
 
-data class FriendInfo(
-    val id: String,
-    val name: String,
-    val isOnline: Boolean,
-    val currentActivity: String?,
-)
-
-suspend fun getOnlineFriends(): List<FriendInfo> {
+suspend fun getOnlineFriends(): List<User> {
     val users = Users()
     return try {
-        val friends = users.getLoggedInUserFriends()
-        friends.map { friend ->
-            FriendInfo(
-                id = friend.id,
-                name = friend.displayName ?: friend.oculusId ?: "Unknown",
-                isOnline = friend.presenceStatus == UserPresenceStatus.ONLINE,
-                currentActivity = friend.presence,
-            )
-        }
+        users.getLoggedInUserFriends()
+            .filter { it.presenceStatus == UserPresenceStatus.ONLINE }
     } catch (e: UsersException) {
         emptyList()
     }
 }
 ```
 
-### Example 3: Server-Side User Verification
-
-Use user proof to verify identity on your backend server.
-
-```kotlin
-import horizon.platform.users.Users
-import horizon.platform.users.UsersException
-
-sealed class VerificationResult {
-    data class Success(val userId: String, val nonce: String) : VerificationResult()
-    data class Error(val message: String) : VerificationResult()
-}
-
-suspend fun getUserVerificationData(): VerificationResult {
-    val users = Users()
-    return try {
-        val loggedInUser = users.getLoggedInUser()
-        val proof = users.getUserProof()
-        VerificationResult.Success(
-            userId = loggedInUser.id,
-            nonce = proof.nonce,
-        )
-        // Send userId and nonce to your backend to verify via:
-        // GET https://graph.oculus.com/user_nonce_validate?nonce=NONCE&user_id=USER_ID&access_token=ACCESS_TOKEN
-    } catch (e: UsersException) {
-        VerificationResult.Error(e.message ?: "Verification failed")
-    }
-}
-```
-
-### Example 4: Full MVVM Integration with ViewModel
-
-```kotlin
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import horizon.platform.users.Users
-import horizon.platform.users.UsersException
-import horizon.platform.users.enums.UserPresenceStatus
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-
-data class UserProfileUiState(
-    val userId: String = "",
-    val displayName: String = "",
-    val imageUrl: String = "",
-    val friends: List<FriendItem> = emptyList(),
-    val isLoading: Boolean = false,
-    val error: String? = null,
-)
-
-data class FriendItem(
-    val id: String,
-    val name: String,
-    val isOnline: Boolean,
-)
-
-class UserProfileViewModel : ViewModel() {
-    private val users = Users()
-    private val _uiState = MutableStateFlow(UserProfileUiState())
-    val uiState: StateFlow<UserProfileUiState> = _uiState
-
-    fun loadUserProfile() {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            try {
-                val user = users.getLoggedInUser()
-                _uiState.value = _uiState.value.copy(
-                    userId = user.id,
-                    displayName = user.displayName ?: user.oculusId ?: "Unknown",
-                    imageUrl = user.imageUrl ?: "",
-                )
-            } catch (e: UsersException) {
-                _uiState.value = _uiState.value.copy(error = e.message)
-            }
-
-            try {
-                val friends = users.getLoggedInUserFriends()
-                _uiState.value = _uiState.value.copy(
-                    friends = friends.map { friend ->
-                        FriendItem(
-                            id = friend.id,
-                            name = friend.displayName ?: friend.oculusId ?: "Unknown",
-                            isOnline = friend.presenceStatus == UserPresenceStatus.ONLINE,
-                        )
-                    },
-                )
-            } catch (e: UsersException) {
-                // Friends list failed but profile may still be valid
-            }
-
-            _uiState.value = _uiState.value.copy(isLoading = false)
-        }
-    }
-}
-```
+For server-side verification, combine `getLoggedInUser().id` with `getUserProof().nonce` and validate on your backend via the `user_nonce_validate` Graph endpoint (see the User Proof block above).
 
 ## Important Notes
 
-1. **User IDs are app-scoped** -- each user has a unique ID per application. The same person will have different IDs in different apps. Use `getOrgScopedId()` to identify users across apps within the same Developer Center organization.
-
-2. **`getLoggedInUser()` has limited data** -- it only returns the alias (Oculus ID), app-scoped ID, and profile URL. It does not return presence information. To get presence details, use the returned ID with `get(userId)`.
-
-3. **`getLoggedInUser()` is available offline** -- unlike most other methods, this call works without network connectivity.
-
-4. **User proof nonces are single-use** -- the nonce returned by `getUserProof()` can only be validated once against the Graph API endpoint. After validation, it is invalidated. Request a new nonce for each verification attempt.
-
-5. **Data Use Checkup (DUC) required** -- you must complete a DUC in the Meta Developer Dashboard to access user platform features. Without DUC, API calls may fail with entitlement errors.
-
-6. **Requires HzOS v78+** -- the Users API requires HzOS v78 or later. On older OS versions, methods return status code 1003 (`ProviderOperationNotSupported`). You can require a minimum OS version in `AndroidManifest.xml` (see [Minimum OS Versions](https://developers.meta.com/horizon/documentation/android-apps/min-os-versions/)) or handle error code 1003 at runtime.
-
-7. **No events or pagination** -- the Users API is a request/response API. Each call is independent and stateless. Friends lists are returned as complete lists, not paginated streams.
+1. **User IDs are app-scoped** -- unique per application. Use `getOrgScopedId()` to identify users across apps within the same Developer Center organization.
+2. **`getLoggedInUser()` has limited data** -- only alias (Oculus ID), app-scoped ID, and profile URL; no presence. Use the returned ID with `get(userId)` for presence.
+3. **`getLoggedInUser()` is available offline** -- works without network connectivity, unlike most other methods.
+4. **User proof nonces are single-use** -- request a new nonce from `getUserProof()` per verification attempt.
+5. **Data Use Checkup (DUC)** -- a missing grant fails in two ways, neither obvious. Without `user_id`/`user_profile`, the Graph-backed reads (`get`, `get_org_scoped_id`) **succeed and return wrong data**: IDs come back as the string `"0"` and profile fields are omitted, so a `"0"` user ID means a missing grant, not a bug. `get_logged_in_user` reads a device ContentProvider rather than the server and is not DUC-gated at all. Grants that do deny server-side reach the SDK as a generic `PROVIDER_ERROR` (10), indistinguishable from a transport failure -- there is no permission-specific status code to match on. Which grants gate what, provisional access during development, and what changes when you submit: [Complete data use checkup](https://developers.meta.com/horizon/resources/publish-data-use/).
+6. **Requires HzOS v78+** -- older OS versions return status code 1003 (`ProviderOperationNotSupported`). Require a minimum OS version in `AndroidManifest.xml` (see [Minimum OS Versions](https://developers.meta.com/horizon/documentation/android-apps/min-os-versions/)) or handle 1003 at runtime.

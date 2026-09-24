@@ -1,17 +1,22 @@
 ---
 name: hz-api-upgrade
 license: Apache-2.0
-description: Upgrades Meta Quest apps to newer Horizon OS SDK versions — migration guides, deprecated API replacements, changelog. Use when updating SDK versions or fixing deprecated API warnings.
-allowed-tools: Bash(metavr:*) Bash(hzdb:*)
+description: "Upgrades Meta VR apps to newer Horizon OS SDK versions — migration guides, deprecated API replacements, changelog. Use when updating SDK versions or fixing deprecated API warnings. Build paths: all Meta VR app stacks; use hz-quest-verify-first if the build path is unclear."
+allowed-tools: Bash(metavr:*), Bash(hzdb:*)
 ---
 
 # Horizon API Upgrade Skill
+
+For Unity projects using the Meta XR SDK, use the dedicated
+[`hz-unity-sdk-upgrade`](../hz-unity-sdk-upgrade/SKILL.md) skill. Continue
+here for Unreal, native Android or Spatial SDK, Web or IWSDK, and general
+cross-platform upgrade planning.
 
 ## When to Use
 
 Use this skill when:
 
-- Upgrading an existing Quest application to a newer Horizon OS SDK version
+- Upgrading an existing Meta VR application to a newer Horizon OS SDK version
 - Fixing deprecated API warnings or compilation errors after an SDK update
 - Migrating between major API versions (e.g., VrApi to OpenXR)
 - Understanding what changed between SDK releases
@@ -62,7 +67,7 @@ grep -rn "OVRManager" --include="*.cs" Assets/
 
 ### 5. Test on Device
 
-Deploy and verify functionality on a connected Quest device:
+Deploy and verify functionality on a connected Meta VR device:
 
 ```bash
 metavr app install ./build/output.apk

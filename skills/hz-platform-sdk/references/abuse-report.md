@@ -1,13 +1,13 @@
 # Abuse Report API
 
 - **Kotlin Package**: `horizon.platform.abusereport`
-- **Documentation**: https://developers.meta.com/horizon/documentation/android-apps/ps-abuse-report
+- **Documentation**: https://developers.meta.com/horizon/documentation/android-apps/ps-sdk-sample-abusereport
 - **Minimum OS**: HzOS v85
 - **Maven Artifact**: `horizon-platform-sdk-abuse-report-kotlin`
 
 ## Overview
 
-The Abuse Report API is part of the Horizon Platform SDK. It provides one event for Meta Quest Android applications:
+The Abuse Report API is part of the Horizon Platform SDK. It provides one event for Meta VR Android applications:
 
 1. **`reportButtonPressed()`** -- Listen for the event when a user taps the report button in the system panel
 

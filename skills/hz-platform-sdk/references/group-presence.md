@@ -1,13 +1,13 @@
 # Group Presence API
 
 - **Kotlin Package**: `horizon.platform.grouppresence`
-- **Documentation**: https://developers.meta.com/horizon/documentation/android-apps/ps-group-presence
+- **Documentation**: https://developers.meta.com/horizon/documentation/android-apps/ps-platform-sdk-group-presence
 - **Minimum OS**: HzOS v78
 - **Maven Artifact**: `horizon-platform-sdk-group-presence-kotlin`
 
 ## Overview
 
-The Group Presence API is part of the Horizon Platform SDK. It provides operations for Meta Quest Android applications to manage multiplayer presence, invitations, and social interactions:
+The Group Presence API is part of the Horizon Platform SDK. It provides operations for Meta VR Android applications to manage multiplayer presence, invitations, and social interactions:
 
 1. **`set(options)`** -- Set all group presence parameters at once (recommended)
 2. **`clear()`** -- Clear the current group presence

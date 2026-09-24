@@ -8,7 +8,7 @@ The Data Model Inspector is a real-time ECS debugging tool integrated into Andro
 
 ### Accessing DMI
 
-1. Connect your Quest device via USB
+1. Connect your Meta VR device via USB
 2. Launch your Spatial SDK app on the device
 3. In Android Studio, open the Data Model Inspector panel (View > Tool Windows > Data Model Inspector)
 4. Select your running application process
@@ -210,11 +210,13 @@ metavr adb logcat --tag ThermalService --level W
 
 **Diagnostic steps**:
 
-1. Verify the panel is registered with the correct name:
+1. Verify the panel is registered with the same `R.id.*` used by its `Panel`
+   component:
    ```bash
    metavr log | grep -i "panel\|registration"
    ```
-2. Check that `Entity.createPanelEntity("panel_name")` uses the exact name from `PanelRegistration`.
+2. Check that `Panel(panelRegistrationId = R.id.panel_name)` uses the exact ID
+   from the typed panel registration.
 3. Verify the panel's `Transform` places it within the user's field of view (not behind or too far away).
 4. Check for Compose or View exceptions in the logs:
    ```bash
@@ -246,15 +248,15 @@ metavr adb logcat --tag ThermalService --level W
 
 **Diagnostic steps**:
 
-1. Verify `SpatialFeature.INTERACTION` is enabled in `getSpatialFeatures()`.
-2. Check that `IsdkSupportingSystems` is registered in `registerSystems()`.
-3. Ensure interactive entities have a `Collider` component (required for raycasting).
-4. Verify `InputListener` is attached to entities that need pointer events.
-5. Check ISDK logs for errors:
+1. Verify `VRFeature(this)` is returned by `registerFeatures()` and that the app
+   has not opted into the simple controller input system.
+2. Ensure interactive entities have a `Collider` component (required for raycasting).
+3. Verify `InputListener` is attached to entities that need pointer events.
+4. Check ISDK logs for errors:
    ```bash
    metavr log | grep -i "isdk\|input\|pointer\|collider"
    ```
-6. Ensure collider shapes match the visible geometry (a mismatched collider can cause misses).
+5. Ensure collider shapes match the visible geometry (a mismatched collider can cause misses).
 
 ### Physics Issues
 
@@ -262,7 +264,7 @@ metavr adb logcat --tag ThermalService --level W
 
 **Diagnostic steps**:
 
-1. Verify `SpatialFeature.PHYSICS` is enabled.
+1. Verify `PhysicsFeature(spatial)` is returned by `registerFeatures()`.
 2. Check that physics entities have both `Collider` and `RigidBody` components.
 3. Ensure static objects (floors, walls) use `RigidBody(type = RigidBodyType.STATIC)`.
 4. Check for physics errors in the logs:

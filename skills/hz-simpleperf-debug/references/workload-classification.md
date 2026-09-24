@@ -107,7 +107,7 @@ VR apps have multiple critical threads with different characteristics:
 
 ### Thermal Considerations
 
-Quest devices throttle CPU clocks under sustained load. Classification during throttling shows artificially low IPC because the CPU is running at reduced frequency. Always:
+Meta VR devices throttle CPU clocks under sustained load. Classification during throttling shows artificially low IPC because the CPU is running at reduced frequency. Always:
 
 1. Let the device cool before profiling (5 minutes idle)
 2. Check clock frequency: `metavr shell cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq`

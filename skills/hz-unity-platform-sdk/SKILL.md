@@ -1,7 +1,7 @@
 ---
 name: hz-unity-platform-sdk
 license: Apache-2.0
-description: Guides integration of the Horizon Platform SDK for Meta Quest and Horizon OS Unity/C# apps — achievements, IAP, users, leaderboards, challenges, presence, notifications, abuse reporting, entitlements, asset files, application lifecycle, consent, device integrity, language packs, user age categories, and rate and review. Covers setup, initialization, API usage, data types, error handling, and best practices for all 18 public platform SDK packages.
+description: Guides integration of the Horizon Platform SDK for Meta VR and Horizon OS Unity/C# apps — achievements, IAP, users, leaderboards, challenges, presence, notifications, abuse reporting, entitlements, asset files, application lifecycle, consent, device integrity, language packs, user age categories, and rate and review. Covers setup, initialization, API usage, data types, error handling, and best practices for all 18 public platform SDK packages.
 ---
 
 # Horizon Platform SDK - Unity/C# Integration Guide
@@ -9,7 +9,7 @@ description: Guides integration of the Horizon Platform SDK for Meta Quest and H
 ## When to Use
 
 Use this skill when a developer:
-- Wants to integrate any Horizon Platform SDK feature in a **Unity** Meta Quest application
+- Wants to integrate any Horizon Platform SDK feature in a **Unity** Meta VR application
 - Asks about setup, initialization, or dependencies for the Unity SDK package (`com.meta.xr.sdk.platform`)
 - Needs help with a specific public platform API (achievements, IAP, users, etc.) in C#
 - Is troubleshooting errors or status codes from any SDK package in Unity
@@ -50,5 +50,6 @@ For **Android/Kotlin** apps, use the `hz-platform-sdk` skill instead.
 
 1. **First**, read `references/common-setup.md` for shared setup instructions, initialization code, Editor testing, and common patterns that apply to all APIs.
 2. **Then**, read the specific reference file for the API you need (e.g., `references/iap.md` for in-app purchases).
+3. **For exact signatures**, query the API index instead of guessing: `metavr docs api-search "<feature> <operation>"`, then `metavr docs api-details <entry>` for the full entry.
 
 Each reference file contains only the package-specific content: API operations, data types, examples, and package-specific notes. The common setup, initialization patterns, and coding conventions are centralized in `common-setup.md` to avoid duplication.

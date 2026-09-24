@@ -1,6 +1,6 @@
 # Logcat Filtering Guide
 
-This reference covers techniques for filtering and searching device logs when debugging Meta Quest applications using the `metavr` CLI.
+This reference covers techniques for filtering and searching device logs when debugging Meta VR applications using the `metavr` CLI.
 
 ## Basic Log Viewing
 
@@ -37,7 +37,7 @@ metavr adb logcat --tag UnrealEngine
 
 ### Common VR-Specific Log Tags
 
-The following tags are frequently useful when debugging Quest applications:
+The following tags are frequently useful when debugging Meta VR applications:
 
 | Tag               | Source                                      |
 | ----------------- | ------------------------------------------- |

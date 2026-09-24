@@ -1,7 +1,7 @@
 # Language Pack API
 
 - **Unity Package**: `com.meta.xr.sdk.platform`
-- **Documentation**: https://developer.oculus.com/documentation/unity/ps-language-packs/
+- **Documentation**: https://developers.meta.com/horizon/documentation/unity/ps-language-packs/
 - **Namespace**: `Oculus.Platform`
 
 ## Overview
@@ -231,6 +231,6 @@ Use only the tags you've configured language packs for in the Dashboard.
 
 ## Useful Links
 
-- [Meta Quest Language Packs Documentation (Unity)](https://developer.oculus.com/documentation/unity/ps-language-packs/)
-- [Meta Quest Developer Dashboard](https://developer.oculus.com/manage/)
-- [Platform SDK Overview](https://developer.oculus.com/documentation/unity/ps-platform-intro/)
+- [Meta VR Language Packs Documentation (Unity)](https://developers.meta.com/horizon/documentation/unity/ps-language-packs/)
+- [Meta Horizon Developer Dashboard](https://developers.meta.com/horizon/manage/)
+- [Platform SDK Overview](https://developers.meta.com/horizon/documentation/unity/ps-platform-intro/)

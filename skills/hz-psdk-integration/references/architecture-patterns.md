@@ -2,6 +2,14 @@
 
 Common patterns for integrating Horizon Platform SDK into Android/Kotlin apps. These patterns complement the API-specific reference files.
 
+## Contents
+- [Service Connection Lifecycle](#service-connection-lifecycle)
+- [ViewModel Integration](#viewmodel-integration)
+- [Coroutine Scoping](#coroutine-scoping)
+- [Dependency Injection (Hilt)](#dependency-injection-hilt)
+- [Compose UI Integration](#compose-ui-integration)
+- [Entitlement Check Pattern](#entitlement-check-pattern)
+
 ## Service Connection Lifecycle
 
 `HorizonServiceConnection.connect()` must be called before any SDK operation. Place it in the `Application` or main `Activity`:

@@ -172,6 +172,6 @@ public class ReviewPromptTrigger : MonoBehaviour
 
 ## Useful Links
 
-- [Meta Quest Rate and Review Documentation (Unity)](https://developer.oculus.com/documentation/unity/ps-rate-and-review/)
-- [Meta Quest Developer Dashboard](https://developer.oculus.com/manage/)
-- [Platform SDK Overview](https://developer.oculus.com/documentation/unity/ps-platform-intro/)
+- [Meta VR Rate and Review Documentation (Unity)](https://developer.oculus.com/documentation/unity/ps-rate-and-review/)
+- [Meta Horizon Developer Dashboard](https://developers.meta.com/horizon/manage/)
+- [Platform SDK Overview](https://developers.meta.com/horizon/documentation/unity/ps-platform-intro/)

@@ -1,6 +1,6 @@
 # Input Adaptation for 2D Apps on Horizon OS
 
-## How Touch Input Maps to Quest
+## How Touch Input Maps to Meta VR
 
 On Horizon OS, there is no physical touchscreen. Instead, input is provided via:
 
@@ -26,36 +26,18 @@ The system translates these inputs into standard Android `MotionEvent` and `KeyE
 
 ## Hover States
 
-Unlike mobile, Quest users **hover** over UI elements before clicking. The controller ray visibly points at elements, creating a hover state. Implementing hover feedback is critical for usability:
+Unlike mobile, Meta VR users **hover** over UI elements before clicking. Standard Material components already provide useful hover and focus indications. For custom Compose components, connect an interaction source to an indication:
 
 ```kotlin
-// Jetpack Compose -- hover modifier
 @Composable
-fun HoverAwareButton(onClick: () -> Unit) {
-    var isHovered by remember { mutableStateOf(false) }
-
-    Button(
-        onClick = onClick,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = if (isHovered) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.primary
-            }
-        ),
-        modifier = Modifier.pointerInput(Unit) {
-            awaitPointerEventScope {
-                while (true) {
-                    val event = awaitPointerEvent()
-                    when (event.type) {
-                        PointerEventType.Enter -> isHovered = true
-                        PointerEventType.Exit -> isHovered = false
-                    }
-                }
-            }
-        }
+fun HoverAwareSurface(content: @Composable () -> Unit) {
+    val interactions = remember { MutableInteractionSource() }
+    Box(
+        Modifier
+            .hoverable(interactions)
+            .indication(interactions, LocalIndication.current)
     ) {
-        Text("Click Me")
+        content()
     }
 }
 ```
@@ -79,17 +61,7 @@ button.setOnHoverListener { view, event ->
 
 ## Click and Tap
 
-The controller trigger maps to a standard tap. Ensure click handlers use standard APIs:
-
-```kotlin
-// These all work correctly on Quest
-button.setOnClickListener { handleClick() }
-
-// Compose
-Button(onClick = { handleClick() }) { Text("Action") }
-
-// Avoid raw touch coordinate processing that assumes finger-sized contact area
-```
+The controller trigger maps to a standard tap. Use normal Android `onClick` APIs and avoid raw touch-coordinate processing that assumes a finger-sized contact area.
 
 ## Scrolling
 
@@ -141,7 +113,7 @@ Custom input fields that do not use `InputConnection` properly will not trigger 
 
 ## Keyboard and Mouse Support
 
-Quest supports Bluetooth keyboards and mice. These generate standard `KeyEvent` and `MotionEvent` objects:
+Meta VR devices support Bluetooth keyboards and mice. These generate standard `KeyEvent` and `MotionEvent` objects:
 
 ```kotlin
 // Handle keyboard shortcuts
@@ -162,7 +134,7 @@ Mouse input works like controller pointer input (hover + click). Right-click gen
 
 ## Gamepad Support
 
-For games and media apps, Quest supports Bluetooth gamepads. Use the standard Android gamepad API:
+For games and media apps, Meta VR devices support Bluetooth gamepads. Use the standard Android gamepad API:
 
 ```kotlin
 override fun onGenericMotionEvent(event: MotionEvent): Boolean {
@@ -180,7 +152,7 @@ override fun onGenericMotionEvent(event: MotionEvent): Boolean {
 
 1. **Tap targets**: Minimum 48dp x 48dp for all interactive elements. Controller pointer is less precise than a finger.
 2. **Hover states**: Implement visual hover feedback on all interactive elements (buttons, list items, links).
-3. **Keyboard navigation**: Support `Tab` key navigation and visible focus indicators. Quest users with keyboards expect this.
+3. **Keyboard navigation**: Support `Tab` key navigation and visible focus indicators. Meta VR users with keyboards expect this.
 4. **Avoid multi-touch**: Pinch-to-zoom and two-finger gestures do not work. Provide alternative controls (zoom buttons, sliders).
 5. **Avoid long press**: Long press is unreliable with controller input. Use explicit secondary actions (menu buttons, swipe actions) instead.
 6. **Avoid swipe gestures for critical actions**: Swipe-to-delete and swipe-to-dismiss are hard with a controller. Provide button alternatives.
@@ -188,17 +160,12 @@ override fun onGenericMotionEvent(event: MotionEvent): Boolean {
 
 ## Testing Input
 
-Use `metavr` to install and launch for on-device testing:
+Build and install with Android Studio or Gradle, then use ADB to launch and inspect the app:
 
 ```bash
-metavr app install path/to/app.apk
-metavr app launch com.example.yourapp
+./gradlew installDebug
+adb shell am start -n com.example.yourapp/.MainActivity
+adb logcat -s InputDispatcher:D
 ```
 
-Use Android Studio with the device connected via USB or Wi-Fi ADB to view logcat output during input testing. Filter for input events:
-
-```bash
-metavr adb logcat --tag InputDispatcher --level D
-```
-
-The XR Simulator can also be used for basic input testing on desktop, simulating controller pointer and hand tracking input without a physical headset.
+The Meta Spatial Simulator provides desktop iteration for panel layout and basic input. Always finish by testing controller, hand, and keyboard input on a headset.

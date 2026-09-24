@@ -247,7 +247,7 @@ public class LeaderboardManager : MonoBehaviour
 
 ## Useful Links
 
-- [Platform SDK Overview (Unity)](https://developer.oculus.com/documentation/unity/ps-platform-intro/)
-- [Meta Quest Developer Dashboard](https://developer.oculus.com/manage/)
-- [Data Use Checkup (DUC)](https://developer.oculus.com/resources/publish-data-use/)
-- [Virtual Reality Checks (VRC)](https://developer.oculus.com/resources/publish-quest-req/)
+- [Platform SDK Overview (Unity)](https://developers.meta.com/horizon/documentation/unity/ps-platform-intro/)
+- [Meta Horizon Developer Dashboard](https://developers.meta.com/horizon/manage/)
+- [Data Use Checkup (DUC)](https://developers.meta.com/horizon/resources/publish-data-use/)
+- [Virtual Reality Checks (VRC)](https://developers.meta.com/horizon/resources/publish-quest-req/)

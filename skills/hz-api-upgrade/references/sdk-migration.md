@@ -1,6 +1,6 @@
 # SDK Migration Guides
 
-Step-by-step migration guides for upgrading Meta Quest SDKs across all supported platforms.
+Step-by-step migration guides for upgrading Meta VR SDKs across all supported platforms.
 
 ## Unity: Meta XR SDK Upgrade
 
